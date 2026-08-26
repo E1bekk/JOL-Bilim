@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOL-Bilim - Образовательная платформа</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F6F4EF;
+            --ink: #1C2620;
+            --accent: #C98A2C;
+            --pine: #1F4B3F;
+            --pine-bg: rgba(31, 75, 63, 0.1);
+            --bg-2: #ffffff;
+            --line: #e2dfd8;
+            --ink-soft: #5c6660;
+            --text: var(--ink);
+            --white: #ffffff;
+        }
+
+        .mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            scroll-behavior: smooth;
+        }
+
+        header {
+            background: var(--white);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--pine);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--pine);
+            font-weight: 500;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        /* Навигация анимация */
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--accent);
+            transition: width .2s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 48px;
+            align-items: center;
+            padding: 56px 5% 72px;
+            background: var(--bg);
+            color: var(--ink);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.2rem;
+            color: var(--ink);
+            line-height: 1.2;
+        }
+
+        .lead {
+            font-size: 1.15rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            color: var(--ink-soft);
+        }
+
+        .eyebrow {
+            display: inline-block;
+            background: var(--pine-bg);
+            color: var(--pine);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .cta-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .hint {
+            font-size: 0.9rem;
+            color: var(--ink-soft);
+        }
+
+        .path-card {
+            background: var(--bg-2);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05);
+        }
+
+        .example-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        .path-card .label {
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .path-card .score {
+            font-size: 2.75rem;
+            font-weight: 700;
+            color: var(--pine);
+            font-family: 'IBM Plex Mono', monospace;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .path-card .delta {
+            font-size: 0.95rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .path-svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        @media (max-width: 760px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 32px;
+                padding: 40px 5%;
+            }
+            .hero h1 {
+                font-size: 2.25rem;
+            }
+        }
+
+        /* Кнопки анимация */
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            background-color: var(--pine);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(31, 75, 63, 0.35);
+        }
+
+        .btn .arrow {
+            display: inline-block;
+            margin-left: 8px;
+            transition: transform .2s ease;
+        }
+
+        .btn:hover .arrow {
+            transform: translateX(4px);
+        }
+
+        section {
+            padding: 5rem 5%;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 3.5rem;
+            font-size: 2.5rem;
+            color: var(--pine);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+        }
+
+        /* Карточки feat анимация */
+        .feat {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 2px solid #eee;
+            position: relative;
+            transition: transform .25s ease, border-color .25s ease;
+        }
+
+        .feat:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+
+        .feat .num {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 3rem;
+            font-weight: 800;
+            color: rgba(31, 75, 63, 0.08);
+            transition: transform .25s ease;
+        }
+
+        .feat:hover .num {
+            transform: scale(1.15);
+            color: rgba(201, 138, 44, 0.15);
+        }
+        .feat h3 {
+            margin-bottom: 1rem;
+            color: var(--pine);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        /* Карточки price-card анимация */
+        .price-card {
+            background: white;
+            padding: 3.5rem 2.5rem;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid #eee;
+            transition: transform .25s ease, box-shadow .25s ease;
+            position: relative;
+        }
+
+        .price-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(31, 75, 63, 0.15);
+        }
+
+        .price-card.featured {
+            border: 2px solid rgba(201, 138, 44, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            z-index: 2;
+        }
+
+        .price-card.featured:hover {
+            border-color: var(--accent);
+            box-shadow: 0 15px 35px rgba(201, 138, 44, 0.2);
+        }
+
+        .price-card h3 {
+            margin-bottom: 1rem;
+            color: var(--pine);
+            font-size: 1.5rem;
+        }
+
+        .price-card .price,
+        .price-card .amount {
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: var(--pine);
+            display: block;
+        }
+
+        .price-card.featured .amount {
+            font-size: 34px;
+            letter-spacing: -0.02em;
+        }
+
+        .price-card ul {
+            list-style: none;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .price-card li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .price-card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        #parents {
+            background: var(--white);
+            text-align: center;
+            border-top: 1px solid #eee;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Фоновый декоративный контур "Путь к знаниям" */
+        .bg-road {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.05;
+        }
+
+        @media (max-width: 760px) {
+            .bg-road {
+                opacity: 0.03;
+            }
+        }
+
+        footer {
+            background: var(--pine);
+            color: white;
+            text-align: center;
+            padding: 3rem;
+        }
+    </style>
+</head>
+<body>
+
+<svg class="bg-road" viewBox="0 0 1440 1200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <path d="M 50 350 C 300 400, 100 700, 400 900 C 800 1100, 1100 800, 1380 1150" stroke="var(--pine)" stroke-width="1.5" fill="none" />
+</svg>
+
+<header>
+    <div class="logo">JOL-Bilim</div>
+    <nav class="nav-links">
+        <a href="#">Главная</a>
+        <a href="#how-it-works">Как это работает</a>
+        <a href="#pricing">Цены</a>
+        <a href="#parents">Родителям</a>
+    </nav>
+</header>
+
+<main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">🇰🇬 подготовка к ОРТ · Кыргызстан</div>
+        <h1 style="font-family: 'Fraunces', serif;">Разбираем твои ошибки в ОРТ — <em style="color:var(--accent);">не чужие</em></h1>
+        <p class="lead">ИИ-репетитор проверяет прогресс каждую неделю. Ты видишь, где буксуешь, 
+        родитель — как ты растёшь. Без абонемента вслепую.</p>
+        <div class="cta-row">
+          <button class="btn btn-primary" id="cta-main">Пройти тест бесплатно <span class="arrow">→</span></button>
+          <span class="hint">5 вопросов · 2 минуты · без регистрации</span>
+        </div>
+      </div>
+      <div class="path-card">
+        <span class="example-badge">пример</span>
+        <p class="label mono">так выглядит отчёт после диагностики</p>
+        <p class="score">142</p>
+        <p class="delta">↑ +24 балла за 3 недели — у обычного ученика</p>
+        <svg class="path-svg" viewBox="0 0 320 110" fill="none">
+          <polyline points="0,90 60,74 120,78 180,44 240,34 300,10" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="0" cy="90" r="4" fill="var(--pine)"/>
+          <circle cx="120" cy="78" r="4" fill="var(--pine)"/>
+          <circle cx="240" cy="34" r="4" fill="var(--pine)"/>
+          <circle cx="300" cy="10" r="5" fill="var(--accent)"/>
+        </svg>
+      </div>
+    </section>
+
+    <section id="how-it-works">
+        <h2>Как это работает</h2>
+        <div class="features-grid">
+            <div class="feat">
+                <div class="num mono">01</div>
+                <h3>Регистрация</h3>
+                <p>Быстрое создание профиля ученика и родителя с настройкой интересов.</p>
+            </div>
+            <div class="feat">
+                <div class="num mono">02</div>
+                <h3>Адаптация</h3>
+                <p>Умная система подбирает сложность заданий под темп вашего ребенка.</p>
+            </div>
+            <div class="feat">
+                <div class="num mono">03</div>
+                <h3>Результат</h3>
+                <p>Наблюдайте за прогрессом и получайте детальные отчеты каждую неделю.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing">
+        <h2>Выберите свой тариф</h2>
+        <div class="pricing-grid">
+            <div class="price-card">
+                <h3>Бесплатный</h3>
+                <div class="amount mono">0 сом</div>
+                <ul>
+                    <li>10 уроков в месяц</li>
+                    <li>Базовая статистика</li>
+                    <li>Доступ к сообществу</li>
+                </ul>
+                <button class="btn">Начать <span class="arrow">→</span></button>
+            </div>
+            <div class="price-card featured">
+                <h3>Полный доступ</h3>
+                <div class="amount mono">990 сом</div>
+                <ul>
+                    <li>Безлимитные уроки</li>
+                    <li>Персональный ментор</li>
+                    <li>AI-аналитика успехов</li>
+                    <li>Сертификат об окончании</li>
+                </ul>
+                <button class="btn">Выбрать <span class="arrow">→</span></button>
+            </div>
+            <div class="price-card">
+                <h3>Базовый</h3>
+                <div class="amount mono">490 сом</div>
+                <ul>
+                    <li>50 уроков в месяц</li>
+                    <li>Расширенная статистика</li>
+                    <li>Поддержка в чате</li>
+                </ul>
+                <button class="btn">Выбрать <span class="arrow">→</span></button>
+            </div>
+        </div>
+    </section>
+
+    <section id="parents">
+        <h2>Секция для родителей</h2>
+        <p style="max-width: 600px; margin: 0 auto 2rem;">Мы создали инструменты, которые помогут вам быть в курсе образовательного процесса вашего ребенка без лишних усилий.</p>
+        <a href="cabinet.html" class="btn btn-primary">Личный кабинет <span class="arrow">→</span></a>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2026 JOL-Bilim. Образование будущего доступно сегодня.</p>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Обработчик для кнопки cta-main
+        const ctaMain = document.getElementById('cta-main');
+        if (ctaMain) {
+            ctaMain.addEventListener('click', function() {
+                var user = localStorage.getItem('jolBilimUser');
+                if (user) {
+                    window.location.href = 'test.html';
+                } else {
+                    window.location.href = 'cabinet.html';
+                }
+            });
+        }
+
+        // Плавный скролл для карточек цен
+        document.querySelectorAll('.price-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const parentsSection = document.getElementById('parents');
+                if (parentsSection) {
+                    parentsSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

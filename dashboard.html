@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет - JOL-Bilim</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            try {
+                const userRaw = localStorage.getItem('jolBilimUser');
+                if (!userRaw) {
+                    window.location.href = 'cabinet.html';
+                    return;
+                }
+                const user = JSON.parse(userRaw);
+                if (!user || !user.name) {
+                    window.location.href = 'cabinet.html';
+                }
+            } catch(e) {
+                window.location.href = 'cabinet.html';
+            }
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #F6F4EF;
+            --ink: #1C2620;
+            --accent: #C98A2C;
+            --pine: #1F4B3F;
+            --pine-bg: rgba(31, 75, 63, 0.1);
+            --bg-2: #ffffff;
+            --line: #e2dfd8;
+            --ink-soft: #5c6660;
+            --text: var(--ink);
+            --white: #ffffff;
+        }
+
+        .mono { font-family: 'IBM Plex Mono', monospace; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--white);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--pine); text-decoration: none; }
+
+        .btn-logout {
+            background: none;
+            border: none;
+            color: var(--ink-soft);
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        main { flex: 1; max-width: 800px; width: 100%; margin: 0 auto; padding: 40px 20px; }
+
+        .greeting-section { margin-bottom: 32px; }
+
+        .greeting-section h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 2.5rem;
+            color: var(--ink);
+            margin-bottom: 6px;
+        }
+
+        .grade-badge {
+            display: inline-block;
+            background: var(--pine-bg);
+            color: var(--pine);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .path-card {
+            background: var(--bg-2);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 28px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05);
+            margin-bottom: 32px;
+        }
+
+        .path-card .label { font-size: 0.85rem; color: var(--ink-soft); text-transform: uppercase; margin-bottom: 8px; }
+        .path-card .score { font-size: 3rem; font-weight: 700; color: var(--pine); line-height: 1; margin-bottom: 12px; }
+        .path-card .score-placeholder { font-size: 1.1rem; color: var(--ink-soft); margin-bottom: 12px; font-weight: 500; }
+        .path-card .meta { font-size: 0.95rem; color: var(--ink-soft); }
+
+        .section-title { font-size: 1.25rem; font-weight: 700; color: var(--ink); margin-bottom: 16px; }
+        .history-section { margin-bottom: 40px; }
+
+        .empty-state {
+            background: var(--bg-2);
+            border: 1px dashed var(--line);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            color: var(--ink-soft);
+            font-size: 0.95rem;
+        }
+
+        .history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+
+        .history-item {
+            background: var(--bg-2);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item .date { font-size: 0.9rem; color: var(--ink-soft); }
+        .history-item .item-score { font-size: 1.1rem; font-weight: 700; color: var(--pine); }
+
+        .action-area { text-align: center; }
+
+        .btn {
+            display: inline-block;
+            padding: 16px 36px;
+            background-color: var(--pine);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(31, 75, 63, 0.35);
+        }
+
+        .btn .arrow { display: inline-block; margin-left: 8px; transition: transform .2s ease; }
+        .btn:hover .arrow { transform: translateX(4px); }
+
+        .parent-card {
+            background: var(--bg-2);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 24px 28px;
+            box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05);
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .parent-card-left {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .parent-card .label {
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .parent-code-display {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 2px;
+            line-height: 1.2;
+        }
+
+        .btn-copy {
+            background-color: var(--pine-bg);
+            color: var(--pine);
+            border: 1px solid rgba(31, 75, 63, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn-copy:hover {
+            background-color: var(--pine);
+            color: var(--white);
+        }
+    </style>
+</head>
+<body>
+<header>
+    <a href="index.html" class="logo">JOL-Bilim</a>
+    <button class="btn-logout" id="btn-logout">Выйти</button>
+</header>
+
+<main>
+    <div class="greeting-section">
+        <h1 id="user-greeting">Привет!</h1>
+        <span class="grade-badge" id="user-grade">Класс не указан</span>
+    </div>
+
+    <div class="path-card">
+        <p class="label mono">Прогноз балла ОРТ</p>
+        <div id="score-display"></div>
+        <div class="meta">Пройдено тестов: <span id="tests-count" class="mono">0</span></div>
+    </div>
+
+    <div class="parent-card">
+        <div class="parent-card-left">
+            <p class="label mono">Код для родителя</p>
+            <div class="parent-code-display" id="parent-code">------</div>
+        </div>
+        <button class="btn-copy" id="btn-copy">Скопировать код</button>
+    </div>
+
+    <div class="history-section">
+        <div class="section-title">История тестирования</div>
+        <div id="history-container"></div>
+    </div>
+
+    <div class="action-area">
+        <a href="test.html" class="btn btn-primary">Начать тест <span class="arrow">→</span></a>
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const userRaw = localStorage.getItem('jolBilimUser');
+        if (!userRaw) {
+            window.location.href = 'cabinet.html';
+            return;
+        }
+
+        let user;
+        try {
+            user = JSON.parse(userRaw);
+        } catch(e) {
+            window.location.href = 'cabinet.html';
+            return;
+        }
+
+        // Заполнение данных пользователя
+        document.getElementById('user-greeting').textContent = `Привет, ${user.name || 'ученик'}!`;
+        document.getElementById('user-grade').textContent = user.grade || 'Ученик';
+        document.getElementById('tests-count').textContent = user.testsCompleted || 0;
+
+        // Отображение семейного кода
+        let familyCode = user.familyCode;
+        if (!familyCode) {
+            function generateFamilyCode() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let result = '';
+                for (let i = 0; i < 6; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
+            familyCode = generateFamilyCode();
+            user.familyCode = familyCode;
+            localStorage.setItem('jolBilimUser', JSON.stringify(user));
+
+            // Сохраняем в Firestore для совместимости со старыми аккаунтами
+            db.collection('families').doc(familyCode).set({
+                name: user.name || 'Ученик',
+                grade: user.grade || '11 класс',
+                contact: user.contact || '',
+                score: user.score || 0,
+                testsCompleted: user.testsCompleted || 0,
+                history: user.history || []
+            }).catch(err => console.error("Error retroactively creating family doc: ", err));
+        }
+
+        const parentCodeEl = document.getElementById('parent-code');
+        if (parentCodeEl) {
+            parentCodeEl.textContent = familyCode;
+        }
+
+        const btnCopy = document.getElementById('btn-copy');
+        if (btnCopy) {
+            btnCopy.addEventListener('click', () => {
+                navigator.clipboard.writeText(familyCode)
+                    .then(() => {
+                        const originalText = btnCopy.textContent;
+                        btnCopy.textContent = 'Скопировано ✓';
+                        btnCopy.style.backgroundColor = 'var(--pine)';
+                        btnCopy.style.color = 'var(--white)';
+                        setTimeout(() => {
+                            btnCopy.textContent = originalText;
+                            btnCopy.style.backgroundColor = '';
+                            btnCopy.style.color = '';
+                        }, 1000);
+                    })
+                    .catch(err => {
+                        console.error('Ошибка копирования: ', err);
+                    });
+            });
+        }
+
+        // Выйти
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            localStorage.removeItem('jolBilimUser');
+            window.location.href = 'cabinet.html';
+        });
+
+        // Отображение прогноза балла
+        const scoreDisplay = document.getElementById('score-display');
+        const score = user.score || 0;
+        if (score === 0 || !user.testsCompleted) {
+            scoreDisplay.className = 'score-placeholder';
+            scoreDisplay.textContent = 'Пройди первый тест, чтобы увидеть прогноз';
+        } else {
+            scoreDisplay.className = 'score mono';
+            scoreDisplay.textContent = score;
+        }
+
+        // История тестов
+        const historyContainer = document.getElementById('history-container');
+        const history = user.history || [];
+
+        if (history.length === 0 || !user.testsCompleted) {
+            historyContainer.innerHTML = '<div class="empty-state">Тестов пока нет — начни первый прямо сейчас</div>';
+        } else {
+            const ul = document.createElement('ul');
+            ul.className = 'history-list';
+
+            history.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                const dateText = item.date || `Попытка #${index + 1}`;
+                const scoreText = item.score !== undefined ? `${item.score} баллов` : '';
+
+                li.innerHTML = `
+                    <span class="date">${dateText}</span>
+                    <span class="item-score mono">${scoreText}</span>
+                `;
+                ul.appendChild(li);
+            });
+
+            historyContainer.appendChild(ul);
+        }
+    });
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAmru1-7SS3dwAMEborymtJJudtcflQYzU",
+  authDomain: "jol-bilim.firebaseapp.com",
+  projectId: "jol-bilim",
+  storageBucket: "jol-bilim.firebasestorage.app",
+  messagingSenderId: "1059233182996",
+  appId: "1:1059233182996:web:40ad78360b42dd49d37e01",
+  measurementId: "G-P7RR3W3ZF7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+</body>
+</html>

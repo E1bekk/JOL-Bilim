@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Диагностический тест ОРТ - JOL-Bilim</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            try {
+                const userRaw = localStorage.getItem('jolBilimUser');
+                if (!userRaw) {
+                    window.location.href = 'cabinet.html';
+                    return;
+                }
+                const user = JSON.parse(userRaw);
+                if (!user || !user.name) {
+                    window.location.href = 'cabinet.html';
+                }
+            } catch(e) {
+                window.location.href = 'cabinet.html';
+            }
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #F6F4EF;
+            --ink: #1C2620;
+            --accent: #C98A2C;
+            --pine: #1F4B3F;
+            --pine-bg: rgba(31, 75, 63, 0.1);
+            --bg-2: #ffffff;
+            --line: #e2dfd8;
+            --ink-soft: #5c6660;
+            --text: var(--ink);
+            --white: #ffffff;
+        }
+
+        .mono { font-family: 'IBM Plex Mono', monospace; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--white);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--pine); text-decoration: none; }
+
+        main { flex: 1; max-width: 680px; width: 100%; margin: 0 auto; padding: 40px 20px; }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: var(--ink-soft);
+        }
+
+        .progress-bar-wrap {
+            width: 100%;
+            height: 8px;
+            background: var(--line);
+            border-radius: 4px;
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 20%;
+            transition: width 0.3s ease;
+        }
+
+        .test-card {
+            background: var(--bg-2);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05);
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 24px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .option-item {
+            background: var(--bg);
+            border: 2px solid var(--line);
+            border-radius: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .option-item:hover {
+            border-color: var(--accent);
+            background: var(--white);
+        }
+
+        .option-item.selected {
+            border-color: var(--pine);
+            background: var(--pine-bg);
+            color: var(--pine);
+            font-weight: 600;
+        }
+
+        .option-letter {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--ink);
+        }
+
+        .option-item.selected .option-letter {
+            background: var(--pine);
+            color: white;
+            border-color: var(--pine);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background-color: var(--pine);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(31, 75, 63, 0.35); }
+        .btn .arrow { display: inline-block; margin-left: 8px; transition: transform .2s ease; }
+        .btn:hover .arrow { transform: translateX(4px); }
+
+        .result-screen { display: none; text-align: center; }
+        .result-screen h1 { font-family: 'Fraunces', serif; font-size: 2.2rem; color: var(--ink); margin-bottom: 12px; }
+        .result-score-block { background: var(--bg-2); border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin: 24px 0 32px; }
+        .result-score { font-size: 3.5rem; font-weight: 700; color: var(--pine); line-height: 1; margin-bottom: 8px; }
+        .result-stats { font-size: 1.1rem; color: var(--ink-soft); }
+    </style>
+</head>
+<body>
+<header>
+    <a href="dashboard.html" class="logo">JOL-Bilim</a>
+</header>
+
+<main>
+    <div id="quiz-container">
+        <div class="progress-header">
+            <span id="progress-text">Вопрос 1 из 5</span>
+            <span id="progress-percent" class="mono">20%</span>
+        </div>
+        <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="test-card">
+            <div class="question-text" id="question-text">Загрузка вопроса...</div>
+            <div class="options-list" id="options-list"></div>
+            <button class="btn" id="next-btn" disabled>Далее <span class="arrow">→</span></button>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-screen">
+        <h1>Тест завершён!</h1>
+        <p class="result-stats">Вы успешно прошли диагностику ОРТ</p>
+        
+        <div class="result-score-block">
+            <div class="result-score mono" id="final-score">0</div>
+            <p class="result-stats" id="final-stats">Правильных ответов: 0 из 5</p>
+        </div>
+
+        <a href="dashboard.html" class="btn">Вернуться в кабинет <span class="arrow">→</span></a>
+    </div>
+</main>
+
+<script>
+    const questions = [
+        {
+            question: "Если 2^(x+1) = 32, чему равно x?",
+            options: ["3", "4", "5", "6"],
+            correct: 1
+        },
+        {
+            question: "Найдите корень уравнения √(3x + 4) = 5.",
+            options: ["5", "6", "7", "8"],
+            correct: 2
+        },
+        {
+            question: "В треугольнике углы относятся как 2 : 3 : 4. Найдите меньший угол.",
+            options: ["20°", "40°", "60°", "80°"],
+            correct: 1
+        },
+        {
+            question: "Среднее арифметическое чисел 12, 18, 24 и x равно 20. Чему равно x?",
+            options: ["22", "24", "26", "28"],
+            correct: 2
+        },
+        {
+            question: "Какова вероятность того, что при броске правильной игральной кости выпадет четное число?",
+            options: ["1/2", "1/3", "1/6", "2/3"],
+            correct: 0
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let selectedOptionIndex = null;
+    let correctCount = 0;
+
+    const questionTextEl = document.getElementById('question-text');
+    const optionsListEl = document.getElementById('options-list');
+    const nextBtnEl = document.getElementById('next-btn');
+    const progressTextEl = document.getElementById('progress-text');
+    const progressPercentEl = document.getElementById('progress-percent');
+    const progressFillEl = document.getElementById('progress-fill');
+
+    const quizContainerEl = document.getElementById('quiz-container');
+    const resultScreenEl = document.getElementById('result-screen');
+    const finalScoreEl = document.getElementById('final-score');
+    const finalStatsEl = document.getElementById('final-stats');
+
+    function loadQuestion() {
+        selectedOptionIndex = null;
+        nextBtnEl.disabled = true;
+
+        const q = questions[currentQuestionIndex];
+        questionTextEl.textContent = q.question;
+        progressTextEl.textContent = `Вопрос ${currentQuestionIndex + 1} из ${questions.length}`;
+        const percent = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
+        progressPercentEl.textContent = `${percent}%`;
+        progressFillEl.style.width = `${percent}%`;
+
+        optionsListEl.innerHTML = '';
+        q.options.forEach((opt, index) => {
+            const letter = String.fromCharCode(65 + index); // A, B, C, D
+            const div = document.createElement('div');
+            div.className = 'option-item';
+            div.innerHTML = `
+                <div class="option-letter">${letter}</div>
+                <div>${opt}</div>
+            `;
+            div.addEventListener('click', () => {
+                document.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
+                div.classList.add('selected');
+                selectedOptionIndex = index;
+                nextBtnEl.disabled = false;
+            });
+            optionsListEl.appendChild(div);
+        });
+    }
+
+    nextBtnEl.addEventListener('click', () => {
+        if (selectedOptionIndex === null) return;
+
+        if (selectedOptionIndex === questions[currentQuestionIndex].correct) {
+            correctCount++;
+        }
+
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    });
+
+    function showResults() {
+        quizContainerEl.style.display = 'none';
+        resultScreenEl.style.display = 'block';
+
+        const calculatedScore = correctCount * 40; // 5 * 40 = 200 max score
+        finalScoreEl.textContent = calculatedScore;
+        finalStatsEl.textContent = `Правильных ответов: ${correctCount} из ${questions.length}`;
+
+        // Обновление localStorage и Firestore
+        try {
+            const userRaw = localStorage.getItem('jolBilimUser');
+            if (userRaw) {
+                const user = JSON.parse(userRaw);
+                const familyCode = user.familyCode;
+
+                user.testsCompleted = (user.testsCompleted || 0) + 1;
+                user.score = calculatedScore;
+
+                if (!user.history) {
+                    user.history = [];
+                }
+
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const dateStr = `${day}.${month}`;
+
+                const historyItem = {
+                    date: dateStr,
+                    score: calculatedScore
+                };
+
+                user.history.unshift(historyItem);
+
+                // 3. Обновляем localStorage как быстрый кэш для кабинета ученика
+                localStorage.setItem('jolBilimUser', JSON.stringify(user));
+
+                // 1 & 2. Читаем familyCode, получаем документ из Firestore, обновляем историю и поля
+                if (familyCode) {
+                    db.collection('families').doc(familyCode).get()
+                        .then((doc) => {
+                            let firestoreHistory = [];
+                            if (doc.exists && doc.data().history) {
+                                firestoreHistory = doc.data().history;
+                            }
+                            firestoreHistory.unshift(historyItem);
+
+                            return db.collection('families').doc(familyCode).update({
+                                score: calculatedScore,
+                                testsCompleted: firebase.firestore.FieldValue.increment(1),
+                                history: firestoreHistory
+                            });
+                        })
+                        .catch((error) => {
+                            // 4. Если запись в Firestore не удалась — не блокируем экран результата, выводим в консоль
+                            console.error("Error updating Firestore family record: ", error);
+                        });
+                }
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadQuestion();
+    });
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAmru1-7SS3dwAMEborymtJJudtcflQYzU",
+  authDomain: "jol-bilim.firebaseapp.com",
+  projectId: "jol-bilim",
+  storageBucket: "jol-bilim.firebasestorage.app",
+  messagingSenderId: "1059233182996",
+  appId: "1:1059233182996:web:40ad78360b42dd49d37e01",
+  measurementId: "G-P7RR3W3ZF7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+</body>
+</html>
