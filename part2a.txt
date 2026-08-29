@@ -1,0 +1,71 @@
+    <script>
+        const mathQuestions = __MATH_PLACEHOLDER__;
+        const readingQuestions = __READING_PLACEHOLDER__;
+        const analogiesQuestions = __ANALOGIES_PLACEHOLDER__;
+        const geometryQuestions = __GEOMETRY_PLACEHOLDER__;
+        const kyrgyzQuestions = __KYRGYZ_PLACEHOLDER__;
+        const questionBank = { math: mathQuestions, reading: readingQuestions, analogies: analogiesQuestions, geometry: geometryQuestions, kyrgyz: kyrgyzQuestions };
+
+        let currentSubjectKey = '';
+        let currentSubjectName = '';
+        let activeQuestions = [];
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+        let answeredCurrent = false;
+
+        const selectionScreenEl = document.getElementById('selection-screen');
+        const quizScreenEl = document.getElementById('quiz-screen');
+        const resultScreenEl = document.getElementById('result-screen');
+        const progressTitleEl = document.getElementById('progress-title');
+        const progressPercentEl = document.getElementById('progress-percent');
+        const progressFillEl = document.getElementById('progress-bar-fill');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsListEl = document.getElementById('options-list');
+        const explanationCardEl = document.getElementById('explanation-card');
+        const explanationTextEl = document.getElementById('explanation-text');
+        const nextBtnEl = document.getElementById('next-btn');
+        const resultSubjectLabelEl = document.getElementById('result-subject-label');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalStatsEl = document.getElementById('final-stats');
+
+        document.querySelectorAll('.feat').forEach(card => {
+            card.addEventListener('click', () => {
+                const subject = card.getAttribute('data-subject');
+                currentSubjectKey = subject;
+                if (subject === 'math') currentSubjectName = 'Математика';
+                else if (subject === 'reading') currentSubjectName = 'Грамотность чтения';
+                else if (subject === 'analogies') currentSubjectName = 'Аналогии';
+                else if (subject === 'geometry') currentSubjectName = 'Геометрия';
+                else if (subject === 'kyrgyz') currentSubjectName = 'Кыргызский язык';
+                const bank = questionBank[subject] || [];
+                const shuffled = [...bank].sort(() => Math.random() - 0.5);
+                activeQuestions = shuffled.slice(0, 10);
+                currentQuestionIndex = 0;
+                correctCount = 0;
+                selectionScreenEl.style.display = 'none';
+                quizScreenEl.style.display = 'block';
+                loadQuestion();
+            });
+        });
+
+        function loadQuestion() {
+            answeredCurrent = false;
+            nextBtnEl.disabled = true;
+            explanationCardEl.style.display = 'none';
+            const q = activeQuestions[currentQuestionIndex];
+            questionTextEl.textContent = q.question;
+            const total = activeQuestions.length;
+            progressTitleEl.textContent = `${currentSubjectName} • Вопрос ${currentQuestionIndex + 1} из ${total}`;
+            const percent = Math.round(((currentQuestionIndex + 1) / total) * 100);
+            progressPercentEl.textContent = `${percent}%`;
+            progressFillEl.style.width = `${percent}%`;
+            optionsListEl.innerHTML = '';
+            q.options.forEach((opt, index) => {
+                const letter = String.fromCharCode(65 + index);
+                const div = document.createElement('div');
+                div.className = 'option-item';
+                div.innerHTML = `<div class="option-letter">${letter}</div><div>${opt}</div>`;
+                div.addEventListener('click', () => handleOptionClick(index, div, q));
+                optionsListEl.appendChild(div);
+            });
+        }

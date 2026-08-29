@@ -1,0 +1,69 @@
+<body>
+<header>
+    <a href="dashboard.html" class="logo">JOL-Bilim</a>
+</header>
+<main>
+    <div id="selection-screen">
+        <h1 class="screen-title">Диагностический тест ОРТ</h1>
+        <p class="screen-subtitle">Выберите предмет для проверки знаний</p>
+        <div class="features-grid">
+            <div class="feat" data-subject="math">
+                <div class="num mono">01</div>
+                <h3>Математика</h3>
+                <p>100+ заданий</p>
+            </div>
+            <div class="feat" data-subject="reading">
+                <div class="num mono">02</div>
+                <h3>Грамотность чтения</h3>
+                <p>100+ заданий</p>
+            </div>
+            <div class="feat" data-subject="analogies">
+                <div class="num mono">03</div>
+                <h3>Аналогии</h3>
+                <p>100+ заданий</p>
+            </div>
+        </div>
+    </div>
+    <div id="quiz-screen">
+        <div class="progress-header">
+            <span id="progress-title">Математика • Вопрос 1 из 10</span>
+            <span id="progress-percent" class="mono">10%</span>
+        </div>
+        <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+        </div>
+        <div class="test-card">
+            <div class="question-text" id="question-text">Текст вопроса...</div>
+            <div class="options-list" id="options-list"></div>
+            <div class="explanation-card" id="explanation-card">
+                <div class="explanation-icon">💡</div>
+                <div class="explanation-text" id="explanation-text">Объяснение ответа...</div>
+            </div>
+            <button class="btn" id="next-btn" disabled>Далее <span class="arrow">→</span></button>
+        </div>
+    </div>
+    <div id="result-screen" class="result-screen">
+        <h1>Результат теста</h1>
+        <p id="result-subject-label" style="font-size: 1.1rem; color: var(--ink-soft); margin-bottom: 4px;">Математика</p>
+        <div class="result-score-block">
+            <div class="result-score mono" id="final-score">0</div>
+            <p class="result-stats" id="final-stats">Правильных ответов: 0 из 10</p>
+        </div>
+        <a href="dashboard.html" class="btn">Вернуться в кабинет <span class="arrow">→</span></a>
+    </div>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAmru1-7SS3dwAMEborymtJJudtcflQYzU",
+  authDomain: "jol-bilim.firebaseapp.com",
+  projectId: "jol-bilim",
+  storageBucket: "jol-bilim.firebasestorage.app",
+  messagingSenderId: "1059233182996",
+  appId: "1:1059233182996:web:40ad78360b42dd49d37e01",
+  measurementId: "G-P7RR3W3ZF7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>

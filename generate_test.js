@@ -1,0 +1,84 @@
+const fs = require('fs');
+const path = require('path');
+
+let html = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Диагностический тест ОРТ - JOL-Bilim</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            try {
+                const userRaw = localStorage.getItem('jolBilimUser');
+                if (!userRaw) { window.location.href = 'cabinet.html'; return; }
+                const user = JSON.parse(userRaw);
+                if (!user || !user.name) { window.location.href = 'cabinet.html'; }
+            } catch(e) { window.location.href = 'cabinet.html'; }
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #F6F4EF; --ink: #1C2620; --accent: #C98A2C; --pine: #1F4B3F;
+            --pine-bg: rgba(31, 75, 63, 0.1); --bg-2: #ffffff; --line: #e2dfd8;
+            --ink-soft: #5c6660; --text: var(--ink); --white: #ffffff;
+        }
+        .mono { font-family: 'IBM Plex Mono', monospace; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6; color: var(--text); background-color: var(--bg);
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+        header {
+            background: var(--white); padding: 1rem 5%; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line);
+        }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--pine); text-decoration: none; }
+        main { flex: 1; max-width: 800px; width: 100%; margin: 0 auto; padding: 40px 20px; }
+        .screen-title { font-family: 'Fraunces', serif; font-size: 2.2rem; color: var(--ink); margin-bottom: 8px; text-align: center; }
+        .screen-subtitle { font-size: 1.1rem; color: var(--ink-soft); margin-bottom: 32px; text-align: center; }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px; margin-top: 20px;
+        }
+        .feat {
+            background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px;
+            padding: 24px; cursor: pointer; transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(28, 38, 32, 0.03); display: flex; flex-direction: column; gap: 12px;
+        }
+        .feat:hover { border-color: var(--pine); transform: translateY(-4px); box-shadow: 0 10px 25px rgba(31, 75, 63, 0.1); }
+        .feat .num { font-size: 0.9rem; color: var(--accent); font-weight: 600; }
+        .feat h3 { font-size: 1.2rem; color: var(--ink); }
+        .feat p { font-size: 0.9rem; color: var(--ink-soft); }
+        #quiz-container { display: none; }
+        .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.9rem; color: var(--ink-soft); }
+        .progress-bar-wrap { width: 100%; height: 8px; background: var(--line); border-radius: 4px; margin-bottom: 32px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; }
+        .test-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 20px; padding: 32px; box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05); }
+        .question-text { font-size: 1.2rem; font-weight: 600; color: var(--ink); margin-bottom: 24px; white-space: pre-line; }
+        .options-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+        .option-item {
+            background: var(--bg); border: 2px solid var(--line); border-radius: 12px;
+            padding: 16px 20px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: all 0.2s ease; user-select: none;
+        }
+        .option-item:hover { border-color: var(--accent); background: var(--white); }
+        .option-item.selected { border-color: var(--pine); background: var(--pine-bg); color: var(--pine); font-weight: 600; }
+        .option-letter { width: 32px; height: 32px; background: var(--line); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; }
+        .option-item.selected .option-letter { background: var(--pine); color: white; }
+        .explanation-card { display: none; background: var(--pine-bg); border: 1px solid var(--pine); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; font-size: 0.95rem; color: var(--pine); }
+        .btn {
+            display: inline-block; padding: 14px 32px; background-color: var(--pine); color: white; text-decoration: none;
+            border-radius: 10px; font-weight: 600; border: none; cursor: pointer; transition: all .25s ease; font-size: 1rem; width: 100%; text-align: center;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(31, 75, 63, 0.35); }
+        .result-screen { display: none; text-align: center; }
+        .result-screen h1 { font-family: 'Fraunces', serif; font-size: 2.2rem; color: var(--ink); margin-bottom: 12px; }
+        .result-score-block { background: var(--bg-2); border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin: 24px 0 32px; }
+        .result-score { font-size: 3.5rem; font-weight: 700; color: var(--pine); line-height: 1; margin-bottom: 8px; }
+        .result-stats { font-size: 1.1rem; color: var(--ink-soft); }
+    </style>
+</head>

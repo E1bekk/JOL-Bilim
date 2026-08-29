@@ -106,53 +106,142 @@
         .path-card .score-placeholder { font-size: 1.1rem; color: var(--ink-soft); margin-bottom: 12px; font-weight: 500; }
         .path-card .meta { font-size: 0.95rem; color: var(--ink-soft); }
 
-        .section-title { font-size: 1.25rem; font-weight: 700; color: var(--ink); margin-bottom: 16px; }
+        .section-title { 
+            font-size: 1.1rem; 
+            font-weight: 700; 
+            color: var(--ink); 
+            margin-top: 32px; 
+            margin-bottom: 12px; 
+        }
         .history-section { margin-bottom: 40px; }
 
         .empty-state {
             background: var(--bg-2);
             border: 1px dashed var(--line);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 24px;
             text-align: center;
             color: var(--ink-soft);
             font-size: 0.95rem;
         }
 
-        .history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-
-        .history-item {
+        .history-card-container {
             background: var(--bg-2);
             border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 16px 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05);
+            overflow: hidden;
+        }
+
+        .history-list { 
+            list-style: none; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        .history-item {
+            padding: 16px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid var(--line);
+            transition: background-color 0.2s ease;
         }
 
-        .history-item .date { font-size: 0.9rem; color: var(--ink-soft); }
-        .history-item .item-score { font-size: 1.1rem; font-weight: 700; color: var(--pine); }
+        .history-item:last-child {
+            border-bottom: none;
+        }
 
-        .action-area { text-align: center; }
+        .history-item:hover {
+            background-color: rgba(0, 0, 0, 0.01);
+        }
+
+        .history-item-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .subject-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .history-item .date { 
+            font-size: 0.9rem; 
+            color: var(--ink-soft); 
+        }
+
+        .history-item .separator {
+            color: var(--ink-soft);
+            opacity: 0.6;
+        }
+
+        .history-item .subject-name {
+            color: var(--ink);
+            font-weight: 500;
+        }
+
+        .history-item .item-score { 
+            font-size: 1.1rem; 
+            font-weight: 700; 
+        }
+
+        .show-more-history-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: none;
+            border: none;
+            border-top: 1px solid var(--line);
+            color: var(--pine);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.2s ease;
+            font-family: inherit;
+        }
+
+        .show-more-history-btn:hover {
+            background-color: var(--pine-bg);
+        }
+
+        .show-more-history-btn .arrow {
+            display: inline-block;
+            margin-left: 4px;
+            transition: transform 0.2s ease;
+        }
+
+        .show-more-history-btn:hover .arrow {
+            transform: translateX(3px);
+        }
 
         .btn {
-            display: inline-block;
-            padding: 16px 36px;
+            display: block;
+            width: 100%;
+            padding: 18px 36px;
             background-color: var(--pine);
             color: white;
             text-decoration: none;
-            border-radius: 10px;
+            border-radius: 16px;
             font-weight: 600;
             border: none;
             cursor: pointer;
             transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 1.1rem;
+            font-size: 1.15rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(31, 75, 63, 0.2);
+            margin-bottom: 32px;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(31, 75, 63, 0.35);
+            box-shadow: 0 8px 25px rgba(31, 75, 63, 0.35);
         }
 
         .btn .arrow { display: inline-block; margin-left: 8px; transition: transform .2s ease; }
@@ -224,6 +313,8 @@
         <span class="grade-badge" id="user-grade">Класс не указан</span>
     </div>
 
+    <a href="test.html" class="btn btn-primary">Начать тест <span class="arrow">→</span></a>
+
     <div class="path-card">
         <p class="label mono">Прогноз балла ОРТ</p>
         <div id="score-display"></div>
@@ -241,10 +332,6 @@
     <div class="history-section">
         <div class="section-title">История тестирования</div>
         <div id="history-container"></div>
-    </div>
-
-    <div class="action-area">
-        <a href="test.html" class="btn btn-primary">Начать тест <span class="arrow">→</span></a>
     </div>
 </main>
 
@@ -342,26 +429,107 @@
         const historyContainer = document.getElementById('history-container');
         const history = user.history || [];
 
+        function getSubjectDisplayName(subj) {
+            if (!subj) return 'Тест';
+            const map = {
+                'math': 'Математика',
+                'reading': 'Грамотность чтения',
+                'analogies': 'Аналогии',
+                'geometry': 'Геометрия',
+                'kyrgyz': 'Кыргызский язык',
+                'english': 'Английский язык',
+                'physics': 'Физика'
+            };
+            return map[subj] || subj;
+        }
+
+        function getSubjectDotColor(subjectName) {
+            const colors = ['var(--accent)', 'var(--pine)', '#3b82f6', '#10b981', '#8b5cf6'];
+            let hash = 0;
+            if (subjectName) {
+                for (let i = 0; i < subjectName.length; i++) {
+                    hash = subjectName.charCodeAt(i) + ((hash << 5) - hash);
+                }
+            }
+            return colors[Math.abs(hash) % colors.length];
+        }
+
+        function getPreviousScoreForSubject(historyArr, currentIndex, subjectName) {
+            for (let j = currentIndex + 1; j < historyArr.length; j++) {
+                const prevSubj = getSubjectDisplayName(historyArr[j].subject);
+                if (prevSubj === subjectName) {
+                    return historyArr[j].score;
+                }
+            }
+            return null;
+        }
+
         if (history.length === 0 || !user.testsCompleted) {
             historyContainer.innerHTML = '<div class="empty-state">Тестов пока нет — начни первый прямо сейчас</div>';
         } else {
+            const cardContainer = document.createElement('div');
+            cardContainer.className = 'history-card-container';
+
             const ul = document.createElement('ul');
             ul.className = 'history-list';
 
-            history.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.className = 'history-item';
-                const dateText = item.date || `Попытка #${index + 1}`;
-                const scoreText = item.score !== undefined ? `${item.score} баллов` : '';
+            function renderItems(limit) {
+                ul.innerHTML = '';
+                const itemsToRender = history.slice(0, limit);
 
-                li.innerHTML = `
-                    <span class="date">${dateText}</span>
-                    <span class="item-score mono">${scoreText}</span>
-                `;
-                ul.appendChild(li);
-            });
+                itemsToRender.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
 
-            historyContainer.appendChild(ul);
+                    const dateText = item.date || `Попытка #${index + 1}`;
+                    const subjectName = getSubjectDisplayName(item.subject);
+                    const scoreVal = item.score !== undefined ? item.score : 0;
+
+                    const prevScore = getPreviousScoreForSubject(history, index, subjectName);
+                    let scoreStyle = 'color: var(--pine);';
+                    if (prevScore !== null && scoreVal > prevScore) {
+                        scoreStyle = 'color: var(--fill-success, #2e7d32);';
+                    }
+
+                    const dotColor = getSubjectDotColor(subjectName);
+
+                    li.innerHTML = `
+                        <div class="history-item-left">
+                            <span class="subject-dot" style="background-color: ${dotColor};"></span>
+                            <span class="date">${dateText}</span>
+                            <span class="separator">·</span>
+                            <span class="subject-name">${subjectName}</span>
+                        </div>
+                        <span class="item-score mono" style="${scoreStyle}">${scoreVal}</span>
+                    `;
+                    ul.appendChild(li);
+                });
+            }
+
+            renderItems(5);
+            cardContainer.appendChild(ul);
+
+            if (history.length > 5) {
+                const showMoreBtn = document.createElement('button');
+                showMoreBtn.className = 'show-more-history-btn';
+                showMoreBtn.innerHTML = 'Показать всю историю <span class="arrow">→</span>';
+
+                let expanded = false;
+                showMoreBtn.addEventListener('click', () => {
+                    expanded = !expanded;
+                    if (expanded) {
+                        renderItems(history.length);
+                        showMoreBtn.innerHTML = 'Скрыть историю <span class="arrow">↑</span>';
+                    } else {
+                        renderItems(5);
+                        showMoreBtn.innerHTML = 'Показать всю историю <span class="arrow">→</span>';
+                    }
+                });
+
+                cardContainer.appendChild(showMoreBtn);
+            }
+
+            historyContainer.appendChild(cardContainer);
         }
     });
 </script>

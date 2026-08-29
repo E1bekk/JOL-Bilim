@@ -29,12 +29,15 @@
             padding: 0;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: var(--text);
             background-color: var(--bg);
-            scroll-behavior: smooth;
         }
 
         header {
@@ -84,13 +87,42 @@
             width: 100%;
         }
 
+        @media (max-width:760px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--bg-2);
+                flex-direction: column;
+                padding: 8px 24px 16px;
+                border-bottom: 1px solid var(--line);
+            }
+            .nav-links.open {
+                display: flex;
+            }
+            .nav-links a {
+                padding: 12px 0;
+                border-top: 1px solid var(--line);
+            }
+            #nav-toggle {
+                display: flex;
+            }
+        }
+        @media (min-width:761px){
+            #nav-toggle {
+                display: none;
+            }
+        }
+
         .hero {
             display: grid;
             grid-template-columns: 1.15fr 0.85fr;
             gap: 48px;
             align-items: center;
             padding: 56px 5% 72px;
-            background: var(--bg);
+            background: transparent;
             color: var(--ink);
         }
 
@@ -243,7 +275,9 @@
             gap: 2.5rem;
         }
 
-        /* Карточки feat анимация */
+        #how-it-works {
+            background: transparent;
+        }
         .feat {
             background: white;
             padding: 2.5rem;
@@ -279,11 +313,17 @@
 
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 2rem;
             max-width: 1100px;
             margin: 0 auto;
-            align-items: center;
+            align-items: stretch;
+        }
+
+        @media (max-width: 760px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Карточки price-card анимация */
@@ -355,32 +395,18 @@
         }
 
         #parents {
-            background: var(--white);
+            background-image: linear-gradient(rgba(28,38,32,0.75), rgba(28,38,32,0.85)), 
+            url('https://images.unsplash.com/photo-1747913647304-9f298ff28ff4?fm=jpg&q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            padding: 64px 40px;
             text-align: center;
-            border-top: 1px solid #eee;
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            color: white;
+            margin: 40px 5%;
         }
 
-        /* Фоновый декоративный контур "Путь к знаниям" */
-        .bg-road {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
-            opacity: 0.05;
-        }
 
-        @media (max-width: 760px) {
-            .bg-road {
-                opacity: 0.03;
-            }
-        }
 
         footer {
             background: var(--pine);
@@ -392,8 +418,31 @@
 </head>
 <body>
 
-<svg class="bg-road" viewBox="0 0 1440 1200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-    <path d="M 50 350 C 300 400, 100 700, 400 900 C 800 1100, 1100 800, 1380 1150" stroke="var(--pine)" stroke-width="1.5" fill="none" />
+<svg viewBox="0 0 1440 500" preserveAspectRatio="none" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;">
+  <path fill="none" stroke="rgba(201,138,44,0.35)" stroke-width="1.5">
+    <animate attributeName="d" dur="8s" repeatCount="indefinite" values="
+      M-50,180 C300,80 500,280 750,140 C1000,20 1250,220 1500,120;
+      M-50,180 C300,120 500,240 750,180 C1000,60 1250,180 1500,160;
+      M-50,180 C300,80 500,280 750,140 C1000,20 1250,220 1500,120"/>
+  </path>
+  <path fill="none" stroke="rgba(201,138,44,0.20)" stroke-width="1">
+    <animate attributeName="d" dur="9s" repeatCount="indefinite" values="
+      M-50,220 C280,320 520,140 780,260 C1020,360 1260,180 1500,280;
+      M-50,220 C280,280 520,180 780,220 C1020,320 1260,220 1500,240;
+      M-50,220 C280,320 520,140 780,260 C1020,360 1260,180 1500,280"/>
+  </path>
+  <path fill="none" stroke="rgba(201,138,44,0.45)" stroke-width="2">
+    <animate attributeName="d" dur="7s" repeatCount="indefinite" values="
+      M-50,150 C320,240 560,90 800,200 C1040,300 1280,130 1500,210;
+      M-50,150 C320,200 560,130 800,240 C1040,260 1280,170 1500,250;
+      M-50,150 C320,240 560,90 800,200 C1040,300 1280,130 1500,210"/>
+  </path>
+  <path fill="none" stroke="rgba(31,75,63,0.15)" stroke-width="1">
+    <animate attributeName="d" dur="11s" repeatCount="indefinite" values="
+      M-50,260 C300,160 540,320 790,190 C1030,80 1270,260 1500,160;
+      M-50,260 C300,200 540,280 790,230 C1030,120 1270,220 1500,200;
+      M-50,260 C300,160 540,320 790,190 C1030,80 1270,260 1500,160"/>
+  </path>
 </svg>
 
 <header>
@@ -404,6 +453,14 @@
         <a href="#pricing">Цены</a>
         <a href="#parents">Родителям</a>
     </nav>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="cabinet.html" class="btn" style="padding: 8px 16px; font-size: 0.9rem;">Мой кабинет →</a>
+        <button id="nav-toggle" style="background: none; border: none; cursor: pointer; display: none; flex-direction: column; gap: 5px; padding: 4px;">
+            <span style="display: block; width: 24px; height: 2px; background: var(--pine);"></span>
+            <span style="display: block; width: 24px; height: 2px; background: var(--pine);"></span>
+            <span style="display: block; width: 24px; height: 2px; background: var(--pine);"></span>
+        </button>
+    </div>
 </header>
 
 <main>
@@ -458,43 +515,49 @@
         <h2>Выберите свой тариф</h2>
         <div class="pricing-grid">
             <div class="price-card">
-                <h3>Бесплатный</h3>
-                <div class="amount mono">0 сом</div>
-                <ul>
-                    <li>10 уроков в месяц</li>
-                    <li>Базовая статистика</li>
-                    <li>Доступ к сообществу</li>
-                </ul>
-                <button class="btn">Начать <span class="arrow">→</span></button>
+                <div>
+                    <h3>Диагностика</h3>
+                    <div class="amount mono">Бесплатно</div>
+                    <ul>
+                        <li>1 полный тест по формату ОРТ</li>
+                        <li>Разбор всех ошибок</li>
+                        <li>Прогноз балла</li>
+                    </ul>
+                </div>
+                <a href="test.html" class="btn">Начать <span class="arrow">→</span></a>
             </div>
             <div class="price-card featured">
-                <h3>Полный доступ</h3>
-                <div class="amount mono">990 сом</div>
-                <ul>
-                    <li>Безлимитные уроки</li>
-                    <li>Персональный ментор</li>
-                    <li>AI-аналитика успехов</li>
-                    <li>Сертификат об окончании</li>
-                </ul>
-                <button class="btn">Выбрать <span class="arrow">→</span></button>
+                <span class="example-badge">выбирают чаще</span>
+                <div>
+                    <h3>Полный доступ</h3>
+                    <div class="amount mono">990 сом/мес</div>
+                    <ul>
+                        <li>Безлимит тестов по всем предметам</li>
+                        <li>Разбор ошибок с объяснением</li>
+                        <li>Доступ для родителя</li>
+                    </ul>
+                </div>
+                <a href="cabinet.html" class="btn">Выбрать <span class="arrow">→</span></a>
             </div>
             <div class="price-card">
-                <h3>Базовый</h3>
-                <div class="amount mono">490 сом</div>
-                <ul>
-                    <li>50 уроков в месяц</li>
-                    <li>Расширенная статистика</li>
-                    <li>Поддержка в чате</li>
-                </ul>
-                <button class="btn">Выбрать <span class="arrow">→</span></button>
+                <div>
+                    <h3>Максимум</h3>
+                    <div class="amount mono">1990 сом/мес</div>
+                    <ul>
+                        <li>Всё из Полного доступа</li>
+                        <li>Персональный план подготовки по слабым темам</li>
+                        <li>Приоритетная поддержка в Telegram</li>
+                    </ul>
+                </div>
+                <a href="cabinet.html" class="btn">Выбрать <span class="arrow">→</span></a>
             </div>
         </div>
     </section>
 
     <section id="parents">
-        <h2>Секция для родителей</h2>
-        <p style="max-width: 600px; margin: 0 auto 2rem;">Мы создали инструменты, которые помогут вам быть в курсе образовательного процесса вашего ребенка без лишних усилий.</p>
-        <a href="cabinet.html" class="btn btn-primary">Личный кабинет <span class="arrow">→</span></a>
+        <h2 style="font-family: 'Fraunces', serif; color: #fff; font-size: 28px; margin-bottom: 16px;">Следите за прогрессом ребёнка</h2>
+        <p style="color: rgba(255,255,255,0.75); font-size: 14px; max-width: 40ch; margin: 0 auto 24px; line-height: 1.5;">Ребёнок пришлёт вам код после своей регистрации — введите его здесь и увидите его баллы и прогресс.</p>
+        <a href="parent.html" class="btn btn-primary">Кабинет родителя →</a>
     </section>
 </main>
 
@@ -504,6 +567,32 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const navToggle = document.getElementById('nav-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        if (navToggle && navLinks) {
+            navToggle.addEventListener('click', () => {
+                navLinks.classList.toggle('open');
+            });
+        }
+
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+                if (navLinks && navLinks.classList.contains('open')) {
+                    navLinks.classList.remove('open');
+                }
+            });
+        });
+
         // Обработчик для кнопки cta-main
         const ctaMain = document.getElementById('cta-main');
         if (ctaMain) {
@@ -516,16 +605,6 @@
                 }
             });
         }
-
-        // Плавный скролл для карточек цен
-        document.querySelectorAll('.price-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                const parentsSection = document.getElementById('parents');
-                if (parentsSection) {
-                    parentsSection.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
     });
 </script>
 </body>
