@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход в кабинет - JOL-Bilim</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script>
         (function() {
             try {
@@ -19,183 +19,95 @@
         })();
     </script>
     <style>
-        :root {
-            --bg: #F6F4EF;
-            --ink: #1C2620;
-            --accent: #C98A2C;
-            --pine: #1F4B3F;
-            --pine-bg: rgba(31, 75, 63, 0.1);
-            --bg-2: #ffffff;
-            --line: #e2dfd8;
-            --ink-soft: #5c6660;
-            --text: var(--ink);
-            --white: #ffffff;
-            --error: #d9534f;
+        :root{
+          --bg:#000000; --ink:#F3F1E9; --ink-soft:rgba(243,241,233,0.65);
+          --accent:#E3A83B; --line:rgba(255,255,255,0.12);
         }
+        *{box-sizing:border-box;}
+        body{margin:0; background:#000; color:var(--ink); font-family:'Inter',sans-serif; 
+          min-height:100vh;}
 
-        .mono {
-            font-family: 'IBM Plex Mono', monospace;
-        }
+        .star{position:absolute; border-radius:50%; background:#fff; animation:twinkle ease-in-out infinite;}
+        @keyframes twinkle{0%,100%{opacity:0.15;}50%{opacity:0.8;}}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        .liquid-glass{background: rgba(255,255,255,0.04); backdrop-filter: blur(10px); 
+          -webkit-backdrop-filter: blur(10px); border: 1px solid var(--line);}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--text);
-            background-color: var(--bg);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+        .btn-white{width:100%; background:#fff; color:#000; border:none; border-radius:100px; 
+          padding:14px; font-size:14px; font-weight:600; cursor:pointer; margin-top:8px;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;}
+        .btn-white:hover{transform:translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.4);}
+        
+        .error-text{color:#E0755C; font-size:12px; display:none; margin-top:4px;}
+        .form-group.has-error .form-control{border-color:#E0755C !important;}
+        .form-group.has-error .error-text{display:block;}
 
-        .auth-card {
-            background: var(--bg-2);
-            border: 1px solid var(--line);
-            border-radius: 20px;
-            padding: 32px;
-            width: 100%;
-            max-width: 380px;
-            box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05);
-        }
+        @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
 
-        .auth-card h1 {
-            font-family: 'Fraunces', serif;
-            font-size: 2rem;
-            color: var(--ink);
-            margin-bottom: 6px;
-            text-align: center;
-        }
-
-        .auth-card .subtitle {
-            font-size: 0.9rem;
-            color: var(--ink-soft);
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--ink);
-            margin-bottom: 6px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 16px;
-            font-size: 0.95rem;
-            border: 1px solid var(--line);
-            border-radius: 8px;
-            background-color: var(--bg);
-            color: var(--ink);
-            font-family: inherit;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--pine);
-            background-color: var(--white);
-            box-shadow: 0 0 0 3px var(--pine-bg);
-        }
-
-        select.form-control {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%231F4B3F' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            padding-right: 36px;
-        }
-
-        .error-text {
-            color: var(--error);
-            font-size: 0.8rem;
-            margin-top: 4px;
-            display: none;
-        }
-
-        .form-group.has-error .form-control {
-            border-color: var(--error);
-        }
-
-        .form-group.has-error .error-text {
-            display: block;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 14px 28px;
-            background-color: var(--pine);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 100%;
-            font-size: 1rem;
-            text-align: center;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(31, 75, 63, 0.35);
-        }
-
-        .btn .arrow {
-            display: inline-block;
-            margin-left: 8px;
-            transition: transform .2s ease;
-        }
-
-        .btn:hover .arrow {
-            transform: translateX(4px);
+        @media (max-width: 768px) {
+          div[style*="grid-template-columns"] {
+            grid-template-columns: 1fr !important;
+          }
         }
     </style>
 </head>
 <body>
-<div class="auth-card">
-    <h1>Вход в JOL-Bilim</h1>
-    <p class="subtitle">Один раз заполни — дальше кабинет узнает тебя</p>
+<div id="stars" style="position:fixed; inset:0; z-index:0; pointer-events:none;"></div>
 
+<div style="display:grid; grid-template-columns:1.3fr 1fr; min-height:100vh; position:relative; z-index:2;">
+  
+  <!-- левая часть: крупный визуальный объект -->
+  <div style="display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; min-height:300px;">
+    <video autoplay muted loop playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+      <source src="https://videos.pexels.com/video-files/7184620/7184620-uhd_2560_1440_30fps.mp4" type="video/mp4">
+    </video>
+    <div style="position:absolute; inset:0; background:linear-gradient(90deg, transparent 60%, #000000 100%); z-index:1;"></div>
+  </div>
+  <!-- правая часть: форма -->
+  <div style="display:flex; flex-direction:column; justify-content:center; padding:60px;">
+    <div style="font-size:12px; color:var(--accent); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:20px;">[ вход в JOL-Bilim ]</div>
+    <h1 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:42px; margin:0 0 8px;">JOL-Bilim</h1>
+    <p style="font-size:14px; color:var(--ink-soft); margin:0 0 32px;">твой путь к знаниям в сети ОРТ</p>
+    
     <form id="auth-form" novalidate>
-        <div class="form-group" id="group-name">
-            <label for="input-name">Имя</label>
-            <input type="text" id="input-name" name="name" class="form-control" placeholder="Айбек">
+        <div class="form-group" id="group-name" style="margin-bottom:20px;">
+            <label for="input-name" style="font-size:12px; color:var(--ink-soft); display:block; margin-bottom:6px;">Имя</label>
+            <input type="text" id="input-name" name="name" class="form-control" placeholder="Айбек" style="border:none; border-bottom:1px solid var(--line); background:transparent; padding:10px 0; color:#fff; width:100%; font-size:14px; font-family:'Inter',sans-serif;">
             <div class="error-text">Пожалуйста, введите ваше имя</div>
         </div>
 
-        <div class="form-group" id="group-grade">
-            <label for="select-grade">Класс</label>
-            <select id="select-grade" name="grade" class="form-control">
-                <option value="10 класс">10 класс</option>
-                <option value="11 класс" selected>11 класс</option>
+        <div class="form-group" id="group-grade" style="margin-bottom:20px;">
+            <label for="select-grade" style="font-size:12px; color:var(--ink-soft); display:block; margin-bottom:6px;">Класс</label>
+            <select id="select-grade" name="grade" class="form-control" style="border:none; border-bottom:1px solid var(--line); background:transparent; padding:10px 0; color:#fff; width:100%; font-size:14px; font-family:'Inter',sans-serif; appearance:none; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23F3F1E9' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E&quot;); background-repeat:no-repeat; background-position:right 0 center; padding-right:24px;">
+                <option value="10 класс" style="background:#111; color:var(--ink);">10 класс</option>
+                <option value="11 класс" selected style="background:#111; color:var(--ink);">11 класс</option>
             </select>
         </div>
 
-        <div class="form-group" id="group-contact">
-            <label for="input-contact">Telegram или телефон</label>
-            <input type="text" id="input-contact" name="contact" class="form-control" placeholder="@username или +996 ...">
+        <div class="form-group" id="group-contact" style="margin-bottom:20px;">
+            <label for="input-contact" style="font-size:12px; color:var(--ink-soft); display:block; margin-bottom:6px;">Telegram или телефон</label>
+            <input type="text" id="input-contact" name="contact" class="form-control" placeholder="@username или +996 ..." style="border:none; border-bottom:1px solid var(--line); background:transparent; padding:10px 0; color:#fff; width:100%; font-size:14px; font-family:'Inter',sans-serif;">
             <div class="error-text">Пожалуйста, укажите Telegram или телефон</div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Войти <span class="arrow">→</span></button>
+        <button type="submit" class="btn-white" style="margin-top:8px;">Войти →</button>
     </form>
+  </div>
 </div>
+<script>
+const starsBox = document.getElementById('stars');
+for(let i=0;i<80;i++){
+  const s = document.createElement('div');
+  s.className='star';
+  const size = 1 + Math.random()*1.5;
+  s.style.width=size+'px'; s.style.height=size+'px';
+  s.style.left=Math.random()*100+'%';
+  s.style.top=Math.random()*100+'%';
+  s.style.animationDuration=(2+Math.random()*4)+'s';
+  s.style.animationDelay=(Math.random()*4)+'s';
+  starsBox.appendChild(s);
+}
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -235,7 +147,6 @@
 
             if (!valid) return;
 
-            // Generate a 6-character family code (uppercase letters + digits)
             function generateFamilyCode() {
                 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
                 let result = '';

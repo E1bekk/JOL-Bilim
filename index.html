@@ -1,611 +1,273 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JOL-Bilim - Образовательная платформа</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #F6F4EF;
-            --ink: #1C2620;
-            --accent: #C98A2C;
-            --pine: #1F4B3F;
-            --pine-bg: rgba(31, 75, 63, 0.1);
-            --bg-2: #ffffff;
-            --line: #e2dfd8;
-            --ink-soft: #5c6660;
-            --text: var(--ink);
-            --white: #ffffff;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOL-Bilim — Подготовка к ОРТ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#000000;
+      --ink:#F3F1E9;
+      --ink-soft:rgba(243,241,233,0.65);
+      --accent:#E3A83B;
+      --line:rgba(255,255,255,0.12);
+    }
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{
+      margin:0; 
+      background:#000000;
+      color:var(--ink); 
+      font-family:'Inter',sans-serif;
+    }
 
-        .mono {
-            font-family: 'IBM Plex Mono', monospace;
-        }
+    .liquid-glass{
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--line);
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    .btn-white{
+      display:inline-flex; align-items:center; gap:8px;
+      background:#fff; color:#000; border:none; border-radius:100px;
+      padding:14px 28px; font-size:14px; font-weight:600; cursor:pointer; text-decoration:none;
+    }
+    .btn-glass{
+      display:inline-flex; align-items:center; gap:8px;
+      border-radius:100px; padding:12px 26px; font-size:14px; font-weight:500;
+      color:#fff; text-decoration:none; cursor:pointer;
+    }
 
-        html {
-            scroll-behavior: smooth;
-        }
+    .btn-white, .btn-glass {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-white:hover, .btn-glass:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.4);
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--text);
-            background-color: var(--bg);
-        }
+    nav{
+      position:sticky; top:6px; z-index:20;
+      max-width:1100px; margin:6px auto 0; padding:14px 24px;
+      display:flex; align-items:center; justify-content:space-between;
+      border-radius:100px;
+    }
+    .logo{font-weight:600; font-size:16px;}
+    .logo span{color:var(--accent);}
+    .nav-links{display:flex; gap:28px; font-size:14px; color:var(--ink-soft);}
+    .nav-links a{color:inherit; text-decoration:none;}
+    .nav-right{display:flex; align-items:center; gap:16px;}
+    .nav-right a.plain{color:#fff; font-size:14px; text-decoration:none;}
+    #nav-toggle{display:none; background:none; border:none; cursor:pointer; flex-direction:column; gap:4px; padding:8px;}
+    #nav-toggle span{width:20px; height:2px; background:#fff; display:block;}
+    @media (max-width:760px){
+      .nav-links{display:none; position:absolute; top:calc(100% + 8px); left:0; right:0; flex-direction:column; padding:16px 24px; border-radius:16px;}
+      .nav-links.open{display:flex;}
+      .nav-links a{padding:10px 0; border-top:1px solid var(--line);}
+      .nav-links a:first-child{border-top:none;}
+      #nav-toggle{display:flex;}
+    }
 
-        header {
-            background: var(--white);
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+    .video-section{position:relative; overflow:hidden;}
+    .video-section video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;}
+    .video-section .overlay{position:absolute; inset:0; z-index:1;}
+    .video-section .content{position:relative; z-index:2;}
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--pine);
-        }
+    .hero{min-height:100vh; display:flex; flex-direction:column;}
+    .hero .overlay{background:linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,1) 100%);}
+    .hero .content{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; text-align:center; padding:20px 24px 40px;}
+    .eyebrow{font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin-bottom:20px;}
+    h1{font-family:'Instrument Serif',serif; font-weight:400; font-size:64px; line-height:1.08; margin:0 0 28px;}
+    h1 em{font-style:italic; color:var(--accent);}
+    .search-bar{display:flex; align-items:center; gap:8px; max-width:420px; width:100%; margin:0 auto 14px; border-radius:100px; padding:6px 6px 6px 24px;}
+    .search-bar span{flex:1; text-align:left; font-size:14px; color:var(--ink-soft);}
+    .search-bar button{width:38px; height:38px; border-radius:50%; border:none; background:#fff; color:#000; font-size:16px; cursor:pointer;}
+    .hint{font-size:13px; color:var(--ink-soft); margin-bottom:26px;}
 
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
+    section.plain{padding:80px 24px; max-width:1080px; margin:0 auto; position:relative; z-index:2;}
+    .section-head{text-align:center; margin-bottom:40px;}
+    .section-head h2{font-family:'Instrument Serif',serif; font-weight:400; font-size:34px; margin:0;}
+    .section-head h2 em{font-style:italic; color:var(--accent);}
 
-        .nav-links a {
-            text-decoration: none;
-            color: var(--pine);
-            font-weight: 500;
-            position: relative;
-            padding-bottom: 4px;
-        }
+    .how-video{border-radius:24px; padding:60px 24px;}
+    .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+    .feat{border-radius:16px; padding:24px; border:1px solid var(--line);}
+    .feat .num{font-size:12px; color:var(--accent); margin-bottom:10px;}
+    .feat h3{font-size:18px; margin:0 0 8px;}
+    .feat p{font-size:14px; color:var(--ink-soft); margin:0; line-height:1.5;}
 
-        /* Навигация анимация */
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: var(--accent);
-            transition: width .2s ease;
-        }
+    .pricing{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+    .price-card{border-radius:16px; padding:28px; position:relative; border:1px solid var(--line);}
+    .price-card.featured{border:1.5px solid var(--accent);}
 
-        .nav-links a:hover::after {
-            width: 100%;
-        }
+    .feat, .price-card {
+      transition: transform 0.25s ease, border-color 0.25s ease;
+      cursor: pointer;
+    }
+    .feat:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+    .price-card:hover {
+      transform: translateY(-6px);
+    }
+    .price-card.featured:hover {
+      box-shadow: 0 0 30px rgba(227,168,59,0.25);
+    }
+    .badge{position:absolute; top:-12px; left:24px; background:var(--accent); color:#000; font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px;}
+    .price-card .plan{font-size:14px; color:var(--ink-soft); margin-bottom:6px;}
+    .price-card .amount{font-family:'Instrument Serif',serif; font-size:32px; margin-bottom:18px;}
+    .price-card ul{list-style:none; padding:0; margin:0 0 22px; font-size:14px; color:var(--ink-soft);}
+    .price-card li{padding:7px 0; border-top:1px solid var(--line);}
+    .price-card li:first-child{border-top:none;}
 
-        @media (max-width:760px) {
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: var(--bg-2);
-                flex-direction: column;
-                padding: 8px 24px 16px;
-                border-bottom: 1px solid var(--line);
-            }
-            .nav-links.open {
-                display: flex;
-            }
-            .nav-links a {
-                padding: 12px 0;
-                border-top: 1px solid var(--line);
-            }
-            #nav-toggle {
-                display: flex;
-            }
-        }
-        @media (min-width:761px){
-            #nav-toggle {
-                display: none;
-            }
-        }
+    .parents{border-radius:24px; padding:70px 24px; text-align:center;}
+    .parents .overlay{background:linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0.75));}
+    .parents h2{font-family:'Instrument Serif',serif; font-weight:400; font-size:30px; margin:0 0 14px;}
+    .parents p{font-size:14px; color:var(--ink-soft); max-width:40ch; margin:0 auto 26px;}
 
-        .hero {
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 48px;
-            align-items: center;
-            padding: 56px 5% 72px;
-            background: transparent;
-            color: var(--ink);
-        }
+    footer{padding:30px 24px; text-align:center; font-size:13px; color:var(--ink-soft); border-top:1px solid var(--line); position:relative; z-index:2;}
 
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1.2rem;
-            color: var(--ink);
-            line-height: 1.2;
-        }
-
-        .lead {
-            font-size: 1.15rem;
-            margin-bottom: 2rem;
-            line-height: 1.6;
-            color: var(--ink-soft);
-        }
-
-        .eyebrow {
-            display: inline-block;
-            background: var(--pine-bg);
-            color: var(--pine);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .cta-row {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-        .hint {
-            font-size: 0.9rem;
-            color: var(--ink-soft);
-        }
-
-        .path-card {
-            background: var(--bg-2);
-            border: 1px solid var(--line);
-            border-radius: 20px;
-            padding: 24px;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05);
-        }
-
-        .example-badge {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: var(--accent);
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            padding: 4px 10px;
-            border-radius: 6px;
-            letter-spacing: 0.05em;
-        }
-
-        .path-card .label {
-            font-size: 0.85rem;
-            color: var(--ink-soft);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 8px;
-        }
-
-        .path-card .score {
-            font-size: 2.75rem;
-            font-weight: 700;
-            color: var(--pine);
-            font-family: 'IBM Plex Mono', monospace;
-            line-height: 1;
-            margin-bottom: 8px;
-        }
-
-        .path-card .delta {
-            font-size: 0.95rem;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .path-svg {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        @media (max-width: 760px) {
-            .hero {
-                grid-template-columns: 1fr;
-                gap: 32px;
-                padding: 40px 5%;
-            }
-            .hero h1 {
-                font-size: 2.25rem;
-            }
-        }
-
-        /* Кнопки анимация */
-        .btn {
-            display: inline-block;
-            padding: 14px 28px;
-            background-color: var(--pine);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(31, 75, 63, 0.35);
-        }
-
-        .btn .arrow {
-            display: inline-block;
-            margin-left: 8px;
-            transition: transform .2s ease;
-        }
-
-        .btn:hover .arrow {
-            transform: translateX(4px);
-        }
-
-        section {
-            padding: 5rem 5%;
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 3.5rem;
-            font-size: 2.5rem;
-            color: var(--pine);
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2.5rem;
-        }
-
-        #how-it-works {
-            background: transparent;
-        }
-        .feat {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 12px;
-            border: 2px solid #eee;
-            position: relative;
-            transition: transform .25s ease, border-color .25s ease;
-        }
-
-        .feat:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent);
-        }
-
-        .feat .num {
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            font-size: 3rem;
-            font-weight: 800;
-            color: rgba(31, 75, 63, 0.08);
-            transition: transform .25s ease;
-        }
-
-        .feat:hover .num {
-            transform: scale(1.15);
-            color: rgba(201, 138, 44, 0.15);
-        }
-        .feat h3 {
-            margin-bottom: 1rem;
-            color: var(--pine);
-        }
-
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            max-width: 1100px;
-            margin: 0 auto;
-            align-items: stretch;
-        }
-
-        @media (max-width: 760px) {
-            .pricing-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Карточки price-card анимация */
-        .price-card {
-            background: white;
-            padding: 3.5rem 2.5rem;
-            border-radius: 20px;
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid #eee;
-            transition: transform .25s ease, box-shadow .25s ease;
-            position: relative;
-        }
-
-        .price-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 30px rgba(31, 75, 63, 0.15);
-        }
-
-        .price-card.featured {
-            border: 2px solid rgba(201, 138, 44, 0.3);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            z-index: 2;
-        }
-
-        .price-card.featured:hover {
-            border-color: var(--accent);
-            box-shadow: 0 15px 35px rgba(201, 138, 44, 0.2);
-        }
-
-        .price-card h3 {
-            margin-bottom: 1rem;
-            color: var(--pine);
-            font-size: 1.5rem;
-        }
-
-        .price-card .price,
-        .price-card .amount {
-            font-size: 30px;
-            font-weight: bold;
-            margin-bottom: 2rem;
-            color: var(--pine);
-            display: block;
-        }
-
-        .price-card.featured .amount {
-            font-size: 34px;
-            letter-spacing: -0.02em;
-        }
-
-        .price-card ul {
-            list-style: none;
-            margin-bottom: 2rem;
-            text-align: left;
-        }
-
-        .price-card li {
-            margin-bottom: 0.5rem;
-            padding-left: 1.5rem;
-            position: relative;
-        }
-
-        .price-card li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: var(--accent);
-            font-weight: bold;
-        }
-
-        #parents {
-            background-image: linear-gradient(rgba(28,38,32,0.75), rgba(28,38,32,0.85)), 
-            url('https://images.unsplash.com/photo-1747913647304-9f298ff28ff4?fm=jpg&q=80&w=2000&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            border-radius: 20px;
-            padding: 64px 40px;
-            text-align: center;
-            color: white;
-            margin: 40px 5%;
-        }
-
-
-
-        footer {
-            background: var(--pine);
-            color: white;
-            text-align: center;
-            padding: 3rem;
-        }
-    </style>
+    @media (max-width:760px){
+      h1{font-size:38px;}
+      .grid-3, .pricing{grid-template-columns:1fr;}
+    }
+  </style>
 </head>
 <body>
+<div id="stars" style="position:fixed; inset:0; z-index:0; pointer-events:none;"></div>
 
-<svg viewBox="0 0 1440 500" preserveAspectRatio="none" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;">
-  <path fill="none" stroke="rgba(201,138,44,0.35)" stroke-width="1.5">
-    <animate attributeName="d" dur="8s" repeatCount="indefinite" values="
-      M-50,180 C300,80 500,280 750,140 C1000,20 1250,220 1500,120;
-      M-50,180 C300,120 500,240 750,180 C1000,60 1250,180 1500,160;
-      M-50,180 C300,80 500,280 750,140 C1000,20 1250,220 1500,120"/>
-  </path>
-  <path fill="none" stroke="rgba(201,138,44,0.20)" stroke-width="1">
-    <animate attributeName="d" dur="9s" repeatCount="indefinite" values="
-      M-50,220 C280,320 520,140 780,260 C1020,360 1260,180 1500,280;
-      M-50,220 C280,280 520,180 780,220 C1020,320 1260,220 1500,240;
-      M-50,220 C280,320 520,140 780,260 C1020,360 1260,180 1500,280"/>
-  </path>
-  <path fill="none" stroke="rgba(201,138,44,0.45)" stroke-width="2">
-    <animate attributeName="d" dur="7s" repeatCount="indefinite" values="
-      M-50,150 C320,240 560,90 800,200 C1040,300 1280,130 1500,210;
-      M-50,150 C320,200 560,130 800,240 C1040,260 1280,170 1500,250;
-      M-50,150 C320,240 560,90 800,200 C1040,300 1280,130 1500,210"/>
-  </path>
-  <path fill="none" stroke="rgba(31,75,63,0.15)" stroke-width="1">
-    <animate attributeName="d" dur="11s" repeatCount="indefinite" values="
-      M-50,260 C300,160 540,320 790,190 C1030,80 1270,260 1500,160;
-      M-50,260 C300,200 540,280 790,230 C1030,120 1270,220 1500,200;
-      M-50,260 C300,160 540,320 790,190 C1030,80 1270,260 1500,160"/>
-  </path>
-</svg>
-
-<header>
-    <div class="logo">JOL-Bilim</div>
-    <nav class="nav-links">
-        <a href="#">Главная</a>
-        <a href="#how-it-works">Как это работает</a>
-        <a href="#pricing">Цены</a>
-        <a href="#parents">Родителям</a>
+<style>
+.star{position:absolute; border-radius:50%; background:#fff; animation:twinkle ease-in-out infinite;}
+@keyframes twinkle{0%,100%{opacity:0.15;}50%{opacity:0.8;}}
+</style>
+<div class="video-section hero">
+  <video autoplay muted loop playsinline>
+    <source src="https://videos.pexels.com/video-files/14058189/14058189-uhd_2560_1440_24fps.mp4" type="video/mp4">
+  </video>
+  <div class="overlay"></div>
+  <div class="content">
+    <nav class="liquid-glass" style="width:100%; max-width:1100px;">
+      <div class="logo">JOL-<span>Bilim</span></div>
+      <div class="nav-links">
+        <a href="#how">Как работает</a><a href="#pricing">Цены</a><a href="#parents">Родителям</a>
+      </div>
+      <div class="nav-right">
+        <a href="parent.html" class="plain">Для родителя</a>
+        <a href="cabinet.html" class="btn-glass liquid-glass">Мой кабинет →</a>
+        <button id="nav-toggle"><span></span><span></span><span></span></button>
+      </div>
     </nav>
-    <div style="display: flex; align-items: center; gap: 1rem;">
-        <a href="cabinet.html" class="btn" style="padding: 8px 16px; font-size: 0.9rem;">Мой кабинет →</a>
-        <button id="nav-toggle" style="background: none; border: none; cursor: pointer; display: none; flex-direction: column; gap: 5px; padding: 4px;">
-            <span style="display: block; width: 24px; height: 2px; background: var(--pine);"></span>
-            <span style="display: block; width: 24px; height: 2px; background: var(--pine);"></span>
-            <span style="display: block; width: 24px; height: 2px; background: var(--pine);"></span>
-        </button>
+    <div style="margin-top:60px; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+      <div class="eyebrow">подготовка к ОРТ · Кыргызстан</div>
+      <h1>Путь к <em>знаниям</em><br>начинается здесь</h1>
+      <div class="search-bar liquid-glass">
+        <span>Пройти тест бесплатно</span>
+        <button onclick="location.href='cabinet.html'">→</button>
+      </div>
+      <div class="hint">5 вопросов · 2 минуты · без регистрации</div>
+      <a href="#how" class="btn-glass liquid-glass">Как это работает ↓</a>
     </div>
-</header>
+  </div>
+</div>
 
-<main>
-    <section class="hero">
-      <div>
-        <div class="eyebrow">🇰🇬 подготовка к ОРТ · Кыргызстан</div>
-        <h1 style="font-family: 'Fraunces', serif;">Разбираем твои ошибки в ОРТ — <em style="color:var(--accent);">не чужие</em></h1>
-        <p class="lead">ИИ-репетитор проверяет прогресс каждую неделю. Ты видишь, где буксуешь, 
-        родитель — как ты растёшь. Без абонемента вслепую.</p>
-        <div class="cta-row">
-          <button class="btn btn-primary" id="cta-main">Пройти тест бесплатно <span class="arrow">→</span></button>
-          <span class="hint">5 вопросов · 2 минуты · без регистрации</span>
+<section class="plain" id="how">
+  <div class="video-section how-video liquid-glass">
+    <video autoplay muted loop playsinline style="opacity:0.3;">
+      <source src="https://videos.pexels.com/video-files/16542902/16542902-uhd_2560_1440_24fps.mp4" type="video/mp4">
+    </video>
+    <div class="content">
+      <div class="section-head"><h2>Как это <em>работает</em></h2></div>
+      <div class="grid-3">
+        <div class="feat liquid-glass">
+          <div class="num">01</div>
+          <h3>ИИ разбирает каждую ошибку</h3>
+          <p>Не общий урок для всей группы — конкретно то место, где ошибся именно ты, и почему.</p>
+        </div>
+        <div class="feat liquid-glass">
+          <div class="num">02</div>
+          <h3>Родитель видит прогресс</h3>
+          <p>Отдельный экран для родителя — без звонков «как там подготовка к ОРТ».</p>
+        </div>
+        <div class="feat liquid-glass">
+          <div class="num">03</div>
+          <h3>Без абонемента вслепую</h3>
+          <p>Сначала бесплатная диагностика. Платишь только когда сам увидел результат.</p>
         </div>
       </div>
-      <div class="path-card">
-        <span class="example-badge">пример</span>
-        <p class="label mono">так выглядит отчёт после диагностики</p>
-        <p class="score">142</p>
-        <p class="delta">↑ +24 балла за 3 недели — у обычного ученика</p>
-        <svg class="path-svg" viewBox="0 0 320 110" fill="none">
-          <polyline points="0,90 60,74 120,78 180,44 240,34 300,10" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="0" cy="90" r="4" fill="var(--pine)"/>
-          <circle cx="120" cy="78" r="4" fill="var(--pine)"/>
-          <circle cx="240" cy="34" r="4" fill="var(--pine)"/>
-          <circle cx="300" cy="10" r="5" fill="var(--accent)"/>
-        </svg>
+    </div>
+  </div>
+</section>
+<section class="plain" id="pricing">
+  <div class="video-section liquid-glass" style="border-radius:24px; padding:60px 24px;">
+    <video autoplay muted loop playsinline style="opacity:0.25;">
+      <source src="https://videos.pexels.com/video-files/13382270/13382270-uhd_2560_1440_24fps.mp4" type="video/mp4">
+    </video>
+    <div class="content">
+      <div class="section-head"><h2>Выберите свой <em>тариф</em></h2></div>
+      <div class="pricing">
+        <div class="price-card liquid-glass">
+          <div class="plan">Диагностика</div>
+          <div class="amount">Бесплатно</div>
+          <ul><li>1 полный тест по формату ОРТ</li><li>Разбор всех ошибок</li><li>Прогноз балла</li></ul>
+          <a href="test.html" class="btn-white">Начать →</a>
+        </div>
+        <div class="price-card liquid-glass featured">
+          <span class="badge">выбирают чаще</span>
+          <div class="plan">Полный доступ</div>
+          <div class="amount">990 сом/мес</div>
+          <ul><li>Безлимит тестов по всем предметам</li><li>Разбор ошибок с объяснением</li><li>Доступ для родителя</li></ul>
+          <a href="cabinet.html" class="btn-white">Выбрать →</a>
+        </div>
+        <div class="price-card liquid-glass">
+          <div class="plan">Максимум</div>
+          <div class="amount">1990 сом/мес</div>
+          <ul><li>Всё из Полного доступа</li><li>Персональный план подготовки по слабым темам</li><li>Приоритетная поддержка в Telegram</li></ul>
+          <a href="cabinet.html" class="btn-white">Выбрать →</a>
+        </div>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
 
-    <section id="how-it-works">
-        <h2>Как это работает</h2>
-        <div class="features-grid">
-            <div class="feat">
-                <div class="num mono">01</div>
-                <h3>Регистрация</h3>
-                <p>Быстрое создание профиля ученика и родителя с настройкой интересов.</p>
-            </div>
-            <div class="feat">
-                <div class="num mono">02</div>
-                <h3>Адаптация</h3>
-                <p>Умная система подбирает сложность заданий под темп вашего ребенка.</p>
-            </div>
-            <div class="feat">
-                <div class="num mono">03</div>
-                <h3>Результат</h3>
-                <p>Наблюдайте за прогрессом и получайте детальные отчеты каждую неделю.</p>
-            </div>
-        </div>
-    </section>
+<section class="plain" id="parents">
+  <div class="video-section parents liquid-glass">
+    <video autoplay muted loop playsinline>
+      <source src="https://videos.pexels.com/video-files/39115389/16646099_2560_1440_24fps.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+    <div class="content">
+      <h2>Следите за прогрессом ребёнка</h2>
+      <p>Ребёнок пришлёт вам код после своей регистрации — введите его здесь и увидите его баллы и прогресс.</p>
+      <a href="parent.html" class="btn-white">Кабинет родителя →</a>
+    </div>
+  </div>
+</section>
 
-    <section id="pricing">
-        <h2>Выберите свой тариф</h2>
-        <div class="pricing-grid">
-            <div class="price-card">
-                <div>
-                    <h3>Диагностика</h3>
-                    <div class="amount mono">Бесплатно</div>
-                    <ul>
-                        <li>1 полный тест по формату ОРТ</li>
-                        <li>Разбор всех ошибок</li>
-                        <li>Прогноз балла</li>
-                    </ul>
-                </div>
-                <a href="test.html" class="btn">Начать <span class="arrow">→</span></a>
-            </div>
-            <div class="price-card featured">
-                <span class="example-badge">выбирают чаще</span>
-                <div>
-                    <h3>Полный доступ</h3>
-                    <div class="amount mono">990 сом/мес</div>
-                    <ul>
-                        <li>Безлимит тестов по всем предметам</li>
-                        <li>Разбор ошибок с объяснением</li>
-                        <li>Доступ для родителя</li>
-                    </ul>
-                </div>
-                <a href="cabinet.html" class="btn">Выбрать <span class="arrow">→</span></a>
-            </div>
-            <div class="price-card">
-                <div>
-                    <h3>Максимум</h3>
-                    <div class="amount mono">1990 сом/мес</div>
-                    <ul>
-                        <li>Всё из Полного доступа</li>
-                        <li>Персональный план подготовки по слабым темам</li>
-                        <li>Приоритетная поддержка в Telegram</li>
-                    </ul>
-                </div>
-                <a href="cabinet.html" class="btn">Выбрать <span class="arrow">→</span></a>
-            </div>
-        </div>
-    </section>
-
-    <section id="parents">
-        <h2 style="font-family: 'Fraunces', serif; color: #fff; font-size: 28px; margin-bottom: 16px;">Следите за прогрессом ребёнка</h2>
-        <p style="color: rgba(255,255,255,0.75); font-size: 14px; max-width: 40ch; margin: 0 auto 24px; line-height: 1.5;">Ребёнок пришлёт вам код после своей регистрации — введите его здесь и увидите его баллы и прогресс.</p>
-        <a href="parent.html" class="btn btn-primary">Кабинет родителя →</a>
-    </section>
-</main>
-
-<footer>
-    <p>&copy; 2026 JOL-Bilim. Образование будущего доступно сегодня.</p>
-</footer>
+<footer>© 2026 JOL-Bilim. Подготовка к ОРТ с помощью ИИ.</footer>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const navToggle = document.getElementById('nav-toggle');
-        const navLinks = document.querySelector('.nav-links');
-        if (navToggle && navLinks) {
-            navToggle.addEventListener('click', () => {
-                navLinks.classList.toggle('open');
-            });
-        }
-
-        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else {
-                    const target = document.querySelector(targetId);
-                    if (target) {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                }
-                if (navLinks && navLinks.classList.contains('open')) {
-                    navLinks.classList.remove('open');
-                }
-            });
-        });
-
-        // Обработчик для кнопки cta-main
-        const ctaMain = document.getElementById('cta-main');
-        if (ctaMain) {
-            ctaMain.addEventListener('click', function() {
-                var user = localStorage.getItem('jolBilimUser');
-                if (user) {
-                    window.location.href = 'test.html';
-                } else {
-                    window.location.href = 'cabinet.html';
-                }
-            });
-        }
-    });
+document.getElementById('nav-toggle').addEventListener('click', function(){
+  document.querySelector('.nav-links').classList.toggle('open');
+});
 </script>
+
+<script>
+const starsBox = document.getElementById('stars');
+for(let i=0;i<80;i++){
+  const s = document.createElement('div');
+  s.className='star';
+  const size = 1 + Math.random()*1.5;
+  s.style.width=size+'px'; s.style.height=size+'px';
+  s.style.left=Math.random()*100+'%';
+  s.style.top=Math.random()*100+'%';
+  s.style.animationDuration=(2+Math.random()*4)+'s';
+  s.style.animationDelay=(Math.random()*4)+'s';
+  starsBox.appendChild(s);
+}
+</script>
+
 </body>
 </html>

@@ -3,197 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Прогресс ребёнка - JOL-Bilim</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<title>Кабинет родителя - JOL-Bilim</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #F6F4EF; --ink: #1C2620; --accent: #C98A2C; --pine: #1F4B3F;
-  --pine-bg: rgba(31, 75, 63, 0.1); --bg-2: #ffffff; --line: #e2dfd8;
-  --ink-soft: #5c6660; --text: var(--ink); --white: #ffffff; --error: #d9534f;
-}
-.mono { font-family: 'IBM Plex Mono', monospace; }
+:root { --bg: #000000; --ink: #F3F1E9; --ink-soft: rgba(243,241,233,0.65); --accent: #E3A83B; --line: rgba(255,255,255,0.12); --white: #ffffff; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6; color: var(--text); background-color: var(--bg);
-  min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
-}
-.auth-card, .progress-card {
-  background: var(--bg-2); border: 1px solid var(--line); border-radius: 20px;
-  padding: 32px; width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05);
-}
-.auth-card h1 { font-family: 'Fraunces', serif; font-size: 2rem; color: var(--ink); margin-bottom: 6px; text-align: center; }
-.auth-card .subtitle { font-size: 0.9rem; color: var(--ink-soft); text-align: center; margin-bottom: 24px; }
-.form-group { margin-bottom: 18px; }
-.form-control {
-  width: 100%; padding: 12px 16px; font-size: 1.1rem; border: 1px solid var(--line);
-  border-radius: 8px; background-color: var(--bg); color: var(--ink);
-  font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 2px; text-align: center;
-}
-.form-control:focus { outline: none; border-color: var(--pine); background-color: var(--white); box-shadow: 0 0 0 3px var(--pine-bg); }
-.form-control::placeholder { text-transform: none; letter-spacing: normal; font-family: 'Segoe UI', sans-serif; font-size: 0.95rem; color: #999; }
-.error-text { color: var(--error); font-size: 0.85rem; margin-top: 6px; text-align: center; display: none; }
-.form-group.has-error .form-control { border-color: var(--error); }
-.form-group.has-error .error-text { display: block; }
-.btn {
-  display: inline-block; padding: 14px 28px; background-color: var(--pine); color: white;
-  text-decoration: none; border-radius: 8px; font-weight: 600; border: none; cursor: pointer;
-  transition: all .25s ease; width: 100%; font-size: 1rem; text-align: center;
-}
-.btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(31, 75, 63, 0.35); }
-.progress-card { display: none; max-width: 500px; }
-.progress-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; border-bottom: 1px solid var(--line); padding-bottom: 16px; }
-.child-name { font-family: 'Fraunces', serif; font-size: 1.8rem; color: var(--ink); margin-bottom: 4px; }
-.grade-badge { display: inline-block; background: var(--pine-bg); color: var(--pine); padding: 4px 12px; border-radius: 16px; font-size: 0.85rem; font-weight: 600; }
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-.stat-box { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
-.stat-box .label { font-size: 0.8rem; color: var(--ink-soft); text-transform: uppercase; margin-bottom: 6px; }
-.stat-box .value { font-size: 2rem; font-weight: 700; color: var(--pine); line-height: 1; transition: opacity 0.4s ease; }
-.stat-box .value.flash { opacity: 0.2; }
-.section-title { font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 12px; }
-.history-list { list-style: none; display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; }
-.history-item { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; overflow-x: hidden; }
+.mono { font-family: 'IBM Plex Mono', monospace; }
+.liquid-glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--line); }
+#submit-code:hover { transform: translateY(-2px); }
+.flash { opacity: 0.2; }
+.progress-card { display: none; position: relative; z-index: 2; width: 100%; max-width: 520px; margin: auto; border-radius: 24px; padding: 36px; background: rgba(0,0,0,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--line); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+.history-list { list-style: none; display: flex; flex-direction: column; max-height: 240px; overflow-y: auto; margin-top: 12px; }
+.history-item { padding: 12px 0; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.history-item:first-child { border-top: none; }
 .history-item .date { color: var(--ink-soft); }
-.history-item .score-val { font-weight: 700; color: var(--pine); }
-.btn-back { background: none; border: none; color: var(--ink-soft); font-size: 0.9rem; cursor: pointer; text-decoration: underline; margin-top: 8px; display: inline-block; }
+.history-item .score-val { font-weight: 600; color: var(--accent); }
 </style>
 </head>
 <body>
-<div class="auth-card" id="form-card">
-    <h1>Прогресс вашего ребёнка</h1>
-    <p class="subtitle">Введите код, который прислал вам ребёнок</p>
-    <form id="code-form" novalidate>
-        <div class="form-group" id="group-code">
-            <input type="text" id="input-code" name="code" class="form-control mono" placeholder="Например: A1B2C3" autocomplete="off" maxlength="10">
-            <div class="error-text" id="error-text">Код не найден, проверьте правильность</div>
-        </div>
-        <button type="submit" class="btn">Показать прогресс →</button>
-    </form>
+<video autoplay muted loop playsinline style="position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;">
+  <source src="https://videos.pexels.com/video-files/20360283/20360283-hd_1080_1920_30fps.mp4" type="video/mp4">
+</video>
+<div style="position:fixed; inset:0; z-index:1; background:linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.85) 100%);"></div>
+
+<div id="form-card" style="position:relative; z-index:2; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 24px;">
+  <div style="font-size:12px; color:var(--accent); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:20px;">кабинет родителя</div>
+  <h1 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:56px; line-height:1.1; margin:0 0 16px; color:#fff;">
+    Прогресс вашего <em style="font-style:italic; color:var(--accent);">ребёнка</em>
+  </h1>
+  <p style="font-size:15px; color:var(--ink-soft); margin:0 0 32px;">Введите код, который прислал вам ребёнок</p>
+
+  <form id="code-form" style="width:100%; display:flex; flex-direction:column; align-items:center;" novalidate>
+    <div id="group-code" style="width:100%; max-width:420px; margin:0 auto;">
+      <div class="liquid-glass" style="display:flex; align-items:center; gap:8px; border-radius:100px; padding:6px 6px 6px 24px;">
+        <input type="text" id="code-input" placeholder="Например: A1B2C3" style="flex:1; background:none; border:none; color:#fff; font-size:14px; outline:none; text-transform:uppercase;">
+        <button type="submit" id="submit-code" style="background:#fff; color:#000; border:none; border-radius:100px; padding:12px 24px; font-size:14px; font-weight:600; cursor:pointer; white-space:nowrap; transition:transform 0.2s ease;">Показать прогресс →</button>
+      </div>
+      <div id="code-error" style="color:#F87171; font-size:13px; margin-top:14px; display:none;"></div>
+    </div>
+  </form>
 </div>
+
 <div class="progress-card" id="progress-card">
-    <div class="progress-header">
-        <div>
-            <div class="child-name" id="child-name">Имя ребёнка</div>
-            <span class="grade-badge" id="child-grade">Класс</span>
-        </div>
-        <button class="btn-back" id="btn-change-code">← Ввести другой код</button>
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; border-bottom:1px solid var(--line); padding-bottom:16px;">
+    <div>
+      <div style="font-family:'Instrument Serif',serif; font-size:32px; color:#fff; margin-bottom:4px;" id="child-name">Имя ребёнка</div>
+      <div style="font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:0.08em;" id="child-grade">Класс</div>
     </div>
-    <div class="stat-grid">
-        <div class="stat-box">
-            <div class="label mono">Прогноз балла ОРТ</div>
-            <div class="value mono" id="child-score">0</div>
-        </div>
-        <div class="stat-box">
-            <div class="label mono">Пройдено тестов</div>
-            <div class="value mono" id="child-tests">0</div>
-        </div>
+    <button id="btn-change-code" style="background:none; border:none; color:var(--ink-soft); font-size:12px; cursor:pointer; text-decoration:underline;">← Другой код</button>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
+    <div class="liquid-glass" style="border-radius:16px; padding:20px;">
+      <div style="font-size:11px; color:var(--ink-soft); text-transform:uppercase; margin-bottom:8px;">прогноз балла ОРТ</div>
+      <div class="mono" style="font-family:'Instrument Serif',serif; font-size:42px; color:var(--accent); line-height:1; transition: opacity 0.4s ease;" id="child-score">0</div>
     </div>
-    <div class="section-title">История попыток</div>
-    <div id="child-history">
-        <div style="color:var(--ink-soft);background:var(--bg);padding:16px;border-radius:10px;text-align:center;">Тестов пока не было</div>
+    <div class="liquid-glass" style="border-radius:16px; padding:20px;">
+      <div style="font-size:11px; color:var(--ink-soft); text-transform:uppercase; margin-bottom:8px;">пройдено тестов</div>
+      <div class="mono" style="font-family:'Instrument Serif',serif; font-size:42px; color:#fff; line-height:1; transition: opacity 0.4s ease;" id="child-tests">0</div>
     </div>
+  </div>
+  <div style="font-size:11px; color:var(--ink-soft); text-transform:uppercase; margin-bottom:12px;">история тестирования</div>
+  <div id="child-history">
+    <div style="color:var(--ink-soft); background:rgba(255,255,255,0.02); padding:16px; border-radius:12px; text-align:center; font-size:13px;">Тестов пока не было</div>
+  </div>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const formCard = document.getElementById('form-card');
-        const progressCard = document.getElementById('progress-card');
-        const codeForm = document.getElementById('code-form');
-        const inputCode = document.getElementById('input-code');
-        const groupCode = document.getElementById('group-code');
-        const errorText = document.getElementById('error-text');
-        const btnChangeCode = document.getElementById('btn-change-code');
 
-        const childNameEl = document.getElementById('child-name');
-        const childGradeEl = document.getElementById('child-grade');
-        const childScoreEl = document.getElementById('child-score');
-        const childTestsEl = document.getElementById('child-tests');
-        const childHistoryEl = document.getElementById('child-history');
-
-        let unsubscribe = null;
-        let prevScore = null, prevTests = null;
-
-        inputCode.addEventListener('input', () => {
-            groupCode.classList.remove('has-error');
-            inputCode.value = inputCode.value.toUpperCase();
-        });
-
-        codeForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const code = inputCode.value.trim().toUpperCase();
-            if (!code) {
-                groupCode.classList.add('has-error');
-                errorText.textContent = 'Введите семейный код';
-                return;
-            }
-            if (unsubscribe) unsubscribe();
-
-            unsubscribe = db.collection('families').doc(code).onSnapshot((doc) => {
-                if (!doc.exists) {
-                    groupCode.classList.add('has-error');
-                    errorText.textContent = 'Код не найден, проверьте правильность';
-                    return;
-                }
-                groupCode.classList.remove('has-error');
-                formCard.style.display = 'none';
-                progressCard.style.display = 'block';
-
-                const data = doc.data();
-                childNameEl.textContent = data.name || 'Ученик';
-                childGradeEl.textContent = data.grade || 'Класс';
-
-                const newScore = data.score ?? 0;
-                const newTests = data.testsCompleted ?? 0;
-
-                if (prevScore !== null && (prevScore !== newScore || prevTests !== newTests)) {
-                    childScoreEl.classList.add('flash');
-                    childTestsEl.classList.add('flash');
-                    setTimeout(() => {
-                        childScoreEl.classList.remove('flash');
-                        childTestsEl.classList.remove('flash');
-                    }, 400);
-                }
-                prevScore = newScore;
-                prevTests = newTests;
-
-                childScoreEl.textContent = newScore;
-                childTestsEl.textContent = newTests;
-
-                const history = data.history || [];
-                if (history.length === 0) {
-                    childHistoryEl.innerHTML = '<div style="color:var(--ink-soft);background:var(--bg);padding:16px;border-radius:10px;text-align:center;">Тестов пока не было</div>';
-                } else {
-                    const ul = document.createElement('ul');
-                    ul.className = 'history-list';
-                    history.forEach((item, index) => {
-                        const li = document.createElement('li');
-                        li.className = 'history-item';
-                        li.innerHTML = `<span class="date">${item.date || `Попытка #${index + 1}`}</span><span class="score-val mono">${item.score ?? 0} баллов</span>`;
-                        ul.appendChild(li);
-                    });
-                    childHistoryEl.innerHTML = '';
-                    childHistoryEl.appendChild(ul);
-                }
-            }, (err) => {
-                console.error("Snapshot error: ", err);
-                groupCode.classList.add('has-error');
-                errorText.textContent = 'Ошибка подключения к базе';
-            });
-        });
-
-        btnChangeCode.addEventListener('click', () => {
-            if (unsubscribe) { unsubscribe(); unsubscribe = null; }
-            progressCard.style.display = 'none';
-            formCard.style.display = 'block';
-            inputCode.value = '';
-            prevScore = null; prevTests = null;
-        });
-    });
-</script>
+<div class="liquid-glass" style="position:relative; z-index:2; margin:0 24px 24px; border-radius:20px; padding:20px 24px; text-align:center; font-size:12px; color:var(--ink-soft);">
+  JOL-Bilim · подготовка к ОРТ с помощью ИИ
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
-const firebaseConfig = {
+firebase.initializeApp({
   apiKey: "AIzaSyAmru1-7SS3dwAMEborymtJJudtcflQYzU",
   authDomain: "jol-bilim.firebaseapp.com",
   projectId: "jol-bilim",
@@ -201,10 +84,104 @@ const firebaseConfig = {
   messagingSenderId: "1059233182996",
   appId: "1:1059233182996:web:40ad78360b42dd49d37e01",
   measurementId: "G-P7RR3W3ZF7"
-};
-firebase.initializeApp(firebaseConfig);
+});
 const db = firebase.firestore();
-</script>
+document.addEventListener('DOMContentLoaded', () => {
+    const formCard = document.getElementById('form-card');
+    const progressCard = document.getElementById('progress-card');
+    const codeForm = document.getElementById('code-form');
+    const groupCode = document.getElementById('group-code');
+    const inputCode = document.getElementById('code-input');
+    const errorText = document.getElementById('code-error');
+    const childNameEl = document.getElementById('child-name');
+    const childGradeEl = document.getElementById('child-grade');
+    const childScoreEl = document.getElementById('child-score');
+    const childTestsEl = document.getElementById('child-tests');
+    const childHistoryEl = document.getElementById('child-history');
+    const btnChangeCode = document.getElementById('btn-change-code');
+    let unsubscribe = null, prevScore = null, prevTests = null;
 
+    inputCode.addEventListener('input', () => {
+        groupCode.classList.remove('has-error');
+        errorText.style.display = 'none';
+        inputCode.value = inputCode.value.toUpperCase();
+    });
+
+    codeForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const code = inputCode.value.trim().toUpperCase();
+        if (!code) {
+            groupCode.classList.add('has-error');
+            errorText.style.display = 'block';
+            errorText.textContent = 'Введите семейный код';
+            return;
+        }
+        if (unsubscribe) unsubscribe();
+
+        unsubscribe = db.collection('families').doc(code).onSnapshot((doc) => {
+            if (!doc.exists) {
+                groupCode.classList.add('has-error');
+                errorText.style.display = 'block';
+                errorText.textContent = 'Код не найден, проверьте правильность';
+                return;
+            }
+            groupCode.classList.remove('has-error');
+            errorText.style.display = 'none';
+            formCard.style.display = 'none';
+            progressCard.style.display = 'block';
+
+            const data = doc.data();
+            childNameEl.textContent = data.name || 'Ученик';
+            childGradeEl.textContent = data.grade || 'Класс';
+
+            const newScore = data.score ?? 0;
+            const newTests = data.testsCompleted ?? 0;
+
+            if (prevScore !== null && (prevScore !== newScore || prevTests !== newTests)) {
+                childScoreEl.classList.add('flash');
+                childTestsEl.classList.add('flash');
+                setTimeout(() => {
+                    childScoreEl.classList.remove('flash');
+                    childTestsEl.classList.remove('flash');
+                }, 400);
+            }
+            prevScore = newScore;
+            prevTests = newTests;
+
+            childScoreEl.textContent = newScore;
+            childTestsEl.textContent = newTests;
+
+            const history = data.history || [];
+            if (history.length === 0) {
+                childHistoryEl.innerHTML = '<div style="color:var(--ink-soft); background:rgba(255,255,255,0.02); padding:16px; border-radius:12px; text-align:center; font-size:13px;">Тестов пока не было</div>';
+            } else {
+                const ul = document.createElement('ul');
+                ul.className = 'history-list';
+                history.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
+                    li.innerHTML = `<span class="date">${item.date || 'Попытка #' + (index + 1)}</span><span class="score-val">${item.score ?? 0} баллов</span>`;
+                    ul.appendChild(li);
+                });
+                childHistoryEl.innerHTML = '';
+                childHistoryEl.appendChild(ul);
+            }
+        }, (err) => {
+            console.error("Snapshot error: ", err);
+            groupCode.classList.add('has-error');
+            errorText.style.display = 'block';
+            errorText.textContent = 'Ошибка подключения к базе';
+        });
+    });
+
+    btnChangeCode.addEventListener('click', () => {
+        if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+        progressCard.style.display = 'none';
+        formCard.style.display = 'flex';
+        inputCode.value = '';
+        prevScore = null; prevTests = null;
+    });
+});
+</script>
 </body>
 </html>

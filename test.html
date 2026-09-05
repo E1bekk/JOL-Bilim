@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Диагностический тест ОРТ - JOL-Bilim</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script>
         (function() {
             try {
@@ -16,76 +16,215 @@
         })();
     </script>
     <style>
-        :root { --bg: #F6F4EF; --ink: #1C2620; --accent: #C98A2C; --pine: #1F4B3F; --pine-bg: rgba(31, 75, 63, 0.1); --bg-2: #ffffff; --line: #e2dfd8; --ink-soft: #5c6660; --text: var(--ink); --white: #ffffff; }
-        .mono { font-family: 'IBM Plex Mono', monospace; }
+        :root {
+            --bg: #000000;
+            --ink: #F3F1E9;
+            --ink-soft: rgba(243,241,233,0.65);
+            --accent: #E3A83B;
+            --line: rgba(255,255,255,0.12);
+        }
+        .star { position: absolute; border-radius: 50%; background: #fff; animation: twinkle ease-in-out infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.8; } }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: var(--text); background-color: var(--bg); min-height: 100vh; display: flex; flex-direction: column; }
-        header { background: var(--white); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
-        .logo { font-size: 1.5rem; font-weight: bold; color: var(--pine); text-decoration: none; }
-        main { flex: 1; max-width: 800px; width: 100%; margin: 0 auto; padding: 40px 20px; }
-        .screen-title { font-family: 'Fraunces', serif; font-size: 2.2rem; color: var(--ink); margin-bottom: 8px; text-align: center; }
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--ink);
+            background-color: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .liquid-glass {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--line);
+        }
+
+        header {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--line);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .logo { font-family: 'Instrument Serif', serif; font-size: 1.8rem; font-weight: 600; color: var(--ink); text-decoration: none; }
+        .logo span { color: var(--accent); }
+
+        main { flex: 1; max-width: 800px; width: 100%; margin: 0 auto; padding: 40px 20px; position: relative; z-index: 1; }
+
+        .screen-title { font-family: 'Instrument Serif', serif; font-size: 3rem; color: var(--ink); margin-bottom: 8px; text-align: center; font-weight: normal; }
         .screen-subtitle { font-size: 1.1rem; color: var(--ink-soft); margin-bottom: 32px; text-align: center; }
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; margin-top: 20px; }
-        .feat { background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 24px; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 4px 15px rgba(28, 38, 32, 0.03); display: flex; flex-direction: column; gap: 12px; }
-        .feat:hover { border-color: var(--pine); transform: translateY(-4px); box-shadow: 0 10px 25px rgba(31, 75, 63, 0.1); }
-        .feat .num { font-size: 0.9rem; color: var(--accent); font-weight: 600; }
-        .feat h3 { font-size: 1.2rem; color: var(--ink); }
+
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 20px; }
+
+        .feat {
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .feat:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.07);
+        }
+        .feat .num { font-size: 0.9rem; color: var(--accent); font-weight: 600; font-family: monospace; }
+        .feat h3 { font-size: 1.3rem; color: var(--ink); font-family: 'Instrument Serif', serif; font-weight: normal; }
         .feat p { font-size: 0.9rem; color: var(--ink-soft); }
+
         #selection-screen { display: block; }
         #quiz-screen { display: none; }
         #result-screen { display: none; text-align: center; }
+
         .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.9rem; color: var(--ink-soft); }
-        .progress-bar-wrap { width: 100%; height: 8px; background: var(--line); border-radius: 4px; margin-bottom: 32px; overflow: hidden; }
+        .progress-bar-wrap { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 32px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; }
-        .test-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 20px; padding: 32px; box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05); }
-        .question-text { font-size: 1.15rem; font-weight: 600; color: var(--ink); margin-bottom: 24px; white-space: pre-line; line-height: 1.5; }
+        .test-card {
+            border-radius: 20px;
+            padding: 32px;
+        }
+        .question-text { font-size: 1.2rem; font-weight: 500; color: var(--ink); margin-bottom: 24px; white-space: pre-line; line-height: 1.5; }
         .options-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
-        .option-item { background: var(--bg); border: 2px solid var(--line); border-radius: 12px; padding: 16px 20px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: all 0.2s ease; user-select: none; }
-        .option-item:hover { border-color: var(--accent); background: var(--white); }
-        .option-item.correct { background: rgba(40, 167, 69, 0.15); border-color: #28a745; color: #155724; font-weight: 600; }
-        .option-item.correct .option-letter { background: #28a745; color: white; }
-        .option-item.incorrect { background: rgba(220, 53, 69, 0.15); border-color: #dc3545; color: #721c24; font-weight: 600; }
-        .option-item.incorrect .option-letter { background: #dc3545; color: white; }
-        .option-letter { width: 32px; height: 32px; background: var(--line); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; flex-shrink: 0; }
-        .explanation-card { display: none; background: var(--pine-bg); border: 1px solid var(--pine); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; font-size: 0.95rem; color: var(--pine); gap: 12px; align-items: flex-start; }
-        .explanation-icon { font-size: 1.2rem; flex-shrink: 0; }
-        .btn { display: inline-block; padding: 14px 32px; background-color: var(--pine); color: white; text-decoration: none; border-radius: 10px; font-weight: 600; border: none; cursor: pointer; transition: all .25s ease; font-size: 1rem; width: 100%; text-align: center; }
+        .option-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+            user-select: none;
+            color: var(--ink);
+        }
+        .option-item:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.06);
+        }
+        .option-item.correct {
+            background: rgba(74, 222, 128, 0.15);
+            border-color: #4ADE80;
+            color: #4ADE80;
+            font-weight: 600;
+        }
+        .option-item.correct .option-letter {
+            background: #4ADE80;
+            color: #000;
+        }
+        .option-item.incorrect {
+            background: rgba(248, 113, 113, 0.15);
+            border-color: #F87171;
+            color: #F87171;
+            font-weight: 600;
+        }
+        .option-item.incorrect .option-letter {
+            background: #F87171;
+            color: #000;
+        }
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            color: var(--ink);
+        }
+        .explanation-card {
+            display: none;
+            background: rgba(227, 168, 59, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+            color: var(--ink);
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .explanation-icon { font-size: 1.2rem; flex-shrink: 0; color: var(--accent); }
+
+        .btn {
+            display: inline-block;
+            background: #fff;
+            color: #000;
+            border-radius: 100px;
+            border: none;
+            padding: 14px 24px;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-size: 1rem;
+            width: 100%;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+        }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(31, 75, 63, 0.35); }
-        .result-screen h1 { font-family: 'Fraunces', serif; font-size: 2.2rem; color: var(--ink); margin-bottom: 12px; }
-        .result-score-block { background: var(--bg-2); border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin: 24px 0 32px; box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05); }
-        .result-score { font-size: 3.5rem; font-weight: 700; color: var(--pine); line-height: 1; margin-bottom: 8px; }
+        .btn:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.4);
+        }
+
+        .result-screen h1 { font-family: 'Instrument Serif', serif; font-size: 3rem; color: var(--ink); margin-bottom: 12px; font-weight: normal; }
+        .result-score-block {
+            border-radius: 20px;
+            padding: 32px;
+            margin: 24px 0 32px;
+        }
+        .result-score { font-size: 3.5rem; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: 8px; font-family: 'Instrument Serif', serif; }
         .result-stats { font-size: 1.1rem; color: var(--ink-soft); }
     </style>
 </head>
 <body>
-    <header><a href="dashboard.html" class="logo">JOL-Bilim</a></header>
+<div id="stars" style="position:fixed; inset:0; z-index:0; pointer-events:none;"></div>
+    <header><a href="dashboard.html" class="logo">JOL-<span>Bilim</span></a></header>
     <main>
         <div id="selection-screen">
             <h1 class="screen-title">Диагностический тест ОРТ</h1>
             <p class="screen-subtitle">Выберите предмет для проверки знаний</p>
             <div class="features-grid">
-                <div class="feat" data-subject="math"><div class="num mono">01</div><h3>Математика</h3><p>100+ заданий</p></div>
-                <div class="feat" data-subject="reading"><div class="num mono">02</div><h3>Грамотность чтения</h3><p>100+ заданий</p></div>
-                <div class="feat" data-subject="analogies"><div class="num mono">03</div><h3>Аналогии</h3><p>100+ заданий</p></div>
-                <div class="feat" data-subject="geometry"><div class="num mono">04</div><h3>Геометрия</h3><p>100+ заданий</p></div>
-                <div class="feat" data-subject="kyrgyz"><div class="num mono">05</div><h3>Кыргызский язык</h3><p>100+ заданий</p></div>
-                <div class="feat" data-subject="english">
-                    <div class="num mono">06</div>
+                <div class="feat liquid-glass" data-subject="math"><div class="num">01</div><h3>Математика</h3><p>100+ заданий</p></div>
+                <div class="feat liquid-glass" data-subject="reading"><div class="num">02</div><h3>Грамотность чтения</h3><p>100+ заданий</p></div>
+                <div class="feat liquid-glass" data-subject="analogies"><div class="num">03</div><h3>Аналогии</h3><p>100+ заданий</p></div>
+                <div class="feat liquid-glass" data-subject="geometry"><div class="num">04</div><h3>Геометрия</h3><p>100+ заданий</p></div>
+                <div class="feat liquid-glass" data-subject="kyrgyz"><div class="num">05</div><h3>Кыргызский язык</h3><p>100+ заданий</p></div>
+                <div class="feat liquid-glass" data-subject="english">
+                    <div class="num">06</div>
                     <h3>Английский язык</h3>
                     <p>100+ заданий</p>
                 </div>
-                <div class="feat" data-subject="physics">
-                    <div class="num mono">07</div>
+                <div class="feat liquid-glass" data-subject="physics">
+                    <div class="num">07</div>
                     <h3>Физика</h3>
                     <p>100+ заданий</p>
                 </div>
             </div>
         </div>
         <div id="quiz-screen">
-            <div class="progress-header"><span id="progress-title">Математика • Вопрос 1 из 10</span><span id="progress-percent" class="mono">10%</span></div>
+            <div class="progress-header"><span id="progress-title">Математика • Вопрос 1 из 10</span><span id="progress-percent" style="font-family: monospace;">10%</span></div>
             <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar-fill"></div></div>
-            <div class="test-card">
+            <div class="test-card liquid-glass">
                 <div class="question-text" id="question-text">Загрузка вопроса...</div>
                 <div class="options-list" id="options-list"></div>
                 <div class="explanation-card" id="explanation-card"><div class="explanation-icon">💡</div><div id="explanation-text">Объяснение ответа...</div></div>
@@ -94,9 +233,9 @@
         </div>
         <div id="result-screen" class="result-screen">
             <h1>Результат теста</h1>
-            <p id="result-subject-label" style="font-size: 1.2rem; color: var(--pine); font-weight: 600; margin-bottom: 4px;">Математика: 8 из 10</p>
-            <div class="result-score-block">
-                <div class="result-score mono" id="final-score">0</div>
+            <p id="result-subject-label" style="font-size: 1.2rem; color: var(--accent); font-weight: 600; margin-bottom: 4px;">Математика: 8 из 10</p>
+            <div class="result-score-block liquid-glass">
+                <div class="result-score" id="final-score">0</div>
                 <p class="result-stats" id="final-stats">Правильных ответов: 0 из 10</p>
             </div>
             <a href="dashboard.html" class="btn">Вернуться в кабинет <span class="arrow">→</span></a>
@@ -251,6 +390,20 @@
                 }
             } catch(e) { console.error(e); }
         }
+    </script>
+    <script>
+    const starsBox = document.getElementById('stars');
+    for(let i=0;i<80;i++){
+      const s = document.createElement('div');
+      s.className='star';
+      const size = 1 + Math.random()*1.5;
+      s.style.width=size+'px'; s.style.height=size+'px';
+      s.style.left=Math.random()*100+'%';
+      s.style.top=Math.random()*100+'%';
+      s.style.animationDuration=(2+Math.random()*4)+'s';
+      s.style.animationDelay=(Math.random()*4)+'s';
+      starsBox.appendChild(s);
+    }
     </script>
 </body>
 </html>

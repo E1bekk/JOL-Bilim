@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный кабинет - JOL-Bilim</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
     <script>
         (function() {
             try {
@@ -24,15 +24,11 @@
     </script>
     <style>
         :root {
-            --bg: #F6F4EF;
-            --ink: #1C2620;
-            --accent: #C98A2C;
-            --pine: #1F4B3F;
-            --pine-bg: rgba(31, 75, 63, 0.1);
-            --bg-2: #ffffff;
-            --line: #e2dfd8;
-            --ink-soft: #5c6660;
-            --text: var(--ink);
+            --bg: #000000;
+            --ink: #F3F1E9;
+            --ink-soft: rgba(243,241,233,0.65);
+            --accent: #E3A83B;
+            --line: rgba(255,255,255,0.12);
             --white: #ffffff;
         }
 
@@ -41,95 +37,33 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
             line-height: 1.6;
-            color: var(--text);
+            color: var(--ink);
             background-color: var(--bg);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
-        header {
-            background: var(--white);
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .logo { font-size: 1.5rem; font-weight: bold; color: var(--pine); text-decoration: none; }
-
-        .btn-logout {
-            background: none;
-            border: none;
-            color: var(--ink-soft);
-            font-size: 0.9rem;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        main { flex: 1; max-width: 800px; width: 100%; margin: 0 auto; padding: 40px 20px; }
-
-        .greeting-section { margin-bottom: 32px; }
-
-        .greeting-section h1 {
-            font-family: 'Fraunces', serif;
-            font-size: 2.5rem;
-            color: var(--ink);
-            margin-bottom: 6px;
-        }
-
-        .grade-badge {
-            display: inline-block;
-            background: var(--pine-bg);
-            color: var(--pine);
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .path-card {
-            background: var(--bg-2);
+        .liquid-glass {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid var(--line);
-            border-radius: 20px;
-            padding: 28px;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05);
-            margin-bottom: 32px;
         }
-
-        .path-card .label { font-size: 0.85rem; color: var(--ink-soft); text-transform: uppercase; margin-bottom: 8px; }
-        .path-card .score { font-size: 3rem; font-weight: 700; color: var(--pine); line-height: 1; margin-bottom: 12px; }
-        .path-card .score-placeholder { font-size: 1.1rem; color: var(--ink-soft); margin-bottom: 12px; font-weight: 500; }
-        .path-card .meta { font-size: 0.95rem; color: var(--ink-soft); }
-
-        .section-title { 
-            font-size: 1.1rem; 
-            font-weight: 700; 
-            color: var(--ink); 
-            margin-top: 32px; 
-            margin-bottom: 12px; 
-        }
-        .history-section { margin-bottom: 40px; }
 
         .empty-state {
-            background: var(--bg-2);
+            background: rgba(255,255,255,0.02);
             border: 1px dashed var(--line);
-            border-radius: 16px;
-            padding: 24px;
+            border-radius: 12px;
+            padding: 16px;
             text-align: center;
             color: var(--ink-soft);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .history-card-container {
-            background: var(--bg-2);
-            border: 1px solid var(--line);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05);
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
             overflow: hidden;
         }
 
@@ -140,39 +74,34 @@
         }
 
         .history-item {
-            padding: 16px 24px;
+            padding: 10px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--line);
-            transition: background-color 0.2s ease;
+            font-size: 13px;
         }
 
         .history-item:last-child {
             border-bottom: none;
         }
 
-        .history-item:hover {
-            background-color: rgba(0, 0, 0, 0.01);
-        }
-
         .history-item-left {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 0.95rem;
+            gap: 8px;
+            color: var(--ink-soft);
         }
 
         .subject-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             display: inline-block;
             flex-shrink: 0;
         }
 
         .history-item .date { 
-            font-size: 0.9rem; 
             color: var(--ink-soft); 
         }
 
@@ -187,154 +116,113 @@
         }
 
         .history-item .item-score { 
-            font-size: 1.1rem; 
-            font-weight: 700; 
+            font-size: 14px; 
+            font-weight: 600; 
         }
 
         .show-more-history-btn {
             display: block;
             width: 100%;
-            padding: 14px;
+            padding: 10px;
             background: none;
             border: none;
             border-top: 1px solid var(--line);
-            color: var(--pine);
-            font-weight: 600;
-            font-size: 0.95rem;
+            color: var(--accent);
+            font-weight: 500;
+            font-size: 12px;
             cursor: pointer;
-            text-align: center;
-            transition: background-color 0.2s ease;
+            text-align: left;
+            transition: opacity 0.2s ease;
             font-family: inherit;
         }
 
         .show-more-history-btn:hover {
-            background-color: var(--pine-bg);
+            opacity: 0.8;
         }
 
-        .show-more-history-btn .arrow {
-            display: inline-block;
-            margin-left: 4px;
-            transition: transform 0.2s ease;
-        }
-
-        .show-more-history-btn:hover .arrow {
-            transform: translateX(3px);
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 18px 36px;
-            background-color: var(--pine);
-            color: white;
-            text-decoration: none;
-            border-radius: 16px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 1.15rem;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(31, 75, 63, 0.2);
-            margin-bottom: 32px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(31, 75, 63, 0.35);
-        }
-
-        .btn .arrow { display: inline-block; margin-left: 8px; transition: transform .2s ease; }
-        .btn:hover .arrow { transform: translateX(4px); }
-
-        .parent-card {
-            background: var(--bg-2);
-            border: 1px solid var(--line);
-            border-radius: 20px;
-            padding: 24px 28px;
-            box-shadow: 0 10px 30px rgba(28, 38, 32, 0.05);
-            margin-bottom: 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .parent-card-left {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .parent-card .label {
-            font-size: 0.85rem;
+        .score-placeholder {
+            font-size: 1rem;
             color: var(--ink-soft);
-            text-transform: uppercase;
-            margin-bottom: 8px;
         }
 
-        .parent-code-display {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 2rem;
-            font-weight: 700;
+        .score {
+            font-family: 'Instrument Serif', serif;
+            font-size: 40px;
             color: var(--accent);
-            letter-spacing: 2px;
-            line-height: 1.2;
+            line-height: 1;
         }
 
-        .btn-copy {
-            background-color: var(--pine-bg);
-            color: var(--pine);
-            border: 1px solid rgba(31, 75, 63, 0.2);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: inherit;
-        }
-
-        .btn-copy:hover {
-            background-color: var(--pine);
-            color: var(--white);
+        @media (max-width: 760px) {
+            div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+            .left-panel {
+                padding: 32px !important;
+            }
+            .right-panel-content {
+                position: relative !important;
+                height: auto !important;
+                padding: 32px !important;
+            }
         }
     </style>
 </head>
 <body>
-<header>
-    <a href="index.html" class="logo">JOL-Bilim</a>
-    <button class="btn-logout" id="btn-logout">Выйти</button>
-</header>
+<video autoplay muted loop playsinline style="position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;">
+  <source src="https://videos.pexels.com/video-files/8295518/8295518-hd_1920_1080_30fps.mp4" type="video/mp4">
+</video>
+<div style="position:fixed; inset:0; background:linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.6)); z-index:1; pointer-events:none;"></div>
 
-<main>
-    <div class="greeting-section">
-        <h1 id="user-greeting">Привет!</h1>
-        <span class="grade-badge" id="user-grade">Класс не указан</span>
+<div style="display:grid; grid-template-columns:1fr 1.3fr; min-height:100vh; position:relative; z-index:2;">
+
+  <!-- левая панель -->
+  <div class="left-panel liquid-glass" style="border-right:1px solid var(--line); padding:60px; display:flex; flex-direction:column; justify-content:space-between; z-index:2;">
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:60px;">
+        <div style="font-weight:600; font-size:16px;">JOL-<span style="color:var(--accent);">Bilim</span></div>
+        <a href="#" id="btn-logout" style="color:var(--ink-soft); font-size:13px; text-decoration:none;">Выйти</a>
+      </div>
+      <h1 id="user-greeting" style="font-family:'Instrument Serif',serif; font-weight:400; font-size:44px; margin:0 0 12px;">
+        Привет, ...!
+      </h1>
+      <div id="user-grade" style="display:inline-block; background:rgba(255,255,255,0.06); 
+        border:1px solid var(--line); border-radius:100px; padding:6px 16px; font-size:13px; color:var(--ink-soft);"></div>
     </div>
 
-    <a href="test.html" class="btn btn-primary">Начать тест <span class="arrow">→</span></a>
+    <!-- блок кода для родителя внизу, как цитата в референсе -->
+    <div style="border-top:1px solid var(--line); padding-top:24px;">
+      <div style="font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px;">код для родителя</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+        <div id="parent-code" style="font-family:'IBM Plex Mono',monospace; font-size:28px; color:var(--accent);">------</div>
+        <button id="btn-copy" class="liquid-glass" style="padding:10px 18px; border-radius:100px; color:#fff; font-size:13px; border:1px solid var(--line); cursor:pointer;">Скопировать</button>
+      </div>
+    </div>
+  </div>
 
-    <div class="path-card">
-        <p class="label mono">Прогноз балла ОРТ</p>
-        <div id="score-display"></div>
-        <div class="meta">Пройдено тестов: <span id="tests-count" class="mono">0</span></div>
+  <!-- правая часть: плавающие карточки -->
+  <div class="right-panel-content" style="position:relative; z-index:2; padding:40px; height:100vh; overflow-y:auto; display:flex; flex-direction:column; justify-content:space-between;">
+    
+    <!-- верхняя карточка: прогноз балла -->
+    <div class="liquid-glass" style="border-radius:20px; padding:24px; max-width:300px;">
+      <div style="font-size:11px; color:var(--ink-soft); text-transform:uppercase; margin-bottom:8px;">прогноз балла ОРТ</div>
+      <div id="score-display"></div>
+      <div style="font-size:13px; color:var(--ink-soft); margin-top:6px;">Пройдено тестов: <span id="tests-count" class="mono">0</span></div>
     </div>
 
-    <div class="parent-card">
-        <div class="parent-card-left">
-            <p class="label mono">Код для родителя</p>
-            <div class="parent-code-display" id="parent-code">------</div>
-        </div>
-        <button class="btn-copy" id="btn-copy">Скопировать код</button>
-    </div>
-
-    <div class="history-section">
-        <div class="section-title">История тестирования</div>
+    <!-- нижний ряд: начать тест + история -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <a href="test.html" class="liquid-glass" style="border-radius:20px; padding:24px; text-decoration:none; color:#fff; display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-family:'Instrument Serif',serif; font-size:22px;">Начать тест</span>
+        <span style="font-size:20px;">→</span>
+      </a>
+      <div class="liquid-glass" style="border-radius:20px; padding:24px;">
+        <div style="font-size:11px; color:var(--ink-soft); text-transform:uppercase; margin-bottom:14px;">история тестирования</div>
         <div id="history-container"></div>
+      </div>
     </div>
-</main>
 
+  </div>
+</div>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const userRaw = localStorage.getItem('jolBilimUser');
@@ -394,8 +282,8 @@
                     .then(() => {
                         const originalText = btnCopy.textContent;
                         btnCopy.textContent = 'Скопировано ✓';
-                        btnCopy.style.backgroundColor = 'var(--pine)';
-                        btnCopy.style.color = 'var(--white)';
+                        btnCopy.style.backgroundColor = 'var(--accent)';
+                        btnCopy.style.color = '#000';
                         setTimeout(() => {
                             btnCopy.textContent = originalText;
                             btnCopy.style.backgroundColor = '';
@@ -409,7 +297,8 @@
         }
 
         // Выйти
-        document.getElementById('btn-logout').addEventListener('click', () => {
+        document.getElementById('btn-logout').addEventListener('click', (e) => {
+            e.preventDefault();
             localStorage.removeItem('jolBilimUser');
             window.location.href = 'cabinet.html';
         });
@@ -442,9 +331,8 @@
             };
             return map[subj] || subj;
         }
-
         function getSubjectDotColor(subjectName) {
-            const colors = ['var(--accent)', 'var(--pine)', '#3b82f6', '#10b981', '#8b5cf6'];
+            const colors = ['var(--accent)', '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b'];
             let hash = 0;
             if (subjectName) {
                 for (let i = 0; i < subjectName.length; i++) {
@@ -486,9 +374,9 @@
                     const scoreVal = item.score !== undefined ? item.score : 0;
 
                     const prevScore = getPreviousScoreForSubject(history, index, subjectName);
-                    let scoreStyle = 'color: var(--pine);';
+                    let scoreStyle = 'color: var(--accent);';
                     if (prevScore !== null && scoreVal > prevScore) {
-                        scoreStyle = 'color: var(--fill-success, #2e7d32);';
+                        scoreStyle = 'color: #34d399;';
                     }
 
                     const dotColor = getSubjectDotColor(subjectName);
@@ -512,17 +400,17 @@
             if (history.length > 5) {
                 const showMoreBtn = document.createElement('button');
                 showMoreBtn.className = 'show-more-history-btn';
-                showMoreBtn.innerHTML = 'Показать всю историю <span class="arrow">→</span>';
+                showMoreBtn.innerHTML = 'Показать всю историю →';
 
                 let expanded = false;
                 showMoreBtn.addEventListener('click', () => {
                     expanded = !expanded;
                     if (expanded) {
                         renderItems(history.length);
-                        showMoreBtn.innerHTML = 'Скрыть историю <span class="arrow">↑</span>';
+                        showMoreBtn.innerHTML = 'Скрыть историю ↑';
                     } else {
                         renderItems(5);
-                        showMoreBtn.innerHTML = 'Показать всю историю <span class="arrow">→</span>';
+                        showMoreBtn.innerHTML = 'Показать всю историю →';
                     }
                 });
 
