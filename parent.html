@@ -19,6 +19,23 @@ body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var
 .history-item:first-child { border-top: none; }
 .history-item .date { color: var(--ink-soft); }
 .history-item .score-val { font-weight: 600; color: var(--accent); }
+@media (max-width:480px) {
+  .code-search-bar {
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: 20px;
+    padding: 16px;
+    gap: 10px;
+  }
+  #code-input {
+    padding: 10px 4px;
+  }
+  #submit-code {
+    width: 100%;
+    justify-content: center;
+    border-radius: 100px;
+  }
+}
 </style>
 </head>
 <body>
@@ -26,6 +43,8 @@ body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var
   <source src="https://videos.pexels.com/video-files/20360283/20360283-hd_1080_1920_30fps.mp4" type="video/mp4">
 </video>
 <div style="position:fixed; inset:0; z-index:1; background:linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.85) 100%);"></div>
+
+<a href="index.html" style="position:fixed; top:24px; left:24px; z-index:10; text-decoration:none; color:#fff; font-weight:600; font-size:16px;">JOL-<span style="color:var(--accent);">Bilim</span></a>
 
 <div id="form-card" style="position:relative; z-index:2; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 24px;">
   <div style="font-size:12px; color:var(--accent); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:20px;">кабинет родителя</div>
@@ -36,7 +55,7 @@ body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var
 
   <form id="code-form" style="width:100%; display:flex; flex-direction:column; align-items:center;" novalidate>
     <div id="group-code" style="width:100%; max-width:420px; margin:0 auto;">
-      <div class="liquid-glass" style="display:flex; align-items:center; gap:8px; border-radius:100px; padding:6px 6px 6px 24px;">
+      <div class="liquid-glass code-search-bar" style="display:flex; align-items:center; gap:8px; border-radius:100px; padding:6px 6px 6px 24px;">
         <input type="text" id="code-input" placeholder="Например: A1B2C3" style="flex:1; background:none; border:none; color:#fff; font-size:14px; outline:none; text-transform:uppercase;">
         <button type="submit" id="submit-code" style="background:#fff; color:#000; border:none; border-radius:100px; padding:12px 24px; font-size:14px; font-weight:600; cursor:pointer; white-space:nowrap; transition:transform 0.2s ease;">Показать прогресс →</button>
       </div>
@@ -66,6 +85,9 @@ body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var
   <div style="font-size:11px; color:var(--ink-soft); text-transform:uppercase; margin-bottom:12px;">история тестирования</div>
   <div id="child-history">
     <div style="color:var(--ink-soft); background:rgba(255,255,255,0.02); padding:16px; border-radius:12px; text-align:center; font-size:13px;">Тестов пока не было</div>
+  </div>
+  <div style="margin-top:24px; text-align:center;">
+    <a href="#" id="link-change-code" style="color:var(--ink-soft); font-size:12px; text-decoration:underline;">Ввести другой код</a>
   </div>
 </div>
 
@@ -99,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const childTestsEl = document.getElementById('child-tests');
     const childHistoryEl = document.getElementById('child-history');
     const btnChangeCode = document.getElementById('btn-change-code');
+    const linkChangeCode = document.getElementById('link-change-code');
     let unsubscribe = null, prevScore = null, prevTests = null;
 
     inputCode.addEventListener('input', () => {
@@ -107,28 +130,34 @@ document.addEventListener('DOMContentLoaded', () => {
         inputCode.value = inputCode.value.toUpperCase();
     });
 
-    codeForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const code = inputCode.value.trim().toUpperCase();
+    function searchProgress(targetCode) {
+        const code = (targetCode || inputCode.value).trim().toUpperCase();
         if (!code) {
             groupCode.classList.add('has-error');
             errorText.style.display = 'block';
             errorText.textContent = 'Введите семейный код';
             return;
         }
+        inputCode.value = code;
         if (unsubscribe) unsubscribe();
 
         unsubscribe = db.collection('families').doc(code).onSnapshot((doc) => {
             if (!doc.exists) {
+                localStorage.removeItem('jolBilimParentCode');
                 groupCode.classList.add('has-error');
                 errorText.style.display = 'block';
                 errorText.textContent = 'Код не найден, проверьте правильность';
+                formCard.style.display = 'flex';
+                progressCard.style.display = 'none';
                 return;
             }
             groupCode.classList.remove('has-error');
             errorText.style.display = 'none';
             formCard.style.display = 'none';
             progressCard.style.display = 'block';
+
+            // Сохраняем код при успешном нахождении
+            localStorage.setItem('jolBilimParentCode', code);
 
             const data = doc.data();
             childNameEl.textContent = data.name || 'Ученик';
@@ -172,15 +201,40 @@ document.addEventListener('DOMContentLoaded', () => {
             errorText.style.display = 'block';
             errorText.textContent = 'Ошибка подключения к базе';
         });
+    }
+
+    codeForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        searchProgress(inputCode.value);
     });
 
-    btnChangeCode.addEventListener('click', () => {
+    const resetCodeAction = (e) => {
+        if (e) e.preventDefault();
         if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+        localStorage.removeItem('jolBilimParentCode');
         progressCard.style.display = 'none';
         formCard.style.display = 'flex';
         inputCode.value = '';
         prevScore = null; prevTests = null;
-    });
+        if (window.history && window.history.replaceState) {
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+    };
+
+    if (btnChangeCode) btnChangeCode.addEventListener('click', resetCodeAction);
+    if (linkChangeCode) linkChangeCode.addEventListener('click', resetCodeAction);
+
+    // При загрузке страницы проверяем URL и localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlCode = urlParams.get('code');
+    const savedCode = localStorage.getItem('jolBilimParentCode');
+    const initialCode = urlCode || savedCode;
+
+    if (initialCode) {
+        inputCode.value = initialCode;
+        searchProgress(initialCode);
+    }
 });
 </script>
 </body>
