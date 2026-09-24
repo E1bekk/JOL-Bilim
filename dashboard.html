@@ -166,10 +166,11 @@
             }
         }
     </style>
+    <script src="js/video-lazy.js" defer></script>
 </head>
 <body>
-<video autoplay muted loop playsinline style="position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;">
-  <source src="https://videos.pexels.com/video-files/8295518/8295518-hd_1920_1080_30fps.mp4" type="video/mp4">
+<video autoplay muted loop playsinline preload="none" poster="videos/dashboard-bg-poster.webp" style="position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;">
+  <source data-src="videos/dashboard-bg-small.mp4" type="video/mp4">
 </video>
 <div style="position:fixed; inset:0; background:linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.6)); z-index:1; pointer-events:none;"></div>
 

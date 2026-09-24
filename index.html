@@ -148,6 +148,7 @@
       .grid-3, .pricing{grid-template-columns:1fr;}
     }
   </style>
+  <script src="js/video-lazy.js" defer></script>
 </head>
 <body>
 <div id="stars" style="position:fixed; inset:0; z-index:0; pointer-events:none;"></div>
@@ -172,8 +173,8 @@
 </nav>
 
 <div class="video-section hero">
-  <video autoplay muted loop playsinline>
-    <source src="https://videos.pexels.com/video-files/14058189/14058189-uhd_2560_1440_24fps.mp4" type="video/mp4">
+  <video autoplay muted loop playsinline preload="none" poster="videos/hero-bg-poster.webp">
+    <source data-src="videos/hero-bg-small.mp4" type="video/mp4">
   </video>
   <div class="overlay"></div>
   <div class="content">
@@ -192,8 +193,8 @@
 
 <section class="plain" id="how">
   <div class="video-section how-video liquid-glass">
-    <video autoplay muted loop playsinline style="opacity:0.3;">
-      <source src="https://videos.pexels.com/video-files/16542902/16542902-uhd_2560_1440_24fps.mp4" type="video/mp4">
+    <video autoplay muted loop playsinline preload="none" poster="videos/how-bg-poster.webp" style="opacity:0.3;">
+      <source data-src="videos/how-bg-small.mp4" type="video/mp4">
     </video>
     <div class="content">
       <div class="section-head"><h2>Как это <em>работает</em></h2></div>
@@ -219,8 +220,8 @@
 </section>
 <section class="plain" id="pricing">
   <div class="video-section liquid-glass" style="border-radius:24px; padding:60px 24px;">
-    <video autoplay muted loop playsinline style="opacity:0.25;">
-      <source src="https://videos.pexels.com/video-files/13382270/13382270-uhd_2560_1440_24fps.mp4" type="video/mp4">
+    <video autoplay muted loop playsinline preload="none" poster="videos/pricing-bg-poster.webp" style="opacity:0.25;">
+      <source data-src="videos/pricing-bg-small.mp4" type="video/mp4">
     </video>
     <div class="content">
       <div class="section-head"><h2>Выберите свой <em>тариф</em></h2></div>
@@ -251,8 +252,8 @@
 
 <section class="plain" id="parents">
   <div class="video-section parents liquid-glass">
-    <video autoplay muted loop playsinline>
-      <source src="https://videos.pexels.com/video-files/39115389/16646099_2560_1440_24fps.mp4" type="video/mp4">
+    <video autoplay muted loop playsinline preload="none" poster="videos/parents-bg-poster.webp">
+      <source data-src="videos/parents-bg-small.mp4" type="video/mp4">
     </video>
     <div class="overlay"></div>
     <div class="content">

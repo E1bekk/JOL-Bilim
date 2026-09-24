@@ -1,0 +1,9 @@
+{
+  "appId": "com.jolbilim.app",
+  "appName": "JOL-Bilim",
+  "webDir": "www",
+  "server": {
+    "url": "https://jol-bilim.vercel.app/",
+    "cleartext": false
+  }
+}
