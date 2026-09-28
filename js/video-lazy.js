@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     const saveData = conn && conn.saveData === true;
     const effectiveType = conn && conn.effectiveType;
-    const slowConn = effectiveType === '2g' || effectiveType === 'slow-2g' || effectiveType === '3g';
+    const slowConn = effectiveType === '2g' || effectiveType === 'slow-2g';
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (saveData || slowConn || prefersReducedMotion) {
