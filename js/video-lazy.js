@@ -1,4 +1,48 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const videos = document.querySelectorAll("video");
+    if (!videos.length) return;
+
+    const ua = navigator.userAgent || '';
+
+    // Встроенные браузеры соцсетей (TikTok, Instagram, Facebook, Snapchat и др.).
+    // На iPhone они не дают видео играть внутри страницы: показывают плеер с кнопками
+    // и разворачивают видео на весь экран. Там вместо видео показываем статичную картинку.
+    const isInAppBrowser = /TikTok|musical_ly|BytedanceWebview|Bytedance|Instagram|FBAN|FBAV|FB_IAB|FBIOS|Snapchat|Line\/|MicroMessenger|Pinterest|VKClient|OKApp/i.test(ua);
+
+    // Всем видео — атрибуты, которые запрещают плеер, картинку-в-картинке и трансляцию
+    videos.forEach(video => {
+        video.muted = true;
+        video.controls = false;
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
+        video.setAttribute("disablepictureinpicture", "");
+        video.setAttribute("disableremoteplayback", "");
+        video.setAttribute("x-webkit-airplay", "deny");
+    });
+
+    if (isInAppBrowser) {
+        // для фона внутри секций главной страницы (там стили заданы для тега video)
+        const style = document.createElement("style");
+        style.textContent = ".video-section img.video-poster{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;}";
+        document.head.appendChild(style);
+
+        videos.forEach(video => {
+            const poster = video.getAttribute("poster");
+            if (!poster) { video.remove(); return; }
+            const img = document.createElement("img");
+            img.src = poster;
+            img.alt = "";
+            img.setAttribute("aria-hidden", "true");
+            img.className = (video.className ? video.className + " " : "") + "video-poster";
+            img.style.cssText = video.style.cssText;
+            img.style.objectFit = "cover";
+            img.style.pointerEvents = "none";
+            video.replaceWith(img);
+        });
+        console.log("In-app browser detected: videos replaced with posters.");
+        return;
+    }
+
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     const saveData = conn && conn.saveData === true;
     const effectiveType = conn && conn.effectiveType;
@@ -14,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Сайт в браузере (телефон или ноутбук) -> качественные оригиналы с Pexels
     const isNativeApp = !!(
         (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ||
-        /; wv\)/.test(navigator.userAgent)
+        /; wv\)/.test(ua)
     );
 
     const HD_SOURCES = {
@@ -32,9 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const fileName = smallSrc.split('/').pop();
         return HD_SOURCES[fileName] || smallSrc;
     }
-
-    const videos = document.querySelectorAll("video");
-    if (!videos.length) return;
 
     const observerOptions = {
         root: null,
