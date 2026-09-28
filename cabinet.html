@@ -119,13 +119,29 @@
             </select>
         </div>
 
+        <!-- Manual input group (shown only on GitHub Pages / when not on Vercel) -->
         <div class="form-group" id="group-contact" style="margin-bottom:20px;">
             <label for="input-contact" style="font-size:12px; color:var(--ink-soft); display:block; margin-bottom:6px;">Telegram или телефон</label>
             <input type="text" id="input-contact" name="contact" class="form-control" placeholder="@username или +996 ..." style="border:none; border-bottom:1px solid var(--line); background:transparent; padding:10px 0; color:#fff; width:100%; font-size:14px; font-family:'Inter',sans-serif;">
             <div class="error-text">Пожалуйста, укажите Telegram или телефон</div>
         </div>
 
-        <button type="submit" class="btn-white" style="margin-top:8px;">Войти →</button>
+        <!-- Original submit button (shown only on GitHub Pages / when not on Vercel) -->
+        <button type="submit" id="btn-submit" class="btn-white" style="margin-top:8px;">Войти →</button>
+
+        <!-- Telegram Auth container (shown only on Vercel) -->
+        <div id="telegram-auth-container" style="display:none; margin-top:20px;">
+            <div id="telegram-widget-wrapper" style="opacity: 0.5; pointer-events: none; transition: all 0.2s ease;">
+                <script async src="https://telegram.org/js/telegram-widget.js?22"
+                    data-telegram-login="jolbilim_bot"
+                    data-size="large"
+                    data-radius="12"
+                    data-auth-url="https://jol-bilim.vercel.app/cabinet.html"
+                    data-request-access="write"></script>
+            </div>
+            <div id="telegram-hint" style="font-size:12px; color:var(--ink-soft); margin-top:8px;">Сначала введи имя, потом нажми кнопку Telegram</div>
+            <div id="telegram-error" class="error-text" style="display:none; margin-top:8px;">Не удалось подтвердить через Telegram, попробуйте ещё раз</div>
+        </div>
     </form>
   </div>
 </div>
@@ -153,6 +169,60 @@ for(let i=0;i<80;i++){
 
         const nameGroup = document.getElementById('group-name');
         const contactGroup = document.getElementById('group-contact');
+        
+        // Get the Telegram widget wrapper and error elements
+        const telegramWidgetWrapper = document.getElementById('telegram-widget-wrapper');
+        const telegramError = document.getElementById('telegram-error');
+        const telegramAuthContainer = document.getElementById('telegram-auth-container');
+
+        // Initialize hostname-based display and validation
+        function initTelegramIntegration() {
+            // Check if we're on Vercel or GitHub Pages
+            const isVercel = window.location.hostname.endsWith('.vercel.app');
+            
+            if (isVercel) {
+                // Show Telegram widget on Vercel
+                telegramAuthContainer.style.display = 'block';
+                // Hide manual contact field and submit button
+                contactGroup.style.display = 'none';
+                document.getElementById('btn-submit').style.display = 'none';
+            } else {
+                // Show manual form on GitHub Pages
+                telegramAuthContainer.style.display = 'none';
+                contactGroup.style.display = 'block';
+                document.getElementById('btn-submit').style.display = 'block';
+            }
+            
+            // Validate name and grade for button state
+            function validateTelegramFields() {
+                const nameValid = nameInput.value.trim() !== '';
+                const gradeValid = gradeSelect.value !== '';
+                const allValid = nameValid && gradeValid;
+
+                // Запоминаем имя и класс: после входа Telegram вернёт нас на эту страницу
+                try {
+                    if (nameValid) localStorage.setItem('jolBilimPending', JSON.stringify({
+                        name: nameInput.value.trim(),
+                        grade: gradeSelect.value
+                    }));
+                } catch (e) {}
+
+                if (allValid) {
+                    telegramWidgetWrapper.style.opacity = '1';
+                    telegramWidgetWrapper.style.pointerEvents = 'auto';
+                } else {
+                    telegramWidgetWrapper.style.opacity = '0.5';
+                    telegramWidgetWrapper.style.pointerEvents = 'none';
+                }
+            }
+            
+            // Set up validation listeners
+            nameInput.addEventListener('input', validateTelegramFields);
+            gradeSelect.addEventListener('change', validateTelegramFields);
+            
+            // Initial validation
+            validateTelegramFields();
+        }
 
         nameInput.addEventListener('input', () => nameGroup.classList.remove('has-error'));
         contactInput.addEventListener('input', () => contactGroup.classList.remove('has-error'));
@@ -219,6 +289,112 @@ for(let i=0;i<80;i++){
             })
             .catch(function(error) { console.error('Ошибка проверки аккаунта:', error); });
         });
+        
+        // Initialize everything
+        initTelegramIntegration();
+    });
+</script>
+
+<script>
+    // Вход через Telegram (режим переадресации: работает и в браузере, и в приложении).
+    // После подтверждения Telegram возвращает на cabinet.html?id=...&hash=...
+    const TG_FIELDS = ['id', 'first_name', 'last_name', 'username', 'photo_url', 'auth_date', 'hash'];
+
+    function showTelegramStatus(text, color) {
+        const el = document.getElementById('telegram-error');
+        el.style.display = 'block';
+        el.textContent = text;
+        el.style.color = color;
+    }
+
+    function generateFamilyCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 6; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    function saveSessionAndGo(profile) {
+        localStorage.setItem('jolBilimUser', JSON.stringify(profile));
+        try { localStorage.removeItem('jolBilimPending'); } catch (e) {}
+        showTelegramStatus('Успешно! Входим...', '#34d399');
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 600);
+    }
+
+    async function onTelegramAuth(user) {
+        showTelegramStatus('Проверяем...', 'var(--accent)');
+        try {
+            const resp = await fetch('/api/verify-telegram', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user)
+            });
+            const data = await resp.json().catch(() => ({ ok: false, error: 'bad response ' + resp.status }));
+            if (!data.ok) {
+                console.error('Telegram verification failed:', data.error);
+                showTelegramStatus('Не удалось подтвердить через Telegram, попробуйте ещё раз', '#E0755C');
+                return;
+            }
+
+            const telegramId = String(data.telegram_id);
+            const contact = data.username ? '@' + data.username : 'tg:' + telegramId;
+
+            // Имя и класс, которые ученик ввёл до нажатия кнопки
+            let pending = {};
+            try { pending = JSON.parse(localStorage.getItem('jolBilimPending') || '{}'); } catch (e) {}
+            const name = (pending.name || '').trim() || data.first_name || 'Ученик';
+            const grade = pending.grade || '11 класс';
+
+            // Уже регистрировался через этот Telegram? Тогда просто входим в его аккаунт
+            const existing = await db.collection('families').where('telegramId', '==', telegramId).limit(1).get();
+            if (!existing.empty) {
+                const doc = existing.docs[0];
+                const d = doc.data();
+                saveSessionAndGo({
+                    name: d.name, grade: d.grade, contact: d.contact || contact, familyCode: doc.id,
+                    telegramId: telegramId, telegramUsername: d.telegramUsername || data.username,
+                    verified: true, score: d.score || 0, testsCompleted: d.testsCompleted || 0, history: d.history || []
+                });
+                return;
+            }
+
+            // Новый ученик
+            const familyCode = generateFamilyCode();
+            await db.collection('families').doc(familyCode).set({
+                name: name,
+                grade: grade,
+                contact: contact,
+                telegramId: telegramId,
+                telegramUsername: data.username || '',
+                telegramFirstName: data.first_name || '',
+                verified: true,
+                score: 0,
+                testsCompleted: 0,
+                history: [],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            saveSessionAndGo({
+                name: name, grade: grade, contact: contact, familyCode: familyCode,
+                telegramId: telegramId, telegramUsername: data.username || '', telegramFirstName: data.first_name || '',
+                verified: true, score: 0, testsCompleted: 0, history: []
+            });
+        } catch (error) {
+            console.error('Telegram auth error:', error);
+            showTelegramStatus('Ошибка подключения. Проверьте интернет и попробуйте снова.', '#E0755C');
+        }
+    }
+
+    // Вернулись от Telegram с данными в адресе страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        if (!params.has('hash') || !params.has('id')) return;
+        const user = {};
+        TG_FIELDS.forEach(k => { if (params.has(k)) user[k] = params.get(k); });
+        // убираем данные из адресной строки
+        history.replaceState(null, '', window.location.pathname);
+        onTelegramAuth(user);
     });
 </script>
 

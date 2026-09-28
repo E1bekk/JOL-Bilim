@@ -4,6 +4,10 @@
   "webDir": "www",
   "server": {
     "url": "https://jol-bilim.vercel.app/",
-    "cleartext": false
+    "cleartext": false,
+    "allowNavigation": [
+      "oauth.telegram.org",
+      "telegram.org"
+    ]
   }
 }
