@@ -7,7 +7,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Встроенные браузеры соцсетей (TikTok, Instagram, Facebook, Snapchat и др.).
     // На iPhone они не дают видео играть внутри страницы: показывают плеер с кнопками
     // и разворачивают видео на весь экран. Там вместо видео показываем статичную картинку.
-    const isInAppBrowser = /TikTok|musical_ly|BytedanceWebview|Bytedance|Instagram|FBAN|FBAV|FB_IAB|FBIOS|Snapchat|Line\/|MicroMessenger|Pinterest|VKClient|OKApp/i.test(ua);
+    const knownInApp = /TikTok|musical_ly|trill|Bytedance|ByteLocale|TTWebView|Instagram|FBAN|FBAV|FB_IAB|FBIOS|Snapchat|Line\/|MicroMessenger|Pinterest|VKClient|OKApp/i.test(ua);
+    // На iPhone/iPad все обычные браузеры (Safari, Chrome, Firefox, Edge) пишут о себе "Safari/".
+    // Встроенные браузеры приложений — нет. Так ловим любые соцсети, даже неизвестные.
+    const isAppleMobile = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    const isIOSWebView = isAppleMobile && !/Safari\//.test(ua);
+    const isInAppBrowser = knownInApp || isIOSWebView;
 
     // Всем видео — атрибуты, которые запрещают плеер, картинку-в-картинке и трансляцию
     videos.forEach(video => {
