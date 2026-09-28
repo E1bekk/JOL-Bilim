@@ -641,5 +641,88 @@
     }
 })();
 </script>
+<!-- ИИ-разбор ошибки: кнопка «Объясни подробнее» -->
+<style>
+#ai-box{display:none; margin:-8px 0 24px;}
+#ai-btn{display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:12px 16px; border-radius:100px;
+  background:rgba(227,168,59,0.08); border:1px solid var(--accent); color:var(--ink); font:500 14px 'Inter',sans-serif; cursor:pointer;
+  transition:background .2s ease, transform .2s ease;}
+#ai-btn:hover{background:rgba(227,168,59,0.16); transform:translateY(-1px);}
+#ai-btn:disabled{opacity:.7; cursor:default; transform:none;}
+#ai-answer{display:none; margin-top:12px; padding:16px 20px; border-radius:12px; background:rgba(255,255,255,0.04);
+  border:1px solid var(--line); color:var(--ink); font-size:0.95rem; line-height:1.6; white-space:pre-line;}
+#ai-answer .ai-label{display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:8px;}
+.ai-dots span{display:inline-block; width:6px; height:6px; margin:0 2px; border-radius:50%; background:var(--accent); animation:aiDot 1s infinite ease-in-out;}
+.ai-dots span:nth-child(2){animation-delay:.15s} .ai-dots span:nth-child(3){animation-delay:.3s}
+@keyframes aiDot{0%,80%,100%{opacity:.25; transform:scale(.8)}40%{opacity:1; transform:scale(1)}}
+</style>
+<script>
+(function () {
+    const card = document.getElementById('explanation-card');
+    if (!card) return;
+    const box = document.createElement('div');
+    box.id = 'ai-box';
+    box.innerHTML = '<button type="button" id="ai-btn">🤖 Объясни подробнее (ИИ)</button><div id="ai-answer"></div>';
+    card.insertAdjacentElement('afterend', box);
+    const btn = box.querySelector('#ai-btn');
+    const answer = box.querySelector('#ai-answer');
+    let current = null;
+
+    function reset() {
+        current = null;
+        box.style.display = 'none';
+        answer.style.display = 'none';
+        answer.textContent = '';
+        btn.style.display = '';
+        btn.disabled = false;
+        btn.textContent = '🤖 Объясни подробнее (ИИ)';
+    }
+
+    // Запоминаем вопрос, когда ученик ответил неправильно
+    document.addEventListener('click', (e) => {
+        const item = e.target.closest && e.target.closest('#options-list .option-item');
+        if (!item || current) return;
+        setTimeout(() => {
+            if (!item.classList.contains('incorrect')) return;
+            const items = Array.from(document.querySelectorAll('#options-list .option-item'));
+            const textOf = el => ((el && (el.children[1] || el)).textContent || '').trim();
+            current = {
+                question: document.getElementById('question-text').textContent.trim(),
+                options: items.map(textOf),
+                correct: textOf(items.find(i => i.classList.contains('correct'))),
+                chosen: textOf(item),
+                subject: (typeof currentSubjectName !== 'undefined' && currentSubjectName) || '',
+                explanation: (document.getElementById('explanation-text').textContent || '').trim()
+            };
+            box.style.display = 'block';
+        }, 0);
+    });
+
+    document.getElementById('next-btn').addEventListener('click', reset);
+
+    btn.addEventListener('click', async () => {
+        if (!current) return;
+        btn.disabled = true;
+        btn.innerHTML = 'ИИ разбирает твою ошибку <span class="ai-dots"><span></span><span></span><span></span></span>';
+        try {
+            const r = await fetch('/api/ai-explain', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(current)
+            });
+            const d = await r.json().catch(() => ({ ok: false }));
+            if (!d.ok) throw new Error(d.error || 'AI error');
+            answer.innerHTML = '<span class="ai-label">🤖 Разбор от ИИ-репетитора</span>';
+            answer.appendChild(document.createTextNode(d.text));
+            answer.style.display = 'block';
+            btn.style.display = 'none';
+        } catch (err) {
+            console.error('AI explain failed:', err);
+            btn.disabled = false;
+            btn.textContent = 'ИИ сейчас перегружен — попробовать ещё раз';
+        }
+    });
+})();
+</script>
 </body>
 </html>
