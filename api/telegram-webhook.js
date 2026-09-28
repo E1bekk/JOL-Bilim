@@ -10,18 +10,25 @@ const {
 
 async function handleStart(botToken, msg) {
     const chatId = msg.chat.id;
-    const match = msg.text.trim().match(/^\/start\s+login_([a-f0-9]{16,64})$/);
+    const text = msg.text.trim();
 
-    if (!match) {
+    // 1) пришли по ссылке с сайта: /start login_<код>
+    // 2) или отправили код вручную (если Telegram не открылся по кнопке): например K7M2Q9XP
+    let code = null;
+    const deepLink = text.match(/^\/start\s+login_([A-Za-z0-9]{8,64})$/);
+    const manual = text.toUpperCase().replace(/[\s-]/g, '');
+    if (deepLink) code = deepLink[1];
+    else if (/^[A-HJ-NP-Z2-9]{8}$/.test(manual)) code = manual;
+
+    if (!code) {
         await tg(botToken, 'sendMessage', {
             chat_id: chatId,
-            text: 'Привет! Это бот JOL-Bilim 👋\nЧтобы войти, открой сайт, введи имя и нажми «Войти через Telegram».',
+            text: 'Привет! Это бот JOL-Bilim 👋\nЧтобы войти, открой сайт, введи имя и нажми «Войти через Telegram».\nЕсли сайт показал тебе код из 8 символов — просто отправь его сюда.',
             reply_markup: { inline_keyboard: [[{ text: 'Открыть JOL-Bilim', url: `${SITE_URL}/cabinet.html` }]] }
         });
         return;
     }
 
-    const code = match[1];
     const id = String(msg.from.id);
     const username = msg.from.username || '';
     const firstName = msg.from.first_name || '';

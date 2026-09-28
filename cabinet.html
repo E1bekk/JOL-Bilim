@@ -132,12 +132,21 @@
         <!-- Telegram Auth container (shown only on Vercel) -->
         <div id="telegram-auth-container" style="display:none; margin-top:20px;">
             <div id="telegram-widget-wrapper" style="opacity: 0.5; pointer-events: none; transition: all 0.2s ease;">
-                <button type="button" id="btn-telegram" class="btn-white" style="display:flex; align-items:center; justify-content:center; gap:10px; background:#2AABEE; color:#fff;">
+                <a id="btn-telegram" class="btn-white" href="https://t.me/jolbilim_bot" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; gap:10px; background:#2AABEE; color:#fff; text-decoration:none; box-sizing:border-box;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M21.94 4.3 18.7 19.6c-.24 1.08-.88 1.35-1.78.84l-4.93-3.63-2.38 2.29c-.26.26-.48.48-.99.48l.35-5.02 9.14-8.26c.4-.35-.09-.55-.61-.2L6.2 13.2 1.33 11.68c-1.06-.33-1.08-1.06.22-1.57L20.6 2.77c.88-.33 1.65.2 1.34 1.53z"/></svg>
                     Войти через Telegram
-                </button>
+                </a>
             </div>
             <div id="telegram-hint" style="font-size:12px; color:var(--ink-soft); margin-top:8px;">Сначала введи имя. Откроется наш бот — нажми в нём «Start» и вернись сюда</div>
+            <div id="tg-panel" style="display:none; margin-top:14px; border:1px solid var(--line); border-radius:14px; padding:14px 16px; font-size:13px; line-height:1.5; color:var(--ink-soft); background:rgba(255,255,255,0.03);">
+                <div style="color:var(--ink);">⏳ Ждём подтверждения. Нажми в боте <b>Start</b> и вернись на эту страницу.</div>
+                <div style="margin-top:12px;">Telegram не открылся? Найди в Telegram <b style="color:var(--ink);">@jolbilim_bot</b> и отправь ему этот код:</div>
+                <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+                    <span id="tg-code" style="font-family:'IBM Plex Mono',monospace; font-size:22px; letter-spacing:0.12em; color:var(--accent);"></span>
+                    <button type="button" id="tg-copy" style="background:none; border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:4px 10px; font-size:11px; cursor:pointer;">копировать</button>
+                </div>
+                <button type="button" id="tg-check" style="margin-top:14px; width:100%; background:rgba(255,255,255,0.06); border:1px solid var(--line); color:var(--ink); border-radius:100px; padding:11px; font-size:13px; font-weight:500; cursor:pointer;">Я подтвердил в Telegram — проверить</button>
+            </div>
             <div id="telegram-error" class="error-text" style="display:none; margin-top:8px;">Не удалось подтвердить через Telegram, попробуйте ещё раз</div>
         </div>
     </form>
@@ -318,10 +327,12 @@ for(let i=0;i<80;i++){
         return result;
     }
 
+    // Короткий код без похожих символов (0/O, 1/I): его удобно отправить боту вручную
     function randomLoginCode() {
-        const bytes = new Uint8Array(16);
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        const bytes = new Uint8Array(8);
         crypto.getRandomValues(bytes);
-        return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+        return Array.from(bytes, b => chars[b % chars.length]).join('');
     }
 
     function saveSessionAndGo(profile) {
@@ -420,33 +431,60 @@ for(let i=0;i<80;i++){
         }, err => console.error('Login watch error:', err));
     }
 
+    let currentCode = randomLoginCode();
+    let pendingCode = null;
+
+    function prepareLink() {
+        const btn = document.getElementById('btn-telegram');
+        if (btn) btn.href = `https://t.me/${BOT_USERNAME}?start=login_${currentCode}`;
+    }
+
+    // Нажали «Войти через Telegram»: ссылка откроет бота сама, а мы начинаем ждать подтверждения
     function startTelegramLogin() {
-        const code = randomLoginCode();
-        try { localStorage.setItem('jolBilimLoginCode', code); } catch (e) {}
+        pendingCode = currentCode;
+        try { localStorage.setItem('jolBilimLoginCode', pendingCode); } catch (e) {}
         loginDone = false;
-        watchLoginCode(code);
+        watchLoginCode(pendingCode);
+        document.getElementById('tg-code').textContent = pendingCode;
+        document.getElementById('tg-panel').style.display = 'block';
+        document.getElementById('telegram-error').style.display = 'none';
+    }
 
-        const link = document.createElement('a');
-        link.href = `https://t.me/${BOT_USERNAME}?start=login_${code}`;
-        link.target = '_blank';
-        link.rel = 'noopener';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        showTelegramStatus('Открылся Telegram — нажми «Start» в боте @' + BOT_USERNAME + ' и вернись сюда. Ждём подтверждения...', 'var(--accent)');
+    // Разовая проверка: вдруг браузер «уснул», пока человек был в Telegram
+    async function checkLoginNow(showMiss) {
+        if (!pendingCode || loginDone) return;
+        try {
+            const snap = await db.collection('telegramLogins').doc(pendingCode).get();
+            if (snap.exists) { finishTelegramLogin(pendingCode, snap.data()); return; }
+            if (showMiss) showTelegramStatus('Пока не видим подтверждения. Нажми Start в боте или отправь ему код выше.', '#E0755C');
+        } catch (e) {
+            if (showMiss) showTelegramStatus('Ошибка подключения. Проверь интернет и попробуй снова.', '#E0755C');
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        prepareLink();
         const btn = document.getElementById('btn-telegram');
         if (btn) btn.addEventListener('click', startTelegramLogin);
+        document.getElementById('tg-check').addEventListener('click', () => checkLoginNow(true));
+        document.getElementById('tg-copy').addEventListener('click', (e) => {
+            navigator.clipboard.writeText(pendingCode || '').then(() => {
+                e.target.textContent = 'скопировано ✓';
+                setTimeout(() => { e.target.textContent = 'копировать'; }, 1200);
+            }).catch(() => {});
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') checkLoginNow(false);
+        });
+        window.addEventListener('focus', () => checkLoginNow(false));
 
         // Пришли по кнопке «Войти в JOL-Bilim» из сообщения бота
         const params = new URLSearchParams(window.location.search);
         const urlCode = params.get('tgcode');
-        if (urlCode && /^[a-f0-9]{16,64}$/.test(urlCode)) {
+        if (urlCode && /^[A-Za-z0-9]{8,64}$/.test(urlCode)) {
             history.replaceState(null, '', window.location.pathname);
             showTelegramStatus('Проверяем вход...', 'var(--accent)');
+            pendingCode = urlCode;
             watchLoginCode(urlCode);
             return;
         }
@@ -454,7 +492,7 @@ for(let i=0;i<80;i++){
         // Страницу перезагрузили, пока ждали бота — продолжаем ждать
         let savedCode = null;
         try { savedCode = localStorage.getItem('jolBilimLoginCode'); } catch (e) {}
-        if (savedCode) watchLoginCode(savedCode);
+        if (savedCode) { pendingCode = savedCode; watchLoginCode(savedCode); }
     });
 </script>
 
