@@ -64,7 +64,11 @@ async function askAI(system, messages, maxTokens = 700) {
         catch (e) { errors.push(e.message); }
     }
     for (const m of GROQ_MODELS) {
-        try { return { text: await askGroq(m, system, messages, maxTokens), provider: 'groq:' + m }; }
+        try {
+            const text = await askGroq(m, system, messages, maxTokens);
+            console.warn('AI fallback to Groq, Gemini errors:', errors); // видно в логах Vercel
+            return { text, provider: 'groq:' + m };
+        }
         catch (e) { errors.push(e.message); }
     }
     const err = new Error('All AI providers failed');
@@ -84,4 +88,4 @@ function plainText(s) {
         .trim();
 }
 
-module.exports = { askAI, plainText };
+module.exports = { askAI, plainText, askGemini, askGroq, GEMINI_MODELS, GROQ_MODELS };
