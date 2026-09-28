@@ -24,12 +24,12 @@ module.exports = async (req, res) => {
     const msg = [{ role: 'user', content: 'Сколько будет 2+2? Ответь цифрой.' }];
     for (const m of GEMINI_MODELS) {
         const t = Date.now();
-        try { const a = await askGemini(m, sys, msg, 20); out.tests.push({ model: 'gemini:' + m, ok: true, ms: Date.now() - t, answer: a.slice(0, 40) }); }
+        try { const a = await askGemini(m, sys, msg, 100); out.tests.push({ model: 'gemini:' + m, ok: true, ms: Date.now() - t, answer: a.slice(0, 40) }); }
         catch (e) { out.tests.push({ model: 'gemini:' + m, ok: false, error: e.message.slice(0, 300) }); }
     }
     for (const m of GROQ_MODELS) {
         const t = Date.now();
-        try { const a = await askGroq(m, sys, msg, 20); out.tests.push({ model: 'groq:' + m, ok: true, ms: Date.now() - t, answer: a.slice(0, 40) }); }
+        try { const a = await askGroq(m, sys, msg, 100); out.tests.push({ model: 'groq:' + m, ok: true, ms: Date.now() - t, answer: a.slice(0, 40) }); }
         catch (e) { out.tests.push({ model: 'groq:' + m, ok: false, error: e.message.slice(0, 300) }); }
     }
 

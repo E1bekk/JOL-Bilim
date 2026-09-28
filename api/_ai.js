@@ -2,9 +2,9 @@
 // Файл начинается с "_", поэтому Vercel не делает из него отдельный эндпоинт.
 // Ключи берутся из переменных окружения Vercel: GEMINI_API_KEY и GROQ_API_KEY.
 
-const GEMINI_MODELS = (process.env.GEMINI_MODELS || 'gemini-2.5-flash,gemini-2.5-flash-lite')
+const GEMINI_MODELS = (process.env.GEMINI_MODELS || 'gemini-3.8-flash,gemini-3.5-flash-lite,gemini-flash-latest')
     .split(',').map(s => s.trim()).filter(Boolean);
-const GROQ_MODELS = (process.env.GROQ_MODELS || 'openai/gpt-oss-120b,qwen/qwen3.6-27b')
+const GROQ_MODELS = (process.env.GROQ_MODELS || 'openai/gpt-oss-120b,openai/gpt-oss-20b')
     .split(',').map(s => s.trim()).filter(Boolean);
 
 async function withTimeout(promise, ms) {
@@ -16,21 +16,34 @@ async function withTimeout(promise, ms) {
 async function askGemini(model, system, messages, maxTokens) {
     const key = process.env.GEMINI_API_KEY;
     if (!key) throw new Error('GEMINI_API_KEY not set');
-    const body = {
+    const base = {
         systemInstruction: { parts: [{ text: system }] },
-        contents: messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
-        generationConfig: { temperature: 0.4, maxOutputTokens: maxTokens, thinkingConfig: { thinkingBudget: 0 } }
+        contents: messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }))
     };
-    const r = await withTimeout(fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-    ), 25000);
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(`Gemini ${model} ${r.status}: ${(data.error && data.error.message) || ''}`.slice(0, 300));
-    const text = (((data.candidates || [])[0] || {}).content || {}).parts;
-    const out = (text || []).map(p => p.text || '').join('').trim();
-    if (!out) throw new Error(`Gemini ${model}: empty answer`);
-    return out;
+    // Новые модели «думают» перед ответом, и эти токены входят в лимит ответа — даём запас
+    const variants = [
+        { temperature: 0.4, maxOutputTokens: maxTokens + 2000, thinkingConfig: { thinkingLevel: 'low' } },
+        { temperature: 0.4, maxOutputTokens: maxTokens + 2000 }
+    ];
+    let lastErr;
+    for (const generationConfig of variants) {
+        const r = await withTimeout(fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+            { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...base, generationConfig }) }
+        ), 25000);
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) {
+            lastErr = new Error(`Gemini ${model} ${r.status}: ${(data.error && data.error.message) || ''}`.slice(0, 300));
+            // 400 из-за настроек «размышлений» — пробуем без них; остальные ошибки (лимит, 404) — сразу дальше
+            if (r.status === 400 && /think/i.test(lastErr.message)) continue;
+            throw lastErr;
+        }
+        const parts = (((data.candidates || [])[0] || {}).content || {}).parts || [];
+        const out = parts.filter(p => !p.thought).map(p => p.text || '').join('').trim();
+        if (!out) throw new Error(`Gemini ${model}: empty answer`);
+        return out;
+    }
+    throw lastErr;
 }
 
 async function askGroq(model, system, messages, maxTokens) {
