@@ -568,5 +568,78 @@
       starsBox.appendChild(s);
     }
     </script>
+<!-- Ограничение бесплатного тарифа: каждый предмет можно пройти один раз -->
+<div id="paywall" style="display:none; position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:20px;">
+  <div class="liquid-glass" style="max-width:400px; width:100%; border-radius:20px; padding:32px; text-align:center; background:rgba(10,10,10,0.92);">
+    <div style="font-size:36px; margin-bottom:12px;">🔒</div>
+    <h3 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:26px; margin:0 0 10px;">Бесплатная попытка использована</h3>
+    <p id="paywall-text" style="font-size:14px; color:var(--ink-soft); margin:0 0 24px; line-height:1.5;"></p>
+    <a href="index.html#buy-full" style="display:block; background:#fff; color:#000; border-radius:100px; padding:14px; font-size:14px; font-weight:600; text-decoration:none; margin-bottom:10px;">Полный доступ — 990 сом/мес →</a>
+    <button type="button" onclick="document.getElementById('paywall').style.display='none'" style="background:none; border:none; color:var(--ink-soft); font-size:13px; cursor:pointer; padding:8px;">Выбрать другой предмет</button>
+  </div>
+</div>
+<script>
+(function () {
+    const SUBJECT_NAMES = {
+        math: 'Математика', reading: 'Грамотность чтения', analogies: 'Аналогии', geometry: 'Геометрия',
+        kyrgyz: 'Кыргызский язык', english: 'Английский язык', physics: 'Физика'
+    };
+    let user = null;
+    try { user = JSON.parse(localStorage.getItem('jolBilimUser') || 'null'); } catch (e) {}
+    let state = {
+        plan: user && user.plan, planExpiresAt: user && user.planExpiresAt,
+        history: (user && user.history) || []
+    };
+
+    function hasPaidPlan() {
+        return (state.plan === 'full' || state.plan === 'max') && state.planExpiresAt && state.planExpiresAt > Date.now();
+    }
+    function isUsed(subjectKey) {
+        const name = SUBJECT_NAMES[subjectKey];
+        return state.history.some(h => h && (h.subject === name || h.subject === subjectKey));
+    }
+    function markCards() {
+        document.querySelectorAll('.feat[data-subject]').forEach(card => {
+            let badge = card.querySelector('.used-badge');
+            const locked = !hasPaidPlan() && isUsed(card.getAttribute('data-subject'));
+            if (locked && !badge) {
+                badge = document.createElement('div');
+                badge.className = 'used-badge';
+                badge.textContent = '🔒 пройдено';
+                badge.style.cssText = 'font-size:11px; color:var(--accent); margin-top:8px;';
+                card.appendChild(badge);
+            } else if (!locked && badge) {
+                badge.remove();
+            }
+            card.style.opacity = locked ? '0.55' : '';
+        });
+    }
+
+    // Перехватываем клик по предмету раньше основного кода теста
+    document.addEventListener('click', (e) => {
+        const card = e.target.closest && e.target.closest('.feat[data-subject]');
+        if (!card) return;
+        const key = card.getAttribute('data-subject');
+        if (hasPaidPlan() || !isUsed(key)) return;
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        document.getElementById('paywall-text').textContent =
+            'Бесплатный тест по предмету «' + SUBJECT_NAMES[key] + '» уже пройден. С «Полным доступом» можно тренироваться без ограничений по всем предметам.';
+        document.getElementById('paywall').style.display = 'flex';
+    }, true);
+
+    markCards();
+
+    // Подтягиваем свежий тариф и историю из базы
+    if (user && user.familyCode && typeof db !== 'undefined') {
+        db.collection('families').doc(user.familyCode).get().then(doc => {
+            if (!doc.exists) return;
+            const d = doc.data();
+            state = { plan: d.plan || null, planExpiresAt: d.planExpiresAt || null, history: d.history || state.history };
+            markCards();
+        }).catch(err => console.error('Не удалось загрузить тариф:', err));
+    }
+})();
+</script>
 </body>
 </html>

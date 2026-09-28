@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
         const result = await tg(botToken, 'setWebhook', {
             url: `${SITE_URL}/api/telegram-webhook`,
             secret_token: webhookSecret(botToken),
-            allowed_updates: ['message'],
+            allowed_updates: ['message', 'callback_query'],
             drop_pending_updates: true
         });
         const info = await tg(botToken, 'getWebhookInfo', {});

@@ -237,13 +237,13 @@
           <div class="plan">Полный доступ</div>
           <div class="amount">990 сом/мес</div>
           <ul><li>Безлимит тестов по всем предметам</li><li>Разбор ошибок с объяснением</li><li>Доступ для родителя</li></ul>
-          <button class="btn-white" onclick="openTariffModal('Полный доступ')">Выбрать →</button>
+          <button class="btn-white" onclick="openTariffModal('full')">Выбрать →</button>
         </div>
         <div class="price-card liquid-glass">
           <div class="plan">Максимум</div>
           <div class="amount">1990 сом/мес</div>
           <ul><li>Всё из Полного доступа</li><li>Персональный план подготовки по слабым темам</li><li>Приоритетная поддержка в Telegram</li></ul>
-          <button class="btn-white" onclick="openTariffModal('Максимум')">Выбрать →</button>
+          <button class="btn-white" onclick="openTariffModal('max')">Выбрать →</button>
         </div>
       </div>
     </div>
@@ -305,79 +305,164 @@ const db = firebase.firestore();
 
 <div id="tariff-modal" style="display:none; position:fixed; inset:0; z-index:100; 
   background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:20px;">
-  <div class="liquid-glass" style="max-width:400px; width:100%; border-radius:20px; padding:32px; position:relative;">
-    <button onclick="closeTariffModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--ink-soft); font-size:20px; cursor:pointer;">×</button>
-    
-    <div id="tariff-form-view">
-      <div style="font-size:12px; color:var(--accent); text-transform:uppercase; margin-bottom:8px;" id="tariff-modal-label"></div>
-      <h3 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:26px; margin:0 0 8px;">Оставь заявку</h3>
-      <p style="font-size:14px; color:var(--ink-soft); margin:0 0 24px;">Свяжемся с тобой, чтобы оформить доступ</p>
-      
-      <label style="font-size:12px; color:var(--ink-soft); display:block; margin-bottom:6px;">Имя</label>
-      <input type="text" id="tariff-name" placeholder="Как к тебе обращаться" 
-        style="width:100%; padding:12px 16px; border-radius:10px; border:1px solid var(--line); 
-        background:rgba(255,255,255,0.05); color:var(--ink); font-size:14px; margin-bottom:16px; box-sizing:border-box;">
-      
-      <label style="font-size:12px; color:var(--ink-soft); display:block; margin-bottom:6px;">Telegram или телефон</label>
-      <input type="text" id="tariff-contact" placeholder="@username или +996 ..." 
-        style="width:100%; padding:12px 16px; border-radius:10px; border:1px solid var(--line); 
-        background:rgba(255,255,255,0.05); color:var(--ink); font-size:14px; margin-bottom:8px; box-sizing:border-box;">
-      <div id="tariff-error" style="color:#F87171; font-size:12px; margin-bottom:16px; display:none;"></div>
-      
-      <button class="btn-white" style="width:100%; justify-content:center;" onclick="submitTariffRequest()">Отправить заявку</button>
+  <div class="liquid-glass" style="max-width:420px; width:100%; max-height:calc(100vh - 40px); overflow-y:auto; border-radius:20px; padding:32px; position:relative; background:rgba(10,10,10,0.92);">
+    <button onclick="closeTariffModal()" aria-label="Закрыть" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--ink-soft); font-size:22px; cursor:pointer;">×</button>
+
+    <div style="font-size:12px; color:var(--accent); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;" id="tariff-modal-label"></div>
+
+    <!-- 1. Не вошёл в кабинет -->
+    <div id="tariff-login-view" style="display:none;">
+      <h3 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:26px; margin:0 0 10px;">Сначала войди в кабинет</h3>
+      <p style="font-size:14px; color:var(--ink-soft); margin:0 0 24px;">Тариф привязывается к твоему аккаунту. Вход — через Telegram, это займёт полминуты.</p>
+      <a href="cabinet.html" class="btn-white" style="width:100%; justify-content:center;">Войти через Telegram →</a>
     </div>
 
+    <!-- 2. Реквизиты и оплата -->
+    <div id="tariff-pay-view" style="display:none;">
+      <h3 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:26px; margin:0 0 6px;"><span id="tariff-price"></span> сом / месяц</h3>
+      <p style="font-size:14px; color:var(--ink-soft); margin:0 0 20px;">Переведи сумму по реквизитам ниже, потом нажми «Я оплатил».</p>
+
+      <div style="border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:14px; font-size:14px;">
+        <div style="display:flex; justify-content:space-between; gap:12px; padding:6px 0;"><span style="color:var(--ink-soft);">Способ</span><span id="pay-method" style="text-align:right;"></span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; padding:6px 0; border-top:1px solid var(--line);">
+          <span style="color:var(--ink-soft);">Номер</span>
+          <span style="display:flex; align-items:center; gap:8px;"><span id="pay-number" style="font-family:monospace; font-size:15px;"></span>
+            <button type="button" onclick="copyPayValue('pay-number', this)" style="background:none; border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:3px 8px; font-size:11px; cursor:pointer;">копировать</button></span>
+        </div>
+        <div style="display:flex; justify-content:space-between; gap:12px; padding:6px 0; border-top:1px solid var(--line);"><span style="color:var(--ink-soft);">Получатель</span><span id="pay-receiver" style="text-align:right;"></span></div>
+      </div>
+
+      <div style="border:1px solid var(--accent); border-radius:12px; padding:14px 16px; margin-bottom:20px; font-size:13px; line-height:1.5;">
+        В <b>комментарии к переводу</b> обязательно укажи свой код:
+        <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
+          <span id="pay-code" style="font-family:monospace; font-size:20px; color:var(--accent); letter-spacing:0.1em;"></span>
+          <button type="button" onclick="copyPayValue('pay-code', this)" style="background:none; border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:3px 8px; font-size:11px; cursor:pointer;">копировать</button>
+        </div>
+        <div style="color:var(--ink-soft); margin-top:6px;">По нему мы найдём твой перевод.</div>
+      </div>
+
+      <div id="tariff-error" style="color:#F87171; font-size:13px; margin-bottom:12px; display:none;"></div>
+      <button id="btn-paid" class="btn-white" style="width:100%; justify-content:center;" onclick="submitPayment()">Я оплатил</button>
+    </div>
+
+    <!-- 3. Заявка отправлена / уже на проверке -->
     <div id="tariff-success-view" style="display:none; text-align:center;">
       <div style="font-size:40px; margin-bottom:16px;">✓</div>
-      <h3 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:24px; margin:0 0 10px;">Заявка отправлена</h3>
-      <p style="font-size:14px; color:var(--ink-soft); margin:0;">Свяжемся с тобой в течение дня, чтобы оформить доступ и договориться об оплате.</p>
+      <h3 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:24px; margin:0 0 10px;" id="tariff-success-title">Заявка отправлена</h3>
+      <p style="font-size:14px; color:var(--ink-soft); margin:0 0 20px;">Как только проверим перевод, тариф включится, а бот @jolbilim_bot напишет тебе в Telegram. Обычно это занимает до нескольких часов.</p>
+      <a href="dashboard.html" class="btn-glass liquid-glass" style="justify-content:center;">В кабинет →</a>
     </div>
   </div>
 </div>
 
 <script>
-let selectedTariff = '';
+// ===== Реквизиты для оплаты — поменяй здесь, если они изменятся =====
+const PAYMENT_INFO = {
+  method: 'MBank',
+  number: '+996 220 557 145',
+  receiver: 'Элбек'
+};
+const TARIFFS = {
+  full: { title: 'Полный доступ', price: 990 },
+  max:  { title: 'Максимум', price: 1990 }
+};
 
-function openTariffModal(tariffName) {
-  selectedTariff = tariffName;
-  document.getElementById('tariff-modal-label').textContent = tariffName;
-  document.getElementById('tariff-form-view').style.display = 'block';
-  document.getElementById('tariff-success-view').style.display = 'none';
-  document.getElementById('tariff-name').value = '';
-  document.getElementById('tariff-contact').value = '';
+let selectedTariff = null;
+let tariffUser = null;
+
+function showTariffView(id) {
+  ['tariff-login-view', 'tariff-pay-view', 'tariff-success-view'].forEach(v => {
+    document.getElementById(v).style.display = (v === id) ? 'block' : 'none';
+  });
+}
+
+function copyPayValue(elId, btn) {
+  const text = document.getElementById(elId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const old = btn.textContent; btn.textContent = 'скопировано ✓';
+    setTimeout(() => { btn.textContent = old; }, 1200);
+  }).catch(() => {});
+}
+
+async function openTariffModal(planKey) {
+  selectedTariff = planKey;
+  const plan = TARIFFS[planKey];
+  document.getElementById('tariff-modal-label').textContent = plan.title;
   document.getElementById('tariff-error').style.display = 'none';
   document.getElementById('tariff-modal').style.display = 'flex';
+
+  try { tariffUser = JSON.parse(localStorage.getItem('jolBilimUser') || 'null'); } catch (e) { tariffUser = null; }
+  if (!tariffUser || !tariffUser.familyCode) { showTariffView('tariff-login-view'); return; }
+
+  // Уже есть заявка на проверке?
+  try {
+    const doc = await db.collection('families').doc(tariffUser.familyCode).get();
+    const d = doc.exists ? doc.data() : {};
+    if (d.planPending) {
+      document.getElementById('tariff-success-title').textContent = 'Заявка уже на проверке';
+      showTariffView('tariff-success-view');
+      return;
+    }
+  } catch (e) { console.error(e); }
+
+  document.getElementById('tariff-price').textContent = plan.price;
+  document.getElementById('pay-method').textContent = PAYMENT_INFO.method;
+  document.getElementById('pay-number').textContent = PAYMENT_INFO.number;
+  document.getElementById('pay-receiver').textContent = PAYMENT_INFO.receiver;
+  document.getElementById('pay-code').textContent = tariffUser.familyCode;
+  showTariffView('tariff-pay-view');
 }
 
 function closeTariffModal() {
   document.getElementById('tariff-modal').style.display = 'none';
 }
 
-function submitTariffRequest() {
-  const name = document.getElementById('tariff-name').value.trim();
-  const contact = document.getElementById('tariff-contact').value.trim();
+async function submitPayment() {
+  const btn = document.getElementById('btn-paid');
   const errorEl = document.getElementById('tariff-error');
+  errorEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Отправляем...';
 
-  if (!name || !contact) {
-    errorEl.textContent = 'Заполни оба поля';
-    errorEl.style.display = 'block';
-    return;
-  }
+  try {
+    const u = tariffUser;
+    const ref = await db.collection('paymentRequests').add({
+      familyCode: u.familyCode,
+      name: u.name || '',
+      grade: u.grade || '',
+      telegramId: u.telegramId ? String(u.telegramId) : '',
+      telegramUsername: u.telegramUsername || '',
+      plan: selectedTariff,
+      amount: TARIFFS[selectedTariff].price,
+      status: 'pending',
+      notified: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('families').doc(u.familyCode).update({ planPending: selectedTariff });
 
-  db.collection('tariff_requests').add({
-    name: name,
-    contact: contact,
-    tariff: selectedTariff,
-    date: new Date().toISOString()
-  }).then(function() {
-    document.getElementById('tariff-form-view').style.display = 'none';
-    document.getElementById('tariff-success-view').style.display = 'block';
-  }).catch(function(error) {
-    errorEl.textContent = 'Не получилось отправить, попробуй ещё раз';
-    errorEl.style.display = 'block';
+    const resp = await fetch('/api/payment-request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requestId: ref.id })
+    });
+    const data = await resp.json().catch(() => ({ ok: false }));
+    if (!data.ok) throw new Error(data.error || ('HTTP ' + resp.status));
+
+    document.getElementById('tariff-success-title').textContent = 'Заявка отправлена';
+    showTariffView('tariff-success-view');
+  } catch (error) {
     console.error('Ошибка отправки заявки:', error);
-  });
+    errorEl.textContent = 'Не получилось отправить заявку, попробуй ещё раз';
+    errorEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Я оплатил';
+  }
 }
+
+// Ссылка вида index.html#buy-full сразу открывает оплату нужного тарифа
+window.addEventListener('load', () => {
+  const m = location.hash.match(/^#buy-(full|max)$/);
+  if (m) { document.getElementById('pricing').scrollIntoView(); openTariffModal(m[1]); }
+});
 </script>
 
 </body>

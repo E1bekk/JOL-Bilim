@@ -188,6 +188,14 @@
       </h1>
       <div id="user-grade" style="display:inline-block; background:rgba(255,255,255,0.06); 
         border:1px solid var(--line); border-radius:100px; padding:6px 16px; font-size:13px; color:var(--ink-soft);"></div>
+
+      <!-- тариф -->
+      <div id="plan-card" style="margin-top:28px; border:1px solid var(--line); border-radius:16px; padding:18px 20px; max-width:340px; background:rgba(0,0,0,0.25);">
+        <div style="font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.08em;">тариф</div>
+        <div id="plan-title" style="font-size:18px; font-weight:600; margin:4px 0 2px;">Диагностика</div>
+        <div id="plan-desc" style="font-size:13px; color:var(--ink-soft);">Каждый предмет можно пройти один раз бесплатно</div>
+        <a id="plan-cta" href="index.html#pricing" style="display:inline-block; margin-top:12px; color:var(--accent); font-size:13px; font-weight:500; text-decoration:none;">Улучшить тариф →</a>
+      </div>
     </div>
 
     <!-- блок кода для родителя внизу, как цитата в референсе -->
@@ -419,6 +427,47 @@
             }
 
             historyContainer.appendChild(cardContainer);
+        }
+    });
+</script>
+
+<script>
+    // Тариф: берём свежие данные из базы (там их меняет бот после подтверждения оплаты)
+    document.addEventListener('DOMContentLoaded', async () => {
+        let user;
+        try { user = JSON.parse(localStorage.getItem('jolBilimUser') || 'null'); } catch (e) { user = null; }
+        if (!user || !user.familyCode) return;
+
+        const PLAN_TITLES = { full: 'Полный доступ', max: 'Максимум' };
+        const titleEl = document.getElementById('plan-title');
+        const descEl = document.getElementById('plan-desc');
+        const ctaEl = document.getElementById('plan-cta');
+
+        try {
+            const doc = await db.collection('families').doc(user.familyCode).get();
+            if (!doc.exists) return;
+            const d = doc.data();
+            const active = PLAN_TITLES[d.plan] && d.planExpiresAt && d.planExpiresAt > Date.now();
+
+            // сохраняем, чтобы test.html знал тариф даже без интернета
+            user.plan = active ? d.plan : null;
+            user.planExpiresAt = active ? d.planExpiresAt : null;
+            localStorage.setItem('jolBilimUser', JSON.stringify(user));
+
+            if (active) {
+                const until = new Date(d.planExpiresAt).toLocaleDateString('ru-RU');
+                titleEl.textContent = PLAN_TITLES[d.plan];
+                titleEl.style.color = 'var(--accent)';
+                descEl.textContent = 'Безлимитные тесты · активен до ' + until;
+                ctaEl.textContent = 'Продлить →';
+                ctaEl.href = 'index.html#buy-' + d.plan;
+            } else if (d.planPending) {
+                titleEl.textContent = 'Диагностика';
+                descEl.textContent = 'Оплата «' + (PLAN_TITLES[d.planPending] || d.planPending) + '» на проверке — бот напишет, когда тариф включится';
+                ctaEl.style.display = 'none';
+            }
+        } catch (e) {
+            console.error('Не удалось загрузить тариф:', e);
         }
     });
 </script>
