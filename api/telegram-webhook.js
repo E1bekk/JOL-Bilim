@@ -36,7 +36,7 @@ function welcomeText() {
         '',
         '🔑 Чтобы войти на сайт: открой JOL-Bilim, введи имя и нажми «Войти через Telegram». Если сайт показал код из 8 символов — отправь его сюда.',
         '',
-        '/new — начать новую тему   /help — подсказка'
+        'Все команды — в кнопке «Меню» слева от поля ввода 👇'
     ].join('\n');
 }
 
@@ -135,16 +135,54 @@ async function handleMessage(botToken, msg) {
         return confirmLogin(botToken, msg, manual);
     }
 
-    if (/^\/(start|help)\b/.test(text)) {
+    const cmd = (text.match(/^\/([a-z]+)(@\w+)?\b/i) || [])[1];
+    const cmdLower = cmd ? cmd.toLowerCase() : null;
+
+    if (cmdLower === 'start') {
         await tg(botToken, 'sendMessage', {
             chat_id: chatId,
             text: welcomeText(),
-            reply_markup: { inline_keyboard: [[{ text: 'Открыть JOL-Bilim', url: `${SITE_URL}/cabinet.html` }]] }
+            reply_markup: { inline_keyboard: [
+                [{ text: '📝 Пройти тест', url: `${SITE_URL}/test.html` }, { text: '👤 Мой кабинет', url: `${SITE_URL}/dashboard.html` }],
+                [{ text: '💎 Тарифы', url: `${SITE_URL}/index.html#pricing` }, { text: '👨‍👩‍👧 Для родителей', url: `${SITE_URL}/parent.html` }]
+            ] }
         });
         return;
     }
 
-    if (/^\/new\b/.test(text)) {
+    if (cmdLower === 'help') {
+        await tg(botToken, 'sendMessage', { chat_id: chatId, text: [
+            '❓ Как пользоваться ботом',
+            '',
+            '🤖 Вопрос репетитору — просто напиши сообщение: «Объясни, как решать задачи на скорость».',
+            '📷 Задача с фото — сфотографируй задачу и отправь. Можно добавить подпись: «реши 3-е задание».',
+            '💬 Бот помнит последние сообщения, поэтому можно уточнять: «а почему так?».',
+            '🆕 /new — начать новую тему, если хочешь спросить про другое.',
+            `📊 Лимит — ${TUTOR_DAILY_LIMIT} вопросов в день.`,
+            '',
+            '🔑 Вход на сайт: на странице входа нажми «Войти через Telegram» и затем «Start» здесь. Если сайт показал код из 8 символов — отправь его сюда.',
+            '',
+            'Все команды — в кнопке «Меню» слева от поля ввода.'
+        ].join('\n') });
+        return;
+    }
+
+    const LINKS = {
+        test: { text: '📝 Тесты по всем предметам ОРТ: 7 предметов, разбор каждой ошибки и ИИ-объяснения.', button: 'Пройти тест', url: `${SITE_URL}/test.html` },
+        cabinet: { text: '👤 В кабинете — твой прогноз балла, история тестов, тариф и код для родителей.', button: 'Открыть кабинет', url: `${SITE_URL}/dashboard.html` },
+        tariffs: { text: '💎 Тарифы JOL-Bilim:\n\n• Диагностика — бесплатно: по тесту на каждый предмет\n• Полный доступ — 990 сом/мес: безлимит тестов\n• Максимум — 1990 сом/мес: + персональный план и поддержка\n\nОформить можно на сайте, оплата переводом — после проверки тариф включится, и я напишу тебе здесь.', button: 'Выбрать тариф', url: `${SITE_URL}/index.html#pricing` },
+        parent: { text: '👨‍👩‍👧 Для родителей: введите код, который ребёнок видит у себя в кабинете, — и увидите его баллы и прогресс.', button: 'Кабинет родителя', url: `${SITE_URL}/parent.html` }
+    };
+    if (cmdLower && LINKS[cmdLower]) {
+        const l = LINKS[cmdLower];
+        await tg(botToken, 'sendMessage', {
+            chat_id: chatId, text: l.text,
+            reply_markup: { inline_keyboard: [[{ text: l.button, url: l.url }]] }
+        });
+        return;
+    }
+
+    if (cmdLower === 'new') {
         await fsPatch(`botChats/${chatId}`, { history: '[]' }).catch(() => {});
         await tg(botToken, 'sendMessage', { chat_id: chatId, text: '🆕 Начинаем новую тему. Задавай вопрос!' });
         return;
