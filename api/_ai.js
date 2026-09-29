@@ -18,7 +18,13 @@ async function askGemini(model, system, messages, maxTokens) {
     if (!key) throw new Error('GEMINI_API_KEY not set');
     const base = {
         systemInstruction: { parts: [{ text: system }] },
-        contents: messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }))
+        contents: messages.map(m => ({
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts: [
+                ...(m.images || []).map(img => ({ inlineData: { mimeType: img.mimeType, data: img.data } })),
+                { text: m.content || ' ' }
+            ]
+        }))
     };
     // Новые модели «думают» перед ответом, и эти токены входят в лимит ответа — даём запас
     const variants = [
@@ -30,7 +36,7 @@ async function askGemini(model, system, messages, maxTokens) {
         const r = await withTimeout(fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
             { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...base, generationConfig }) }
-        ), 25000);
+        ), 20000);
         const data = await r.json().catch(() => ({}));
         if (!r.ok) {
             lastErr = new Error(`Gemini ${model} ${r.status}: ${(data.error && data.error.message) || ''}`.slice(0, 300));
@@ -51,7 +57,7 @@ async function askGroq(model, system, messages, maxTokens) {
     if (!key) throw new Error('GROQ_API_KEY not set');
     const body = {
         model,
-        messages: [{ role: 'system', content: system }, ...messages],
+        messages: [{ role: 'system', content: system }, ...messages.map(m => ({ role: m.role, content: m.content }))],
         temperature: 0.4,
         max_tokens: maxTokens + 800 // запас на «размышления» у gpt-oss
     };
@@ -60,7 +66,7 @@ async function askGroq(model, system, messages, maxTokens) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
         body: JSON.stringify(body)
-    }), 25000);
+    }), 20000);
     const data = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(`Groq ${model} ${r.status}: ${(data.error && data.error.message) || ''}`.slice(0, 300));
     let out = (((data.choices || [])[0] || {}).message || {}).content || '';
@@ -69,20 +75,29 @@ async function askGroq(model, system, messages, maxTokens) {
     return out;
 }
 
-// Спрашиваем по очереди: Gemini (модели по списку) -> Groq (модели по списку)
-async function askAI(system, messages, maxTokens = 700) {
+// Спрашиваем по очереди: Gemini (модели по списку) -> Groq (модели по списку).
+// Фото понимает только Gemini, поэтому с картинками Groq не используется.
+// deadlineMs — общий предел времени, чтобы запрос не висел дольше, чем живёт функция Vercel.
+async function askAI(system, messages, maxTokens = 700, deadlineMs = 45000) {
+    const started = Date.now();
+    const timeLeft = () => deadlineMs - (Date.now() - started);
+    const hasImages = messages.some(m => m.images && m.images.length);
     const errors = [];
     for (const m of GEMINI_MODELS) {
+        if (timeLeft() < 3000) break;
         try { return { text: await askGemini(m, system, messages, maxTokens), provider: 'gemini:' + m }; }
         catch (e) { errors.push(e.message); }
     }
-    for (const m of GROQ_MODELS) {
-        try {
-            const text = await askGroq(m, system, messages, maxTokens);
-            console.warn('AI fallback to Groq, Gemini errors:', errors); // видно в логах Vercel
-            return { text, provider: 'groq:' + m };
+    if (!hasImages) {
+        for (const m of GROQ_MODELS) {
+            if (timeLeft() < 3000) break;
+            try {
+                const text = await askGroq(m, system, messages, maxTokens);
+                console.warn('AI fallback to Groq, Gemini errors:', errors); // видно в логах Vercel
+                return { text, provider: 'groq:' + m };
+            }
+            catch (e) { errors.push(e.message); }
         }
-        catch (e) { errors.push(e.message); }
     }
     const err = new Error('All AI providers failed');
     err.details = errors;

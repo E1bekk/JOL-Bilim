@@ -3,32 +3,44 @@
 //    бот подписывает его Telegram-данные и кладёт их в Firestore (telegramLogins/<code>).
 // 2) Оплата: администратор нажимает «Подтвердить» / «Отклонить» под заявкой ->
 //    бот включает тариф ученику и пишет ему об этом.
+// 3) ИИ-репетитор: любое другое сообщение (текст или фото задачи) — вопрос репетитору.
 const {
     SITE_URL, ADMIN_CHAT_ID, PLANS, PLAN_DAYS,
     webhookSecret, signLogin, safeEqual, tg, fsGet, fsPatch, formatDate
 } = require('./_telegram');
 
-async function handleStart(botToken, msg) {
-    const chatId = msg.chat.id;
-    const text = msg.text.trim();
+const { askAI, plainText } = require('./_ai');
 
-    // 1) пришли по ссылке с сайта: /start login_<код>
-    // 2) или отправили код вручную (если Telegram не открылся по кнопке): например K7M2Q9XP
-    let code = null;
-    const deepLink = text.match(/^\/start\s+login_([A-Za-z0-9]{8,64})$/);
-    const manual = text.toUpperCase().replace(/[\s-]/g, '');
-    if (deepLink) code = deepLink[1];
-    else if (/^[A-HJ-NP-Z2-9]{8}$/.test(manual)) code = manual;
+const TUTOR_DAILY_LIMIT = 25;   // вопросов репетитору в день на человека
+const TUTOR_HISTORY = 6;        // сколько последних сообщений бот помнит
 
-    if (!code) {
-        await tg(botToken, 'sendMessage', {
-            chat_id: chatId,
-            text: 'Привет! Это бот JOL-Bilim 👋\nЧтобы войти, открой сайт, введи имя и нажми «Войти через Telegram».\nЕсли сайт показал тебе код из 8 символов — просто отправь его сюда.',
-            reply_markup: { inline_keyboard: [[{ text: 'Открыть JOL-Bilim', url: `${SITE_URL}/cabinet.html` }]] }
-        });
-        return;
-    }
+const TUTOR_SYSTEM = [
+    'Ты — ИИ-репетитор JOL-Bilim. Помогаешь школьникам Кыргызстана готовиться к ОРТ (общереспубликанскому тестированию):',
+    'математика, геометрия, аналогии и дополнения, чтение и понимание, практическая грамматика (русский и кыргызский), английский, физика, химия, биология, история.',
+    'Правила:',
+    '— Отвечай на языке ученика (по-русски или по-кыргызски), на «ты», доброжелательно.',
+    '— Объясняй по шагам и коротко: обычно до 150 слов. Если просят подробнее — можно длиннее.',
+    '— Если ученик прислал задачу, не давай только ответ: покажи ход решения и в конце — ответ.',
+    '— Если на фото несколько задач — разбери первую и предложи прислать остальные по одной.',
+    '— Формулы пиши обычным текстом (x² + 3x = 10, S = v × t). Без markdown-заголовков, таблиц и звёздочек.',
+    '— Не выдумывай факты. Если не уверен — так и скажи.',
+    '— На вопросы не про учёбу отвечай кратко и мягко возвращай к подготовке к ОРТ.'
+].join('\n');
 
+function welcomeText() {
+    return [
+        'Привет! Это бот JOL-Bilim 👋',
+        '',
+        '🤖 Я — ИИ-репетитор по ОРТ. Напиши вопрос или пришли фото задачи — разберу по шагам.',
+        'Например: «Как быстро находить проценты?» или «Объясни аналогии».',
+        '',
+        '🔑 Чтобы войти на сайт: открой JOL-Bilim, введи имя и нажми «Войти через Telegram». Если сайт показал код из 8 символов — отправь его сюда.',
+        '',
+        '/new — начать новую тему   /help — подсказка'
+    ].join('\n');
+}
+
+async function confirmLogin(botToken, msg, code) {
     const id = String(msg.from.id);
     const username = msg.from.username || '';
     const firstName = msg.from.first_name || '';
@@ -38,10 +50,117 @@ async function handleStart(botToken, msg) {
     await fsPatch(`telegramLogins/${code}`, { id, username, first_name: firstName, ts, sig });
 
     await tg(botToken, 'sendMessage', {
-        chat_id: chatId,
+        chat_id: msg.chat.id,
         text: '✅ Вход подтверждён!\nВернись на сайт JOL-Bilim — вход произойдёт автоматически.\nЕсли страница закрылась, нажми кнопку ниже.',
         reply_markup: { inline_keyboard: [[{ text: 'Войти в JOL-Bilim', url: `${SITE_URL}/cabinet.html?tgcode=${code}` }]] }
     });
+}
+
+// Самое большое фото не больше ~1.5 МБ -> base64 для Gemini
+async function downloadPhoto(botToken, photos) {
+    const fitting = photos.filter(p => !p.file_size || p.file_size <= 1500000);
+    const best = (fitting.length ? fitting : photos)[(fitting.length ? fitting : photos).length - 1];
+    const info = await tg(botToken, 'getFile', { file_id: best.file_id });
+    if (!info.ok) throw new Error('getFile failed');
+    const r = await fetch(`https://api.telegram.org/file/bot${botToken}/${info.result.file_path}`);
+    if (!r.ok) throw new Error('photo download failed');
+    const buf = Buffer.from(await r.arrayBuffer());
+    return { mimeType: 'image/jpeg', data: buf.toString('base64') };
+}
+
+async function handleTutor(botToken, msg, text) {
+    const chatId = msg.chat.id;
+    const docPath = `botChats/${chatId}`;
+    const today = new Date(Date.now() + 6 * 3600 * 1000).toISOString().slice(0, 10); // дата в Бишкеке
+
+    const state = (await fsGet(docPath).catch(() => null)) || {};
+    let history = [];
+    try { history = JSON.parse(state.history || '[]'); } catch (e) { history = []; }
+    const count = state.day === today ? (state.count || 0) : 0;
+
+    if (count >= TUTOR_DAILY_LIMIT) {
+        await tg(botToken, 'sendMessage', {
+            chat_id: chatId,
+            text: `На сегодня лимит вопросов репетитору исчерпан (${TUTOR_DAILY_LIMIT} в день). Возвращайся завтра — а пока можно порешать тесты на сайте 💪`,
+            reply_markup: { inline_keyboard: [[{ text: 'Открыть тесты', url: `${SITE_URL}/test.html` }]] }
+        });
+        return;
+    }
+
+    await tg(botToken, 'sendChatAction', { chat_id: chatId, action: 'typing' });
+
+    let images = [];
+    if (msg.photo && msg.photo.length) {
+        try { images = [await downloadPhoto(botToken, msg.photo)]; }
+        catch (e) { console.error('photo error:', e.message); }
+    }
+    const userText = (text || '').slice(0, 2000) || (images.length ? 'Реши задачу на фото и объясни по шагам.' : '');
+
+    let answer;
+    try {
+        const ai = await askAI(TUTOR_SYSTEM, [...history, { role: 'user', content: userText, images }], 900, 40000);
+        answer = plainText(ai.text).slice(0, 3800);
+    } catch (e) {
+        console.error('tutor AI error:', e.message, e.details || '');
+        await tg(botToken, 'sendMessage', {
+            chat_id: chatId,
+            text: images.length
+                ? 'Не получилось разобрать фото — ИИ сейчас перегружен. Попробуй ещё раз через минуту или перепиши задачу текстом.'
+                : 'ИИ-репетитор сейчас перегружен. Попробуй ещё раз через минуту 🙏'
+        });
+        return;
+    }
+
+    await tg(botToken, 'sendMessage', { chat_id: chatId, text: answer });
+
+    // Запоминаем последние сообщения (фото не храним — только подпись)
+    history.push({ role: 'user', content: images.length ? `[фото задачи] ${userText}` : userText });
+    history.push({ role: 'assistant', content: answer.slice(0, 1500) });
+    history = history.slice(-TUTOR_HISTORY);
+    await fsPatch(docPath, { history: JSON.stringify(history), day: today, count: count + 1, updatedAt: Date.now() })
+        .catch(e => console.error('chat state save failed:', e.message));
+}
+
+async function handleMessage(botToken, msg) {
+    const chatId = msg.chat.id;
+    const text = (msg.text || msg.caption || '').trim();
+
+    // 1) пришли по ссылке с сайта: /start login_<код>
+    const deepLink = text.match(/^\/start\s+login_([A-Za-z0-9]{8,64})$/);
+    if (deepLink) return confirmLogin(botToken, msg, deepLink[1]);
+
+    // 2) код вручную (если Telegram не открылся по кнопке): 8 символов, обязательно с цифрой, напр. K7M2Q9XP
+    const manual = text.toUpperCase().replace(/[\s-]/g, '');
+    if (!msg.photo && /^[A-HJ-NP-Z2-9]{8}$/.test(manual) && /\d/.test(manual)) {
+        return confirmLogin(botToken, msg, manual);
+    }
+
+    if (/^\/(start|help)\b/.test(text)) {
+        await tg(botToken, 'sendMessage', {
+            chat_id: chatId,
+            text: welcomeText(),
+            reply_markup: { inline_keyboard: [[{ text: 'Открыть JOL-Bilim', url: `${SITE_URL}/cabinet.html` }]] }
+        });
+        return;
+    }
+
+    if (/^\/new\b/.test(text)) {
+        await fsPatch(`botChats/${chatId}`, { history: '[]' }).catch(() => {});
+        await tg(botToken, 'sendMessage', { chat_id: chatId, text: '🆕 Начинаем новую тему. Задавай вопрос!' });
+        return;
+    }
+
+    if (text.startsWith('/')) {
+        await tg(botToken, 'sendMessage', { chat_id: chatId, text: 'Не знаю такую команду. Просто напиши вопрос или пришли фото задачи 🙂' });
+        return;
+    }
+
+    if (!text && !(msg.photo && msg.photo.length)) {
+        await tg(botToken, 'sendMessage', { chat_id: chatId, text: 'Я понимаю текст и фото задач. Напиши вопрос 🙂' });
+        return;
+    }
+
+    return handleTutor(botToken, msg, text);
 }
 
 async function handlePaymentDecision(botToken, cq) {
@@ -118,8 +237,8 @@ module.exports = async (req, res) => {
         const update = req.body || {};
         if (update.callback_query) {
             await handlePaymentDecision(botToken, update.callback_query);
-        } else if (update.message && update.message.from && typeof update.message.text === 'string') {
-            await handleStart(botToken, update.message);
+        } else if (update.message && update.message.from && update.message.chat && update.message.chat.type === 'private') {
+            await handleMessage(botToken, update.message);
         }
         return res.status(200).json({ ok: true });
     } catch (error) {
