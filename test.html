@@ -1,651 +1,767 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тесты в формате ОРТ - JOL-Bilim</title>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <script>
-        (function() {
-            try {
-                const userRaw = localStorage.getItem('jolBilimUser');
-                if (!userRaw) { window.location.href = 'cabinet.html'; return; }
-                const user = JSON.parse(userRaw);
-                if (!user || !user.name) { window.location.href = 'cabinet.html'; }
-            } catch(e) { window.location.href = 'cabinet.html'; }
-        })();
-    </script>
-    <style>
-        :root {
-            --bg: #000000;
-            --ink: #F3F1E9;
-            --ink-soft: rgba(243,241,233,0.65);
-            --accent: #E3A83B;
-            --line: rgba(255,255,255,0.12);
-        }
-        .star { position: absolute; border-radius: 50%; background: #fff; animation: twinkle ease-in-out infinite; }
-        @keyframes twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.8; } }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Тесты в формате ОРТ — JOL-Bilim</title>
+  <meta name="theme-color" content="#070914">
+  <script>
+    (function () {
+      try {
+        const u = JSON.parse(localStorage.getItem('jolBilimUser') || 'null');
+        if (!u || !u.name) location.replace('cabinet.html');
+      } catch (e) { location.replace('cabinet.html'); }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <style>
+    .test-top { position: sticky; top: 0; z-index: 30; background: rgba(7,9,20,.78); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line); }
+    .test-top-in { max-width: 860px; margin: 0 auto; height: 64px; padding: 0 20px; display: flex; align-items: center; gap: 14px; }
+    .test-top .logo { font-size: 16px; } .test-top .logo-mark { width: 30px; height: 30px; font-size: 13px; border-radius: 9px; }
+    .top-spacer { display: none; }
+    .top-title { flex: 1; text-align: center; font-weight: 800; font-size: 14px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .timer { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-weight: 700; font-size: 13px; color: var(--text); padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+    .timer svg { width: 15px; height: 15px; color: #a5b4fc; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 32px 20px 80px; }
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeUp .5s var(--ease) both; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            color: var(--ink);
-            background-color: var(--bg);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow-x: hidden;
-        }
+    .sel-head { text-align: center; margin-bottom: 28px; }
+    .sel-head h1 { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 38px); letter-spacing: -.02em; line-height: 1.15; margin: 16px 0 10px; }
+    .sel-head p { color: var(--muted); margin: 0; }
+    .full-banner { display: flex; align-items: center; gap: 18px; padding: 22px 24px; text-decoration: none; color: var(--text); margin-bottom: 8px; }
+    .full-banner h3 { margin: 0 0 4px; font-size: 18px; font-weight: 800; }
+    .full-banner p { margin: 0; font-size: 13.5px; color: #e0e3ff; opacity: .85; }
+    .full-banner .icon-box { background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.22); width: 50px; height: 50px; border-radius: 14px; }
+    .group-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; margin: 30px 0 12px; }
+    .group-title svg { width: 18px; height: 18px; color: #a5b4fc; }
+    .pick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .pick-grid.small { grid-template-columns: repeat(3, 1fr); }
+    .pick { display: flex; align-items: center; gap: 14px; padding: 16px 18px; cursor: pointer; }
+    .pick h3 { margin: 0; font-size: 14.5px; font-weight: 800; line-height: 1.3; }
+    .pick small { display: block; color: var(--dim); font-size: 12px; font-weight: 700; margin-top: 2px; }
+    .pick .badge { margin-left: auto; }
+    .pick.loading { opacity: .6; pointer-events: none; }
 
-        .liquid-glass {
-            background: rgba(255,255,255,0.04);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--line);
-        }
+    /* вопрос */
+    .q-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; font-size: 13px; font-weight: 700; color: var(--muted); }
+    .q-head b { color: var(--text); }
+    .progress { height: 6px; border-radius: 10px; background: rgba(255,255,255,.06); overflow: hidden; margin-bottom: 18px; }
+    .progress i { display: block; height: 100%; width: 0; background: var(--grad); border-radius: inherit; transition: width .4s var(--ease); box-shadow: 0 0 16px rgba(139,92,246,.7); }
+    .sec-pills { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 16px; scrollbar-width: none; }
+    .sec-pills::-webkit-scrollbar { display: none; }
+    .sec-pills .chip { padding: 8px 12px; font-size: 12.5px; }
+    .sec-pills .chip small { font-weight: 800; opacity: .75; }
+    .q-card { padding: 28px; }
+    .q-tag { display: inline-flex; margin-bottom: 16px; }
+    .passage { max-height: 42vh; overflow-y: auto; margin-bottom: 20px; padding: 18px; border-radius: 14px; background: rgba(7,9,20,.5); border: 1px solid var(--line); }
+    .passage-title { font-weight: 800; margin-bottom: 8px; }
+    .passage-text { font-size: 14.5px; line-height: 1.7; white-space: pre-line; color: #dfe3ff; }
+    .question { font-size: 17.5px; font-weight: 700; line-height: 1.5; white-space: pre-line; margin-bottom: 22px; }
+    .question.compare { font-family: var(--mono); font-size: 16px; font-weight: 500; padding: 16px 18px; border-radius: 14px; background: rgba(7,9,20,.45); border: 1px solid var(--line); }
+    .options { display: grid; gap: 10px; margin-bottom: 20px; }
+    .opt { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line-2); background: rgba(255,255,255,.025); color: var(--text); font: 600 15px/1.45 var(--font); cursor: pointer; transition: border-color .2s, background .2s, transform .2s var(--ease); }
+    .opt:hover:not(:disabled) { border-color: rgba(129,140,248,.5); background: rgba(99,102,241,.08); transform: translateX(3px); }
+    .opt:disabled { cursor: default; }
+    .opt .letter { width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0; display: grid; place-items: center; font-weight: 800; font-size: 13.5px; background: rgba(255,255,255,.06); border: 1px solid var(--line); transition: all .2s; }
+    .opt.selected { border-color: #818cf8; background: rgba(99,102,241,.16); }
+    .opt.selected .letter { background: var(--grad); border-color: transparent; color: #fff; }
+    .opt.correct { border-color: rgba(52,211,153,.6); background: rgba(52,211,153,.1); }
+    .opt.correct .letter { background: var(--green); border-color: transparent; color: #04120c; }
+    .opt.incorrect { border-color: rgba(251,113,133,.6); background: rgba(251,113,133,.1); }
+    .opt.incorrect .letter { background: var(--red); border-color: transparent; color: #1c0409; }
+    .opt.dim { opacity: .55; }
+    .explain { display: none; gap: 12px; padding: 16px 18px; border-radius: 14px; margin-bottom: 14px; background: rgba(99,102,241,.1); border: 1px solid rgba(129,140,248,.3); font-size: 14.5px; line-height: 1.6; }
+    .explain svg { width: 20px; height: 20px; color: var(--amber); flex-shrink: 0; margin-top: 1px; }
+    .explain.show { display: flex; animation: fadeUp .35s var(--ease) both; }
+    .ai-box { display: none; margin-bottom: 16px; }
+    .ai-box.show { display: block; }
+    .ai-answer { display: none; margin-top: 10px; padding: 16px 18px; border-radius: 14px; background: linear-gradient(180deg, rgba(34,211,238,.08), rgba(99,102,241,.06)); border: 1px solid rgba(34,211,238,.25); font-size: 14.5px; line-height: 1.65; white-space: pre-line; }
+    .ai-answer .ai-label { display: flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; color: #67e8f9; margin-bottom: 8px; }
+    .ai-answer .ai-label svg { width: 15px; height: 15px; }
+    .btn-ai { border-color: rgba(34,211,238,.35); background: rgba(34,211,238,.06); color: #cffafe; }
+    .btn-ai:not(:disabled):hover { background: rgba(34,211,238,.12); border-color: rgba(34,211,238,.55); transform: translateY(-1px); }
+    .q-actions { display: flex; gap: 10px; }
+    .q-actions .btn { flex: 1; }
+    .kbd-hint { text-align: center; color: var(--dim); font-size: 12px; margin-top: 14px; }
 
-        header {
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--line);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .logo { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; color: var(--ink); text-decoration: none; }
-        .logo span { color: var(--accent); }
+    /* итоги */
+    .res-hero { text-align: center; padding: 34px 24px; }
+    .ring { --p: 0; width: 170px; height: 170px; border-radius: 50%; margin: 0 auto 20px; display: grid; place-items: center; background: conic-gradient(#8b5cf6 calc(var(--p) * 1%), rgba(255,255,255,.06) 0); position: relative; box-shadow: 0 20px 60px -20px rgba(139,92,246,.7); }
+    .ring::before { content: ''; position: absolute; inset: 12px; border-radius: 50%; background: #0d1230; }
+    .ring div { position: relative; font-family: var(--display); font-weight: 700; font-size: 38px; line-height: 1; }
+    .ring small { display: block; font-family: var(--font); font-size: 12.5px; color: var(--muted); font-weight: 700; margin-top: 6px; }
+    .res-hero h2 { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 3vw, 28px); letter-spacing: -.02em; margin: 0 0 8px; }
+    .res-hero p { color: var(--muted); margin: 0; }
+    .res-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 14px; }
+    .res-row { display: grid; grid-template-columns: minmax(0, 1fr) 120px 52px; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+    .res-row:first-child { border-top: none; }
+    .res-row b { font-weight: 800; }
+    .res-row .pct { text-align: right; font-weight: 800; }
+    .res-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+    .res-actions .btn { flex: 1; min-width: 200px; }
+    .mistake { padding: 18px; }
+    .mistake + .mistake { margin-top: 10px; }
+    .mistake .mq { font-weight: 700; white-space: pre-line; margin: 8px 0 12px; font-size: 14.5px; }
+    .mistake .ma { display: grid; gap: 6px; font-size: 13.5px; margin-bottom: 10px; }
+    .mistake .ma span b { font-weight: 800; }
+    .mistake .mx { font-size: 13.5px; color: var(--muted); margin-bottom: 12px; }
+    details.mgroup > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 18px; font-weight: 800; }
+    details.mgroup > summary::-webkit-details-marker { display: none; }
+    details.mgroup > summary::after { content: '+'; color: #a5b4fc; font-size: 20px; }
+    details.mgroup[open] > summary::after { content: '−'; }
+    details.mgroup > div { padding: 0 12px 12px; }
+    details.mgroup + details.mgroup { margin-top: 10px; }
 
-        main { flex: 1; max-width: 800px; width: 100%; margin: 0 auto; padding: 40px 20px; position: relative; z-index: 1; }
+    .intro { padding: 30px; }
+    .intro h2 { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 3vw, 30px); letter-spacing: -.02em; margin: 14px 0 10px; }
+    .intro-parts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0 24px; }
+    .intro-parts div { padding: 14px; border-radius: 14px; background: rgba(7,9,20,.35); border: 1px solid rgba(255,255,255,.12); font-size: 12.5px; font-weight: 700; }
+    .intro-parts b { display: block; font-family: var(--display); font-size: 22px; }
 
-        .screen-title { font-family: 'Instrument Serif', serif; font-size: 3rem; color: var(--ink); margin-bottom: 8px; text-align: center; font-weight: normal; }
-        .screen-subtitle { font-size: 1.1rem; color: var(--ink-soft); margin-bottom: 32px; text-align: center; }
-
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 20px; }
-
-        .feat {
-            border-radius: 16px;
-            padding: 24px;
-            cursor: pointer;
-            transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .feat:hover {
-            transform: translateY(-3px);
-            border-color: var(--accent);
-            background: rgba(255,255,255,0.07);
-        }
-        .feat .num { font-size: 0.9rem; color: var(--accent); font-weight: 600; font-family: monospace; }
-        .feat h3 { font-size: 1.3rem; color: var(--ink); font-family: 'Instrument Serif', serif; font-weight: normal; }
-        .feat p { font-size: 0.9rem; color: var(--ink-soft); }
-
-        #selection-screen { display: block; }
-        #quiz-screen { display: none; }
-        #result-screen { display: none; text-align: center; }
-
-        .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.9rem; color: var(--ink-soft); }
-        .progress-bar-wrap { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 32px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; }
-        .test-card {
-            border-radius: 20px;
-            padding: 32px;
-        }
-        .question-text { font-size: 1.2rem; font-weight: 500; color: var(--ink); margin-bottom: 24px; white-space: pre-line; line-height: 1.5; }
-        .options-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
-        .option-item {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 16px 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-            user-select: none;
-            color: var(--ink);
-        }
-        .option-item:hover {
-            transform: translateY(-3px);
-            border-color: var(--accent);
-            background: rgba(255,255,255,0.06);
-        }
-        .option-item.correct {
-            background: rgba(74, 222, 128, 0.15);
-            border-color: #4ADE80;
-            color: #4ADE80;
-            font-weight: 600;
-        }
-        .option-item.correct .option-letter {
-            background: #4ADE80;
-            color: #000;
-        }
-        .option-item.incorrect {
-            background: rgba(248, 113, 113, 0.15);
-            border-color: #F87171;
-            color: #F87171;
-            font-weight: 600;
-        }
-        .option-item.incorrect .option-letter {
-            background: #F87171;
-            color: #000;
-        }
-        .option-letter {
-            width: 32px;
-            height: 32px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-            flex-shrink: 0;
-            color: var(--ink);
-        }
-        .explanation-card {
-            display: none;
-            background: rgba(227, 168, 59, 0.1);
-            border: 1px solid var(--accent);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 24px;
-            font-size: 0.95rem;
-            color: var(--ink);
-            gap: 12px;
-            align-items: flex-start;
-        }
-        .explanation-icon { font-size: 1.2rem; flex-shrink: 0; color: var(--accent); }
-
-        .btn {
-            display: inline-block;
-            background: #fff;
-            color: #000;
-            border-radius: 100px;
-            border: none;
-            padding: 14px 24px;
-            font-weight: 600;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            font-size: 1rem;
-            width: 100%;
-            text-align: center;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn:not(:disabled):hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(0,0,0,0.4);
-        }
-
-        .result-screen h1 { font-family: 'Instrument Serif', serif; font-size: 3rem; color: var(--ink); margin-bottom: 12px; font-weight: normal; }
-        .result-score-block {
-            border-radius: 20px;
-            padding: 32px;
-            margin: 24px 0 32px;
-        }
-        .result-score { font-size: 3.5rem; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: 8px; font-family: 'Instrument Serif', serif; }
-        .result-stats { font-size: 1.1rem; color: var(--ink-soft); }
-    
-        .group-title { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 36px 0 4px; display: flex; align-items: center; gap: 10px; }
-        .soon-badge { font-size: 10px; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 100px; border: 1px solid var(--line); color: var(--ink-soft); }
-        .feat-meta { font-size: 12px; color: var(--accent); margin-top: auto; }
-        .subject-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-        .subject-grid .feat { padding: 16px 18px; }
-        .subject-grid .feat h3 { font-size: 1.05rem; }
-        .feat.loading { opacity: 0.6; pointer-events: none; }
-        .feat.is-soon { opacity: 0.45; cursor: default; }
-        .feat.is-soon:hover { transform: none; border-color: var(--line); background: rgba(255,255,255,0.04); }
-        .official-note { margin-top: 32px; font-size: 13px; color: var(--ink-soft); text-align: center; line-height: 1.5; }
-        .official-note a { color: var(--accent); }
-        .section-tag { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
-        .passage-box { display: none; max-height: 42vh; overflow-y: auto; margin-bottom: 20px; padding: 16px 18px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,0.03); }
-        .passage-title { font-weight: 600; margin-bottom: 8px; color: var(--ink); }
-        .passage-text { font-size: 0.95rem; line-height: 1.6; color: var(--ink); white-space: pre-line; }
-        .question-text.compare { font-family: 'IBM Plex Mono', monospace, 'Inter'; font-size: 1.05rem; }
-</style>
+    @media (max-width: 640px) {
+      .wrap { padding: 20px 14px 60px; }
+      .test-top-in { padding: 0 14px; height: 58px; }
+      .top-title { display: none; }
+      .test-top-in .top-spacer { display: block; }
+      .q-card { padding: 20px 16px; }
+      .question { font-size: 16px; }
+      .opt { padding: 12px 13px; font-size: 14.5px; }
+      .pick-grid, .pick-grid.small, .res-grid { grid-template-columns: 1fr; }
+      .intro { padding: 22px; }
+      .intro-parts { grid-template-columns: 1fr 1fr; }
+      .res-row { grid-template-columns: minmax(0, 1fr) 70px 44px; }
+      .kbd-hint { display: none; }
+      .res-actions .btn { min-width: 100%; }
+    }
+  </style>
+  <script src="js/ui.js" defer></script>
 </head>
 <body>
-<div id="stars" style="position:fixed; inset:0; z-index:0; pointer-events:none;"></div>
-    <header><a href="index.html" class="logo">JOL-<span>Bilim</span></a></header>
-    <main>
-        <div id="selection-screen">
-            <h1 class="screen-title">Тесты в формате ОРТ</h1>
-            <p class="screen-subtitle">Разделы и типы заданий — как на настоящем Общереспубликанском тестировании</p>
 
-            <div class="group-title">Основной тест</div>
-            <div class="features-grid">
-                <div class="feat liquid-glass" data-subject="math"><div class="num">01</div><h3>Математика</h3><p>Сравнение величин и задачи: арифметика, алгебра, геометрия</p><div class="feat-meta">10 заданий · ~15 мин</div></div>
-                <div class="feat liquid-glass" data-subject="verbal"><div class="num">02</div><h3>Аналогии и дополнение предложений</h3><p>Логические связи между словами и смысл предложения</p><div class="feat-meta">10 заданий · ~10 мин</div></div>
-                <div class="feat liquid-glass" data-subject="reading"><div class="num">03</div><h3>Чтение и понимание</h3><p>Два текста: главная мысль, детали, выводы, значение слов</p><div class="feat-meta">10 заданий · ~20 мин</div></div>
-                <div class="feat liquid-glass" data-subject="grammar"><div class="num">04</div><h3>Практическая грамматика</h3><p>Орфография, пунктуация, словообразование, нормы русского языка</p><div class="feat-meta">10 заданий · ~12 мин</div></div>
-            </div>
+<header class="test-top">
+  <div class="test-top-in">
+    <a href="dashboard.html" class="logo"><span class="logo-mark">J</span>JOL-Bilim</a>
+    <div class="top-title" id="top-title">Тесты в формате ОРТ</div>
+    <span class="spacer top-spacer"></span>
+    <span class="timer hide" id="timer"><i data-ic="clock"></i><span id="timer-text">0:00</span></span>
+    <a href="dashboard.html" class="icon-btn" id="btn-exit" title="В кабинет" aria-label="В кабинет"><i data-ic="x"></i></a>
+  </div>
+</header>
 
-            <div class="group-title">Предметные тесты</div>
-            <div class="features-grid subject-grid">
-                <div class="feat liquid-glass" data-subject="physics"><h3>Физика</h3><div class="feat-meta">10 заданий</div></div>
-                <div class="feat liquid-glass" data-subject="chemistry"><h3>Химия</h3><div class="feat-meta">10 заданий</div></div>
-                <div class="feat liquid-glass" data-subject="biology"><h3>Биология</h3><div class="feat-meta">10 заданий</div></div>
-                <div class="feat liquid-glass" data-subject="history"><h3>История</h3><div class="feat-meta">10 заданий</div></div>
-                <div class="feat liquid-glass" data-subject="english"><h3>Английский язык</h3><div class="feat-meta">10 заданий</div></div>
-                <div class="feat liquid-glass" data-subject="kyrgyz"><h3>Кыргыз тили жана адабияты</h3><div class="feat-meta">10 заданий</div></div>
-                <div class="feat liquid-glass" data-subject="russian"><h3>Русский язык и литература</h3><div class="feat-meta">10 заданий</div></div>
-            </div>
-        </div>
-        <div id="quiz-screen">
-            <div class="progress-header"><span id="progress-title">Математика • Вопрос 1 из 10</span><span id="progress-percent" style="font-family: monospace;">10%</span></div>
-            <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar-fill"></div></div>
-            <div class="test-card liquid-glass">
-                <div class="section-tag" id="section-tag"></div><div class="passage-box" id="passage-box"><div class="passage-title" id="passage-title"></div><div class="passage-text" id="passage-text"></div></div><div class="question-text" id="question-text">Загрузка вопроса...</div>
-                <div class="options-list" id="options-list"></div>
-                <div class="explanation-card" id="explanation-card"><div class="explanation-icon">💡</div><div id="explanation-text">Объяснение ответа...</div></div>
-                <button class="btn" id="next-btn" disabled>Далее <span class="arrow">→</span></button>
-            </div>
-        </div>
-        <div id="result-screen" class="result-screen">
-            <h1>Результат теста</h1>
-            <p id="result-subject-label" style="font-size: 1.2rem; color: var(--accent); font-weight: 600; margin-bottom: 4px;">Математика: 8 из 10</p>
-            <div class="result-score-block liquid-glass">
-                <div class="result-score" id="final-score">0</div>
-                <p class="result-stats" id="final-stats">Правильных ответов: 0 из 10</p>
-            </div>
-            <a href="dashboard.html" class="btn">Вернуться в кабинет <span class="arrow">→</span></a>
-        </div>
-    </main>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyAmru1-7SS3dwAMEborymtJJudtcflQYzU", authDomain: "jol-bilim.firebaseapp.com", projectId: "jol-bilim", storageBucket: "jol-bilim.firebasestorage.app", messagingSenderId: "1059233182996", appId: "1:1059233182996:web:40ad78360b42dd49d37e01", measurementId: "G-P7RR3W3ZF7" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-    </script>
-    <script src="js/ort-questions.js"></script>
-    <script>
-        // ===== Тест в формате ОРТ =====
-        const BANK = window.ORT_BANK;
-        const LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е'];
+<main class="wrap page">
 
-        function shuffle(arr) {
-            const a = arr.slice();
-            for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-            return a;
-        }
-        const pick = (arr, n) => shuffle(arr).slice(0, n);
+  <!-- ===== Выбор раздела ===== -->
+  <section class="screen" id="selection-screen">
+    <div class="sel-head">
+      <div class="eyebrow"><i data-ic="target"></i>Тренировка</div>
+      <h1>Тесты в формате <span class="grad-text">ОРТ</span></h1>
+      <p>Разделы и типы заданий — как на Общереспубликанском тестировании</p>
+    </div>
+    <a href="test.html?s=full" class="card card-accent spot full-banner hoverable"><span class="icon-box"><i data-ic="cap"></i></span><div style="flex:1;"><h3>Пробный ОРТ — 150 вопросов</h3><p>Все 4 раздела основного теста, таймер и итоговый балл</p></div><i data-ic="arrow" style="width:20px;height:20px;"></i></a>
+    <div class="group-title"><i data-ic="star"></i>Основной тест</div>
+    <div class="pick-grid" id="pick-main"></div>
+    <div class="group-title"><i data-ic="book"></i>Предметные тесты</div>
+    <div class="pick-grid small" id="pick-sub"></div>
+  </section>
 
-        // Состав одного теста — в тех же пропорциях, что и разделы ОРТ
-        const SECTIONS = {
-            math:    { name: 'Математика', build: () => [...pick(BANK.math.compare, 4), ...pick(BANK.math.standard, 6)] },
-            verbal:  { name: 'Аналогии и дополнение предложений', build: () => [...pick(BANK.verbal.analogies, 6), ...pick(BANK.verbal.completions, 4)] },
-            reading: { name: 'Чтение и понимание', build: () => pick(BANK.reading, 2).flatMap(p => p.questions.map(q => Object.assign({}, q, { passage: p }))) },
-            grammar: { name: 'Практическая грамматика', build: () => pick(BANK.grammar, 10) }
-        };
-        // Предметные тесты: вопросы загружаются только когда ученик выбрал предмет
-        const SUBJECTS = {
-            physics: 'Физика', chemistry: 'Химия', biology: 'Биология', history: 'История',
-            english: 'Английский язык', kyrgyz: 'Кыргыз тили жана адабияты', russian: 'Русский язык и литература'
-        };
-        const subjectCache = {};
-        Object.keys(SUBJECTS).forEach(key => {
-            SECTIONS[key] = {
-                name: SUBJECTS[key],
-                build: async () => {
-                    if (!subjectCache[key]) {
-                        const r = await fetch(`data/subjects/${key}.json`);
-                        if (!r.ok) throw new Error('load failed ' + r.status);
-                        subjectCache[key] = await r.json();
-                    }
-                    return pick(subjectCache[key], 10);
-                }
-            };
-        });
-        const TYPE_LABEL = {
-            compare: 'Математика · Часть 1 · Сравнение величин',
-            standard: 'Математика · Часть 2 · Задачи',
-            analogy: 'Аналогии',
-            completion: 'Дополнение предложений',
-            reading: 'Чтение и понимание',
-            grammar: 'Практическая грамматика'
-        };
+  <!-- ===== Вступление к пробному ОРТ ===== -->
+  <section class="screen" id="intro-screen">
+    <div class="card card-accent intro">
+      <span class="badge" style="background:rgba(255,255,255,.16); color:#fff;">Пробный экзамен</span>
+      <h2>Пробный ОРТ</h2>
+      <p style="margin:0; color:#e0e3ff; opacity:.9;" id="intro-text">150 вопросов основного теста. Ответы проверяются в конце, как на настоящем экзамене. Можно возвращаться к вопросам и менять ответ. Прогресс сохраняется — можно сделать перерыв.</p>
+      <div class="intro-parts"><div><b>60</b>Математика</div><div><b>30</b>Аналогии и предложения</div><div><b>30</b>Чтение</div><div><b>30</b>Грамматика</div></div>
+      <div class="row" style="flex-wrap:wrap;" id="intro-actions"></div>
+    </div>
+  </section>
 
-        let currentSubjectKey = '';
-        let currentSubjectName = '';
-        let activeQuestions = [];
-        let currentQuestionIndex = 0;
-        let correctCount = 0;
-        let answeredCurrent = false;
+  <!-- ===== Вопрос ===== -->
+  <section class="screen" id="quiz-screen">
+    <div class="sec-pills hide" id="sec-pills"></div>
+    <div class="q-head"><span id="q-title">Математика</span><span><b id="q-num">1</b> из <span id="q-total">10</span></span></div>
+    <div class="progress"><i id="q-progress"></i></div>
+    <div class="card q-card">
+      <span class="badge q-tag" id="q-tag"></span>
+      <div class="passage hide" id="passage"><div class="passage-title" id="passage-title"></div><div class="passage-text" id="passage-text"></div></div>
+      <div class="question" id="question">Загрузка вопроса...</div>
+      <div class="options" id="options"></div>
+      <div class="explain" id="explain"><i data-ic="lightbulb"></i><div id="explain-text"></div></div>
+      <div class="ai-box" id="ai-box">
+        <button type="button" class="btn btn-ghost btn-ai btn-block" id="ai-btn"><i data-ic="bot"></i>Объясни подробнее (ИИ)</button>
+        <div class="ai-answer" id="ai-answer"></div>
+      </div>
+      <div class="q-actions">
+        <button class="btn btn-ghost hide" id="prev-btn"><i data-ic="back"></i>Назад</button>
+        <button class="btn btn-primary" id="next-btn" disabled>Далее<i data-ic="arrow" class="btn-arrow"></i></button>
+      </div>
+    </div>
+    <div class="kbd-hint">Подсказка: выбирай ответ клавишами 1–5, «Далее» — Enter</div>
+  </section>
 
-        const selectionScreenEl = document.getElementById('selection-screen');
-        const quizScreenEl = document.getElementById('quiz-screen');
-        const resultScreenEl = document.getElementById('result-screen');
-        const progressTitleEl = document.getElementById('progress-title');
-        const progressPercentEl = document.getElementById('progress-percent');
-        const progressFillEl = document.getElementById('progress-bar-fill');
-        const sectionTagEl = document.getElementById('section-tag');
-        const passageBoxEl = document.getElementById('passage-box');
-        const questionTextEl = document.getElementById('question-text');
-        const optionsListEl = document.getElementById('options-list');
-        const explanationCardEl = document.getElementById('explanation-card');
-        const explanationTextEl = document.getElementById('explanation-text');
-        const nextBtnEl = document.getElementById('next-btn');
-        const resultSubjectLabelEl = document.getElementById('result-subject-label');
-        const finalScoreEl = document.getElementById('final-score');
-        const finalStatsEl = document.getElementById('final-stats');
+  <!-- ===== Итоги ===== -->
+  <section class="screen" id="result-screen"></section>
+</main>
 
-        document.querySelectorAll('.feat[data-subject]').forEach(card => {
-            card.addEventListener('click', async () => {
-                const key = card.getAttribute('data-subject');
-                const section = SECTIONS[key];
-                if (!section || card.classList.contains('loading')) return;
-                card.classList.add('loading');
-                try {
-                    activeQuestions = await section.build();
-                } catch (e) {
-                    console.error(e);
-                    card.classList.remove('loading');
-                    alert('Не удалось загрузить вопросы. Проверь интернет и попробуй ещё раз.');
-                    return;
-                }
-                card.classList.remove('loading');
-                currentSubjectKey = key;
-                currentSubjectName = section.name;
-                currentQuestionIndex = 0;
-                correctCount = 0;
-                selectionScreenEl.style.display = 'none';
-                quizScreenEl.style.display = 'block';
-                window.scrollTo(0, 0);
-                loadQuestion();
-            });
-        });
-
-        function loadQuestion() {
-            answeredCurrent = false;
-            nextBtnEl.disabled = true;
-            explanationCardEl.style.display = 'none';
-            const q = activeQuestions[currentQuestionIndex];
-            const total = activeQuestions.length;
-
-            sectionTagEl.textContent = q.type === 'grammar' && q.kind ? `${TYPE_LABEL.grammar} · ${q.kind}`
-                : (TYPE_LABEL[q.type] || (SUBJECTS[q.type] ? SUBJECTS[q.type] + (q.topic ? ' · ' + q.topic : '') : ''));
-            if (q.passage) {
-                document.getElementById('passage-title').textContent = q.passage.title;
-                document.getElementById('passage-text').textContent = q.passage.text;
-                const prev = activeQuestions[currentQuestionIndex - 1];
-                if (!prev || !prev.passage || prev.passage.id !== q.passage.id) passageBoxEl.scrollTop = 0;
-                passageBoxEl.style.display = 'block';
-            } else {
-                passageBoxEl.style.display = 'none';
-            }
-
-            questionTextEl.textContent = q.question;
-            questionTextEl.classList.toggle('compare', q.type === 'compare');
-            progressTitleEl.textContent = `${currentSubjectName} • Задание ${currentQuestionIndex + 1} из ${total}`;
-            const percent = Math.round(((currentQuestionIndex + 1) / total) * 100);
-            progressPercentEl.textContent = `${percent}%`;
-            progressFillEl.style.width = `${percent}%`;
-            optionsListEl.innerHTML = '';
-
-            let opts = q.options.map((text, i) => ({ text, isCorrect: i === q.correctIndex }));
-            if (!q.fixedOrder) opts = shuffle(opts); // в сравнении величин порядок А–Г фиксирован, как на ОРТ
-
-            opts.forEach((optObj, index) => {
-                const div = document.createElement('div');
-                div.className = 'option-item';
-                const letter = document.createElement('div');
-                letter.className = 'option-letter';
-                letter.textContent = (q.type === 'english' ? 'ABCDEF' : LETTERS.join(''))[index];
-                const text = document.createElement('div');
-                text.textContent = optObj.text;
-                div.appendChild(letter);
-                div.appendChild(text);
-                div.addEventListener('click', () => handleOptionClick(optObj, div, opts));
-                optionsListEl.appendChild(div);
-            });
-        }
-
-        function handleOptionClick(optObj, optionDiv, opts) {
-            if (answeredCurrent) return;
-            answeredCurrent = true;
-            const items = optionsListEl.querySelectorAll('.option-item');
-            if (optObj.isCorrect) {
-                correctCount++;
-                optionDiv.classList.add('correct');
-            } else {
-                optionDiv.classList.add('incorrect');
-                items.forEach((item, i) => { if (opts[i].isCorrect) item.classList.add('correct'); });
-            }
-            explanationTextEl.textContent = activeQuestions[currentQuestionIndex].explanation;
-            explanationCardEl.style.display = 'flex';
-            nextBtnEl.disabled = false;
-        }
-
-        nextBtnEl.addEventListener('click', () => {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < activeQuestions.length) {
-                loadQuestion();
-                window.scrollTo(0, 0);
-            } else {
-                showResults();
-            }
-        });
-
-        function showResults() {
-            quizScreenEl.style.display = 'none';
-            resultScreenEl.style.display = 'block';
-            const total = activeQuestions.length;
-            const calculatedScore = correctCount * 20;
-            resultSubjectLabelEl.textContent = `${currentSubjectName}: ${correctCount} из ${total}`;
-            finalScoreEl.textContent = calculatedScore;
-            finalStatsEl.textContent = `Правильных ответов: ${correctCount} из ${total}`;
-            try {
-                const userRaw = localStorage.getItem('jolBilimUser');
-                if (userRaw) {
-                    const user = JSON.parse(userRaw);
-                    const familyCode = user.familyCode;
-                    user.testsCompleted = (user.testsCompleted || 0) + 1;
-                    user.score = calculatedScore;
-                    if (!user.history) { user.history = []; }
-                    const now = new Date();
-                    const dateStr = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}`;
-                    const historyItem = { date: dateStr, score: calculatedScore, subject: currentSubjectName || 'Тест' };
-                    user.history.unshift(historyItem);
-                    localStorage.setItem('jolBilimUser', JSON.stringify(user));
-                    if (familyCode) {
-                        db.collection('families').doc(familyCode).get()
-                            .then((doc) => {
-                                const firestoreHistory = (doc.exists && doc.data().history) ? doc.data().history : [];
-                                firestoreHistory.unshift(historyItem);
-                                return db.collection('families').doc(familyCode).update({
-                                    score: calculatedScore,
-                                    testsCompleted: firebase.firestore.FieldValue.increment(1),
-                                    history: firestoreHistory
-                                });
-                            })
-                            .catch((error) => { console.error("Error updating Firestore family record: ", error); });
-                    }
-                }
-            } catch (e) { console.error(e); }
-        }
-    </script>
-    <script>
-    const starsBox = document.getElementById('stars');
-    for(let i=0;i<80;i++){
-      const s = document.createElement('div');
-      s.className='star';
-      const size = 1 + Math.random()*1.5;
-      s.style.width=size+'px'; s.style.height=size+'px';
-      s.style.left=Math.random()*100+'%';
-      s.style.top=Math.random()*100+'%';
-      s.style.animationDuration=(2+Math.random()*4)+'s';
-      s.style.animationDelay=(Math.random()*4)+'s';
-      starsBox.appendChild(s);
-    }
-    </script>
-<!-- Ограничение бесплатного тарифа: каждый предмет можно пройти один раз -->
-<div id="paywall" style="display:none; position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:20px;">
-  <div class="liquid-glass" style="max-width:400px; width:100%; border-radius:20px; padding:32px; text-align:center; background:rgba(10,10,10,0.92);">
-    <div style="font-size:36px; margin-bottom:12px;">🔒</div>
-    <h3 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:26px; margin:0 0 10px;">Бесплатная попытка использована</h3>
-    <p id="paywall-text" style="font-size:14px; color:var(--ink-soft); margin:0 0 24px; line-height:1.5;"></p>
-    <a href="index.html#buy-full" style="display:block; background:#fff; color:#000; border-radius:100px; padding:14px; font-size:14px; font-weight:600; text-decoration:none; margin-bottom:10px;">Полный доступ — 990 сом/мес →</a>
-    <button type="button" onclick="document.getElementById('paywall').style.display='none'" style="background:none; border:none; color:var(--ink-soft); font-size:13px; cursor:pointer; padding:8px;">Выбрать другой предмет</button>
+<!-- Ограничение бесплатного тарифа -->
+<div class="modal" id="paywall" role="dialog" aria-modal="true">
+  <div class="modal-card" style="text-align:center;">
+    <button class="modal-close" onclick="closePaywall()" aria-label="Закрыть">×</button>
+    <span class="icon-box" style="width:56px; height:56px; margin:0 auto 16px; border-radius:16px;"><i data-ic="lock"></i></span>
+    <h3 id="paywall-title">Бесплатная попытка использована</h3>
+    <p class="muted" id="paywall-text" style="font-size:14px; margin:0 0 22px;"></p>
+    <a href="index.html#buy-full" class="btn btn-primary btn-block" style="margin-bottom:10px;">Полный доступ — 990 сом/мес<i data-ic="arrow" class="btn-arrow"></i></a>
+    <button type="button" class="btn btn-ghost btn-block" onclick="closePaywall()">Выбрать другой раздел</button>
   </div>
 </div>
+
+<!-- Подтверждение завершения пробного ОРТ -->
+<div class="modal" id="finish-modal" role="dialog" aria-modal="true">
+  <div class="modal-card" style="text-align:center;">
+    <span class="icon-box amber" style="width:56px; height:56px; margin:0 auto 16px; border-radius:16px;"><i data-ic="alert"></i></span>
+    <h3>Завершить экзамен?</h3>
+    <p class="muted" id="finish-text" style="font-size:14px; margin:0 0 22px;"></p>
+    <button type="button" class="btn btn-primary btn-block" id="finish-yes" style="margin-bottom:10px;">Завершить и узнать балл</button>
+    <button type="button" class="btn btn-ghost btn-block" id="finish-no">Вернуться к вопросам</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="js/fb.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/lessons.js"></script>
+<script src="js/ort-questions.js"></script>
 <script>
-(function () {
-    const SUBJECT_NAMES = {
-        math: 'Математика', verbal: 'Аналогии и дополнение предложений', reading: 'Чтение и понимание', grammar: 'Практическая грамматика',
-        physics: 'Физика', chemistry: 'Химия', biology: 'Биология', history: 'История',
-        english: 'Английский язык', kyrgyz: 'Кыргыз тили жана адабияты', russian: 'Русский язык и литература'
-    };
-    let user = null;
-    try { user = JSON.parse(localStorage.getItem('jolBilimUser') || 'null'); } catch (e) {}
-    let state = {
-        plan: user && user.plan, planExpiresAt: user && user.planExpiresAt,
-        history: (user && user.history) || []
-    };
+// ===== Тест в формате ОРТ =====
+const BANK = window.ORT_BANK;
+const S = JB.SECTIONS;
+const LETTERS = 'АБВГДЕ';
+const FULL_KEY = 'jolBilimFullExam';
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ic = n => window.icon ? window.icon(n) : '';
 
-    function hasPaidPlan() {
-        return (state.plan === 'full' || state.plan === 'max') && state.planExpiresAt && state.planExpiresAt > Date.now();
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+const pick = (arr, n) => shuffle(arr).slice(0, n);
+const withSection = (arr, key) => arr.map(q => Object.assign({}, q, { section: key }));
+const readingQs = passages => passages.flatMap(p => p.questions.map(q => Object.assign({}, q, { passage: { id: p.id, title: p.title, text: p.text }, section: 'reading' })));
+
+// Порядок вариантов перемешиваем один раз, при сборке теста (в сравнении величин А–Г фиксированы, как на ОРТ)
+function prepare(q) {
+  const order = q.options.map((_, i) => i);
+  q.order = q.fixedOrder ? order : shuffle(order);
+  return q;
+}
+
+// Пул заданий раздела — для тренировки по темам
+const subjectCache = {};
+async function loadSubject(key) {
+  if (!subjectCache[key]) {
+    const r = await fetch(`data/subjects/${key}.json`);
+    if (!r.ok) throw new Error('load failed ' + r.status);
+    subjectCache[key] = await r.json();
+  }
+  return subjectCache[key];
+}
+async function sectionPool(key) {
+  if (key === 'math') return withSection(BANK.math.compare.concat(BANK.math.standard), 'math');
+  if (key === 'verbal') return withSection(BANK.verbal.analogies.concat(BANK.verbal.completions), 'verbal');
+  if (key === 'reading') return readingQs(BANK.reading);
+  if (key === 'grammar') return withSection(BANK.grammar, 'grammar');
+  return withSection(await loadSubject(key), key);
+}
+
+// Обычный тест: 10 заданий в тех же пропорциях, что и разделы ОРТ
+async function buildSection(key, topics) {
+  let qs;
+  if (topics && topics.length) {
+    const pool = await sectionPool(key);
+    const hit = pool.filter(q => topics.includes(q.topic));
+    qs = pick(hit, 10);
+    if (qs.length < 10) qs = qs.concat(pick(pool.filter(q => !hit.includes(q)), 10 - qs.length));
+    if (key === 'reading') { // вопросы к одному тексту — рядом
+      const ids = [...new Set(qs.map(q => q.passage.id))];
+      qs.sort((a, b) => ids.indexOf(a.passage.id) - ids.indexOf(b.passage.id));
+    } else if (key === 'math') {
+      qs.sort((a, b) => (a.type === 'compare' ? 0 : 1) - (b.type === 'compare' ? 0 : 1));
     }
-    function isUsed(subjectKey) {
-        const name = SUBJECT_NAMES[subjectKey];
-        return state.history.some(h => h && (h.subject === name || h.subject === subjectKey));
-    }
-    function markCards() {
-        document.querySelectorAll('.feat[data-subject]').forEach(card => {
-            let badge = card.querySelector('.used-badge');
-            const locked = !hasPaidPlan() && isUsed(card.getAttribute('data-subject'));
-            if (locked && !badge) {
-                badge = document.createElement('div');
-                badge.className = 'used-badge';
-                badge.textContent = '🔒 пройдено';
-                badge.style.cssText = 'font-size:11px; color:var(--accent); margin-top:8px;';
-                card.appendChild(badge);
-            } else if (!locked && badge) {
-                badge.remove();
-            }
-            card.style.opacity = locked ? '0.55' : '';
-        });
-    }
+  } else if (key === 'math') qs = withSection([...pick(BANK.math.compare, 4), ...pick(BANK.math.standard, 6)], 'math');
+  else if (key === 'verbal') qs = withSection([...pick(BANK.verbal.analogies, 6), ...pick(BANK.verbal.completions, 4)], 'verbal');
+  else if (key === 'reading') qs = readingQs(pick(BANK.reading, 2));
+  else if (key === 'grammar') qs = withSection(pick(BANK.grammar, 10), 'grammar');
+  else qs = withSection(pick(await loadSubject(key), 10), key);
+  return qs.map(prepare);
+}
 
-    // Перехватываем клик по предмету раньше основного кода теста
-    document.addEventListener('click', (e) => {
-        const card = e.target.closest && e.target.closest('.feat[data-subject]');
-        if (!card) return;
-        const key = card.getAttribute('data-subject');
-        if (hasPaidPlan() || !isUsed(key)) return;
-        e.stopImmediatePropagation();
-        e.preventDefault();
-        document.getElementById('paywall-text').textContent =
-            'Бесплатный тест по разделу «' + SUBJECT_NAMES[key] + '» уже пройден. С «Полным доступом» можно тренироваться без ограничений по всем разделам ОРТ.';
-        document.getElementById('paywall').style.display = 'flex';
-    }, true);
+// Пробный ОРТ: 60 + 30 + 30 + 30
+function buildFull() {
+  return [
+    ...withSection([...pick(BANK.math.compare, 30), ...pick(BANK.math.standard, 30)], 'math'),
+    ...withSection([...pick(BANK.verbal.analogies, 18), ...pick(BANK.verbal.completions, 12)], 'verbal'),
+    ...readingQs(pick(BANK.reading, 6)),
+    ...withSection(pick(BANK.grammar, 30), 'grammar')
+  ].map(prepare);
+}
 
-    markCards();
+const TYPE_LABEL = {
+  compare: 'Математика · Сравнение величин', standard: 'Математика · Задачи',
+  analogy: 'Аналогии', completion: 'Дополнение предложений', reading: 'Чтение и понимание', grammar: 'Грамматика'
+};
+const tagFor = q => (TYPE_LABEL[q.type] || S[q.section].short) + (q.topic ? ' · ' + q.topic : '');
 
-    // Подтягиваем свежий тариф и историю из базы
-    if (user && user.familyCode && typeof db !== 'undefined') {
-        db.collection('families').doc(user.familyCode).get().then(doc => {
-            if (!doc.exists) return;
-            const d = doc.data();
-            state = { plan: d.plan || null, planExpiresAt: d.planExpiresAt || null, history: d.history || state.history };
-            markCards();
-        }).catch(err => console.error('Не удалось загрузить тариф:', err));
-    }
-})();
-</script>
-<!-- ИИ-разбор ошибки: кнопка «Объясни подробнее» -->
-<style>
-#ai-box{display:none; margin:-8px 0 24px;}
-#ai-btn{display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:12px 16px; border-radius:100px;
-  background:rgba(227,168,59,0.08); border:1px solid var(--accent); color:var(--ink); font:500 14px 'Inter',sans-serif; cursor:pointer;
-  transition:background .2s ease, transform .2s ease;}
-#ai-btn:hover{background:rgba(227,168,59,0.16); transform:translateY(-1px);}
-#ai-btn:disabled{opacity:.7; cursor:default; transform:none;}
-#ai-answer{display:none; margin-top:12px; padding:16px 20px; border-radius:12px; background:rgba(255,255,255,0.04);
-  border:1px solid var(--line); color:var(--ink); font-size:0.95rem; line-height:1.6; white-space:pre-line;}
-#ai-answer .ai-label{display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:8px;}
-.ai-dots span{display:inline-block; width:6px; height:6px; margin:0 2px; border-radius:50%; background:var(--accent); animation:aiDot 1s infinite ease-in-out;}
-.ai-dots span:nth-child(2){animation-delay:.15s} .ai-dots span:nth-child(3){animation-delay:.3s}
-@keyframes aiDot{0%,80%,100%{opacity:.25; transform:scale(.8)}40%{opacity:1; transform:scale(1)}}
-</style>
-<script>
-(function () {
-    const card = document.getElementById('explanation-card');
-    if (!card) return;
-    const box = document.createElement('div');
-    box.id = 'ai-box';
-    box.innerHTML = '<button type="button" id="ai-btn">🤖 Объясни подробнее (ИИ)</button><div id="ai-answer"></div>';
-    card.insertAdjacentElement('afterend', box);
-    const btn = box.querySelector('#ai-btn');
-    const answer = box.querySelector('#ai-answer');
-    let current = null;
+// ===== Состояние =====
+let user = null;
+try { user = JSON.parse(localStorage.getItem('jolBilimUser') || 'null'); } catch (e) {}
+let account = JB.normalize(user || {});
+let plan = { plan: user && user.plan, planExpiresAt: user && user.planExpiresAt };
 
-    function reset() {
-        current = null;
-        box.style.display = 'none';
-        answer.style.display = 'none';
-        answer.textContent = '';
-        btn.style.display = '';
-        btn.disabled = false;
-        btn.textContent = '🤖 Объясни подробнее (ИИ)';
-    }
+let mode = 'section';          // 'section' | 'topic' | 'full'
+let sectionKey = '';
+let topicList = null;
+let questions = [];
+let answers = [];              // индекс выбранного варианта (в показанном порядке) или null
+let index = 0;
+let elapsed = 0, tickTimer = null, lastTick = 0;
 
-    // Запоминаем вопрос, когда ученик ответил неправильно
-    document.addEventListener('click', (e) => {
-        const item = e.target.closest && e.target.closest('#options-list .option-item');
-        if (!item || current) return;
-        setTimeout(() => {
-            if (!item.classList.contains('incorrect')) return;
-            const items = Array.from(document.querySelectorAll('#options-list .option-item'));
-            const textOf = el => ((el && (el.children[1] || el)).textContent || '').trim();
-            current = {
-                question: ((document.getElementById('passage-box').style.display === 'block')
-                    ? 'Текст: ' + document.getElementById('passage-text').textContent.trim() + '\n\nВопрос: ' : '')
-                    + document.getElementById('question-text').textContent.trim(),
-                options: items.map(textOf),
-                correct: textOf(items.find(i => i.classList.contains('correct'))),
-                chosen: textOf(item),
-                subject: (typeof currentSubjectName !== 'undefined' && currentSubjectName) || '',
-                explanation: (document.getElementById('explanation-text').textContent || '').trim()
-            };
-            box.style.display = 'block';
-        }, 0);
-    });
+function show(id) {
+  ['selection-screen', 'intro-screen', 'quiz-screen', 'result-screen'].forEach(s => $(s).classList.toggle('active', s === id));
+  window.scrollTo(0, 0);
+}
+const isPaid = () => JB.hasPaidPlan(plan);
+function loadSaved() {
+  try {
+    const s = JSON.parse(localStorage.getItem(FULL_KEY) || 'null');
+    return s && s.questions && s.familyCode === (user && user.familyCode) ? s : null;
+  } catch (e) { return null; }
+}
+function canStart(key) {
+  if (isPaid()) return true;
+  if (key === 'full') return !!loadSaved() || !(account.fullTrialUsed || JB.isSectionUsed(account.history, 'full'));
+  return !JB.isSectionUsed(account.history, key);
+}
+function showPaywall(key) {
+  $('paywall-title').textContent = key === 'full' ? 'Пробный ОРТ уже пройден' : 'Бесплатная попытка использована';
+  $('paywall-text').textContent = key === 'full'
+    ? 'Бесплатно пробный ОРТ можно пройти один раз. С «Полным доступом» — сколько угодно раз, плюс безлимит тестов по всем разделам.'
+    : 'Бесплатный тест по разделу «' + S[key].name + '» уже пройден. С «Полным доступом» можно тренироваться без ограничений по всем разделам ОРТ.';
+  $('paywall').classList.add('open');
+}
+function closePaywall() { $('paywall').classList.remove('open'); }
 
-    document.getElementById('next-btn').addEventListener('click', reset);
+// ===== Экран выбора =====
+function renderPicks() {
+  const card = key => {
+    const locked = !canStart(key);
+    const st = account.stats[key];
+    const acc = st && st.t ? Math.round(st.c / st.t * 100) : null;
+    const badge = locked ? `<span class="badge ghost">${ic('lock')}пройдено</span>` : acc != null ? `<span class="badge ${acc >= 70 ? 'green' : acc >= 50 ? 'amber' : 'red'}">${acc}%</span>` : '';
+    return `<div class="card spot hoverable pick" data-subject="${key}" style="${locked ? 'opacity:.6' : ''}"><span class="icon-box">${ic(S[key].icon)}</span><div style="min-width:0;"><h3>${esc(S[key].name)}</h3><small>10 заданий</small></div>${badge}</div>`;
+  };
+  $('pick-main').innerHTML = JB.MAIN.map(card).join('');
+  $('pick-sub').innerHTML = JB.SUBJECTS.map(card).join('');
+}
+document.addEventListener('click', e => {
+  const c = e.target.closest && e.target.closest('.pick[data-subject]');
+  if (c) startSection(c.getAttribute('data-subject'), null, c);
+});
 
-    btn.addEventListener('click', async () => {
-        if (!current) return;
-        btn.disabled = true;
-        btn.innerHTML = 'ИИ разбирает твою ошибку <span class="ai-dots"><span></span><span></span><span></span></span>';
-        try {
-            const r = await fetch('/api/ai-explain', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(current)
-            });
-            const d = await r.json().catch(() => ({ ok: false }));
-            if (!d.ok) throw new Error(d.error || 'AI error');
-            answer.innerHTML = '<span class="ai-label">🤖 Разбор от ИИ-репетитора</span>';
-            answer.appendChild(document.createTextNode(d.text));
-            answer.style.display = 'block';
-            btn.style.display = 'none';
-        } catch (err) {
-            console.error('AI explain failed:', err);
-            btn.disabled = false;
-            btn.textContent = 'ИИ сейчас перегружен — попробовать ещё раз';
-        }
-    });
-})();
+async function startSection(key, topics, cardEl) {
+  if (!S[key] || key === 'full') return;
+  if (!canStart(key)) { showPaywall(key); return; }
+  if (cardEl) cardEl.classList.add('loading');
+  try {
+    questions = await buildSection(key, topics);
+  } catch (err) {
+    console.error(err);
+    if (cardEl) cardEl.classList.remove('loading');
+    alert('Не удалось загрузить вопросы. Проверь интернет и попробуй ещё раз.');
+    return;
+  }
+  if (cardEl) cardEl.classList.remove('loading');
+  mode = topics && topics.length ? 'topic' : 'section';
+  sectionKey = key; topicList = topics;
+  answers = questions.map(() => null);
+  index = 0;
+  $('top-title').textContent = S[key].name;
+  $('sec-pills').classList.add('hide');
+  $('prev-btn').classList.add('hide');
+  show('quiz-screen');
+  renderQuestion();
+}
+
+// ===== Пробный ОРТ =====
+function renderIntro() {
+  const saved = loadSaved();
+  const box = $('intro-actions');
+  $('top-title').textContent = 'Пробный ОРТ';
+  if (saved) {
+    const done = saved.answers.filter(a => a != null).length;
+    $('intro-text').textContent = `У тебя есть незаконченный экзамен: отвечено ${done} из ${saved.questions.length}, прошло ${fmtTime(saved.elapsed || 0)}.`;
+    box.innerHTML = `<button class="btn btn-white btn-lg" id="intro-continue">${ic('play')}Продолжить</button>` +
+      (isPaid() ? `<button class="btn btn-ghost btn-lg" id="intro-restart" style="border-color:rgba(255,255,255,.3); color:#fff;">${ic('refresh')}Начать заново</button>` : '');
+    $('intro-continue').onclick = () => resumeFull(saved);
+    if ($('intro-restart')) $('intro-restart').onclick = () => { localStorage.removeItem(FULL_KEY); startFull(); };
+  } else if (!canStart('full')) {
+    box.innerHTML = `<a href="index.html#buy-full" class="btn btn-white btn-lg">${ic('lock')}Открыть с «Полным доступом»</a>`;
+    $('intro-text').textContent = 'Бесплатная попытка пробного ОРТ уже использована. С «Полным доступом» его можно проходить сколько угодно раз.';
+  } else {
+    box.innerHTML = `<button class="btn btn-white btn-lg" id="intro-start">${ic('play')}Начать экзамен</button><span style="font-size:13px; font-weight:700; color:#e0e3ff;">${isPaid() ? 'Безлимит по тарифу' : 'Это твоя бесплатная попытка'}</span>`;
+    $('intro-start').onclick = startFull;
+  }
+  show('intro-screen');
+}
+
+function startFull() {
+  if (!canStart('full')) { showPaywall('full'); return; }
+  mode = 'full'; sectionKey = 'full'; topicList = null;
+  questions = buildFull();
+  answers = questions.map(() => null);
+  index = 0; elapsed = 0;
+  // бесплатная попытка засчитывается сразу при старте
+  if (!isPaid() && user) {
+    account.fullTrialUsed = true;
+    user.fullTrialUsed = true;
+    localStorage.setItem('jolBilimUser', JSON.stringify(user));
+    if (user.familyCode) db.collection('families').doc(user.familyCode).set({ fullTrialUsed: true }, { merge: true }).catch(e => console.error(e));
+  }
+  saveFull();
+  beginFull();
+}
+function resumeFull(saved) {
+  mode = 'full'; sectionKey = 'full'; topicList = null;
+  questions = saved.questions; answers = saved.answers; index = saved.index || 0; elapsed = saved.elapsed || 0;
+  beginFull();
+}
+function beginFull() {
+  $('top-title').textContent = 'Пробный ОРТ';
+  $('sec-pills').classList.remove('hide');
+  $('prev-btn').classList.remove('hide');
+  $('timer').classList.remove('hide');
+  startTimer();
+  show('quiz-screen');
+  renderQuestion();
+}
+function saveFull() {
+  if (mode !== 'full') return;
+  try {
+    localStorage.setItem(FULL_KEY, JSON.stringify({ familyCode: user && user.familyCode, questions, answers, index, elapsed, savedAt: Date.now() }));
+  } catch (e) { console.error('Не удалось сохранить прогресс', e); }
+}
+function fmtTime(ms) {
+  const s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+  return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(sec).padStart(2, '0');
+}
+function startTimer() {
+  clearInterval(tickTimer);
+  lastTick = Date.now();
+  tickTimer = setInterval(() => {
+    const now = Date.now();
+    if (document.visibilityState === 'visible') elapsed += now - lastTick;
+    lastTick = now;
+    $('timer-text').textContent = fmtTime(elapsed);
+    if (Math.floor(elapsed / 1000) % 10 === 0) saveFull();
+  }, 1000);
+  $('timer-text').textContent = fmtTime(elapsed);
+}
+document.addEventListener('visibilitychange', () => { lastTick = Date.now(); if (document.visibilityState === 'hidden') saveFull(); });
+
+function renderPills() {
+  if (mode !== 'full') return;
+  $('sec-pills').innerHTML = JB.MAIN.map(k => {
+    const idx = questions.map((q, i) => q.section === k ? i : -1).filter(i => i >= 0);
+    const done = idx.filter(i => answers[i] != null).length;
+    const active = questions[index].section === k;
+    return `<button class="chip ${active ? 'active' : ''}" data-jump="${idx[0]}">${esc(S[k].short)} <small>${done}/${idx.length}</small></button>`;
+  }).join('');
+}
+$('sec-pills').addEventListener('click', e => {
+  const b = e.target.closest('[data-jump]');
+  if (!b) return;
+  // переходим к первому неотвеченному заданию раздела
+  const start = +b.getAttribute('data-jump');
+  const sec = questions[start].section;
+  let i = start;
+  while (i < questions.length && questions[i].section === sec && answers[i] != null) i++;
+  index = (i < questions.length && questions[i].section === sec) ? i : start;
+  saveFull(); renderQuestion();
+});
+
+// ===== Вопрос =====
+let current = null; // данные для ИИ-разбора
+function renderQuestion() {
+  const q = questions[index];
+  const total = questions.length;
+  const isFull = mode === 'full';
+  current = null;
+  $('q-title').textContent = isFull ? S[q.section].name : (mode === 'topic' ? S[sectionKey].short + ' · тренировка темы' : S[sectionKey].name);
+  $('q-num').textContent = index + 1; $('q-total').textContent = total;
+  const done = isFull ? answers.filter(a => a != null).length : index;
+  $('q-progress').style.width = Math.round((isFull ? done : index + 1) / total * 100) + '%';
+  $('q-tag').textContent = tagFor(q);
+  renderPills();
+
+  if (q.passage) {
+    $('passage-title').textContent = q.passage.title;
+    $('passage-text').textContent = q.passage.text;
+    const prev = questions[index - 1];
+    if (!prev || !prev.passage || prev.passage.id !== q.passage.id) $('passage').scrollTop = 0;
+    $('passage').classList.remove('hide');
+  } else $('passage').classList.add('hide');
+
+  $('question').textContent = q.question;
+  $('question').classList.toggle('compare', q.type === 'compare');
+  $('explain').classList.remove('show');
+  $('ai-box').classList.remove('show');
+  $('ai-answer').style.display = 'none';
+  $('ai-btn').style.display = '';
+  $('ai-btn').disabled = false;
+  $('ai-btn').innerHTML = ic('bot') + 'Объясни подробнее (ИИ)';
+
+  const letters = q.section === 'english' ? 'ABCDEF' : LETTERS;
+  $('options').innerHTML = q.order.map((oi, i) => `<button class="opt" data-i="${i}"><span class="letter">${letters[i]}</span><span>${esc(q.options[oi])}</span></button>`).join('');
+
+  const chosen = answers[index];
+  if (isFull) {
+    if (chosen != null) $('options').children[chosen].classList.add('selected');
+    $('prev-btn').disabled = index === 0;
+    $('next-btn').disabled = false;
+    $('next-btn').innerHTML = index === total - 1 ? ic('checkCircle') + 'Завершить экзамен' : 'Далее' + ic('arrow');
+  } else {
+    $('next-btn').disabled = true;
+    $('next-btn').innerHTML = (index === total - 1 ? 'Узнать результат' : 'Далее') + ic('arrow');
+  }
+}
+
+$('options').addEventListener('click', e => {
+  const b = e.target.closest('.opt');
+  if (b) choose(+b.getAttribute('data-i'));
+});
+
+function choose(i) {
+  const q = questions[index];
+  const opts = $('options').children;
+  if (!opts[i]) return;
+  if (mode === 'full') {
+    answers[index] = i;
+    Array.from(opts).forEach((o, k) => o.classList.toggle('selected', k === i));
+    saveFull(); renderPills();
+    $('q-progress').style.width = Math.round(answers.filter(a => a != null).length / questions.length * 100) + '%';
+    return;
+  }
+  if (answers[index] != null) return;
+  answers[index] = i;
+  const correctPos = q.order.indexOf(q.correctIndex);
+  Array.from(opts).forEach((o, k) => {
+    o.disabled = true;
+    if (k === correctPos) o.classList.add('correct');
+    else if (k === i) o.classList.add('incorrect');
+    else o.classList.add('dim');
+  });
+  $('explain-text').textContent = q.explanation || '';
+  if (q.explanation) $('explain').classList.add('show');
+  if (i !== correctPos) {
+    current = aiPayload(q, i);
+    $('ai-box').classList.add('show');
+  }
+  $('next-btn').disabled = false;
+}
+
+function aiPayload(q, chosenPos) {
+  return {
+    question: (q.passage ? 'Текст: ' + q.passage.text + '\n\nВопрос: ' : '') + q.question,
+    options: q.order.map(oi => q.options[oi]),
+    correct: q.options[q.correctIndex],
+    chosen: q.options[q.order[chosenPos]],
+    subject: S[q.section].name,
+    explanation: q.explanation || ''
+  };
+}
+async function askAI(payload, btn, out) {
+  btn.disabled = true;
+  btn.innerHTML = 'ИИ разбирает твою ошибку <span class="dots-loader"><span></span><span></span><span></span></span>';
+  try {
+    const r = await fetch('/api/ai-explain', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const d = await r.json().catch(() => ({ ok: false }));
+    if (!d.ok) throw new Error(d.error || 'AI error');
+    out.innerHTML = '<span class="ai-label">' + ic('bot') + 'Разбор от ИИ-репетитора</span>';
+    out.appendChild(document.createTextNode(d.text));
+    out.style.display = 'block';
+    btn.style.display = 'none';
+  } catch (err) {
+    console.error('AI explain failed:', err);
+    btn.disabled = false;
+    btn.innerHTML = ic('refresh') + 'ИИ сейчас перегружен — попробовать ещё раз';
+  }
+}
+$('ai-btn').addEventListener('click', () => { if (current) askAI(current, $('ai-btn'), $('ai-answer')); });
+
+$('next-btn').addEventListener('click', () => {
+  if (mode === 'full') {
+    if (index === questions.length - 1) return confirmFinish();
+    index++; saveFull(); renderQuestion(); window.scrollTo(0, 0); return;
+  }
+  if (answers[index] == null) return;
+  if (index < questions.length - 1) { index++; renderQuestion(); window.scrollTo(0, 0); }
+  else finishSection();
+});
+$('prev-btn').addEventListener('click', () => { if (index > 0) { index--; saveFull(); renderQuestion(); window.scrollTo(0, 0); } });
+
+document.addEventListener('keydown', e => {
+  if (!$('quiz-screen').classList.contains('active') || document.querySelector('.modal.open')) return;
+  if (e.target.closest && e.target.closest('input, textarea')) return;
+  const n = parseInt(e.key, 10);
+  if (n >= 1 && n <= 6) { choose(n - 1); return; }
+  if (e.key === 'Enter' && !$('next-btn').disabled) { e.preventDefault(); $('next-btn').click(); }
+  if (mode === 'full' && e.key === 'ArrowLeft') $('prev-btn').click();
+  if (mode === 'full' && e.key === 'ArrowRight' && index < questions.length - 1) $('next-btn').click();
+});
+
+function confirmFinish() {
+  const left = answers.filter(a => a == null).length;
+  $('finish-text').textContent = left
+    ? `Без ответа осталось ${left} ${left % 10 === 1 && left % 100 !== 11 ? 'задание' : [2, 3, 4].includes(left % 10) && ![12, 13, 14].includes(left % 100) ? 'задания' : 'заданий'}. Они будут засчитаны как неверные.`
+    : 'Ты ответил на все вопросы. После завершения изменить ответы будет нельзя.';
+  $('finish-modal').classList.add('open');
+}
+$('finish-no').onclick = () => $('finish-modal').classList.remove('open');
+$('finish-yes').onclick = () => { $('finish-modal').classList.remove('open'); finishFull(); };
+
+// ===== Итоги =====
+const isRight = (q, a) => a != null && q.order[a] === q.correctIndex;
+function groupBy(list, fn) { const m = new Map(); list.forEach(x => { const k = fn(x); m.set(k, (m.get(k) || []).concat([x])); }); return m; }
+const pctColor = p => p >= 70 ? 'green' : p >= 50 ? 'amber' : 'red';
+
+function finishSection() {
+  const res = questions.map((q, i) => ({ q, a: answers[i], ok: isRight(q, answers[i]) }));
+  const correct = res.filter(r => r.ok).length, total = res.length;
+  const pct = Math.round(correct / total * 100);
+  const lesson = topicList && window.JB_LESSONS.find(l => l.section === sectionKey && topicList.every(t => l.topics.includes(t)));
+  const topicLabel = mode === 'topic' ? (topicList.length === 1 ? topicList[0] : lesson ? lesson.title : 'выбранные темы') : '';
+  JB.recordAttempt({ key: sectionKey, mode, topicLabel, answers: res.map(r => ({ section: r.q.section, topic: r.q.topic, correct: r.ok })) })
+    .then(() => { account = JB.normalize(JSON.parse(localStorage.getItem('jolBilimUser') || '{}')); });
+
+  const msg = pct >= 90 ? ['Блестяще!', 'Почти без ошибок — так держать.'] : pct >= 70 ? ['Хороший результат', 'Осталось закрыть пару тем — и будет отлично.'] : pct >= 50 ? ['Неплохо', 'Есть над чем поработать — разбор ниже покажет, где именно.'] : ['Есть пробелы', 'Не страшно: теория и тренировка по слабым темам быстро это исправят.'];
+  const topics = [...groupBy(res, r => r.q.topic || 'Другое')].map(([t, rs]) => ({ t, c: rs.filter(r => r.ok).length, n: rs.length })).sort((a, b) => a.c / a.n - b.c / b.n);
+  const worst = topics.find(t => t.c < t.n);
+  const worstLesson = worst && window.JB_LESSONS.find(l => l.section === sectionKey && l.topics.includes(worst.t));
+
+  $('result-screen').innerHTML = `
+    <div class="card res-hero">
+      <div class="ring" style="--p:${pct}"><div>${correct}/${total}<small>${pct}% верно</small></div></div>
+      <h2>${msg[0]}</h2><p>${msg[1]}</p>
+      <p style="margin-top:10px; font-size:13px;" class="dim">${esc(S[sectionKey].name)}${topicLabel ? ' · ' + esc(topicLabel) : ''}</p>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <div style="font-weight:800; margin-bottom:6px;">Результат по темам</div>
+      ${topics.map(t => { const p = Math.round(t.c / t.n * 100); return `<div class="res-row"><b>${esc(t.t)}</b><div class="bar ${pctColor(p)}"><i style="width:${p}%"></i></div><div class="pct">${t.c}/${t.n}</div></div>`; }).join('')}
+    </div>
+    <div class="res-actions">
+      ${worst ? `<a class="btn btn-primary" href="test.html?s=${sectionKey}&topic=${encodeURIComponent(worst.t)}">${ic('target')}Потренировать «${esc(worst.t)}»</a>` : `<a class="btn btn-primary" href="test.html?s=${sectionKey}">${ic('refresh')}Ещё 10 заданий</a>`}
+      ${worstLesson ? `<a class="btn btn-ghost" href="dashboard.html#theory/${worstLesson.id}">${ic('book')}Теория по теме</a>` : ''}
+      <a class="btn btn-ghost" href="dashboard.html">${ic('grid')}В кабинет</a>
+    </div>`;
+  requestAnimationFrame(() => document.querySelectorAll('#result-screen .bar i').forEach(i => { const w = i.style.width; i.style.width = '0'; requestAnimationFrame(() => i.style.width = w); }));
+  show('result-screen');
+}
+
+function finishFull() {
+  clearInterval(tickTimer);
+  $('timer').classList.add('hide');
+  const res = questions.map((q, i) => ({ q, a: answers[i], ok: isRight(q, answers[i]), i }));
+  const correct = res.filter(r => r.ok).length;
+  const bySec = {};
+  JB.MAIN.forEach(k => { const rs = res.filter(r => r.q.section === k); bySec[k] = [rs.filter(r => r.ok).length, rs.length]; });
+  const W = { math: .4, verbal: .2, reading: .2, grammar: .2 };
+  const predicted = JB.scaled(JB.MAIN.reduce((s, k) => s + W[k] * (bySec[k][1] ? bySec[k][0] / bySec[k][1] : 0), 0));
+  mode = 'finished'; // больше не сохраняем прогресс экзамена
+  localStorage.removeItem(FULL_KEY);
+  JB.recordAttempt({
+    key: 'full', mode: 'full',
+    answers: res.map(r => ({ section: r.q.section, topic: r.q.topic, correct: r.ok })),
+    extra: { predicted, score: predicted, minutes: Math.round(elapsed / 60000), sections: bySec }
+  });
+
+  const pct = Math.round(predicted / 245 * 100);
+  const wrong = res.filter(r => !r.ok);
+  const groups = JB.MAIN.map(k => [k, wrong.filter(r => r.q.section === k)]).filter(g => g[1].length);
+  window._mistakes = wrong;
+
+  $('result-screen').innerHTML = `
+    <div class="card card-accent res-hero">
+      <div class="ring" style="--p:${pct}"><div>${predicted}<small>из 245 баллов</small></div></div>
+      <h2>Пробный ОРТ завершён</h2>
+      <p style="color:#e0e3ff;">Верно ${correct} из ${questions.length} · время ${fmtTime(elapsed)}</p>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <div style="font-weight:800; margin-bottom:6px;">Результат по разделам</div>
+      ${JB.MAIN.map(k => { const [c, n] = bySec[k]; const p = Math.round(c / n * 100); return `<div class="res-row"><b>${esc(S[k].name)}</b><div class="bar ${pctColor(p)}"><i style="width:${p}%"></i></div><div class="pct">${c}/${n}</div></div>`; }).join('')}
+    </div>
+    <div class="group-title" style="margin-top:26px;">${ic('alert')}Разбор ошибок · ${wrong.length}</div>
+    ${groups.length ? groups.map(([k, rs], gi) => `<details class="card mgroup" ${gi === 0 ? 'open' : ''}><summary>${esc(S[k].name)}<span class="badge red" style="margin-left:auto;">${rs.length}</span></summary><div>${rs.map(r => mistakeCard(r)).join('')}</div></details>`).join('') : '<div class="empty">Ни одной ошибки — невероятно!</div>'}
+    <div class="res-actions">
+      <a class="btn btn-primary" href="dashboard.html#stats">${ic('trend')}Моя статистика</a>
+      <a class="btn btn-ghost" href="dashboard.html">${ic('grid')}В кабинет</a>
+    </div>`;
+  show('result-screen');
+}
+function mistakeCard(r) {
+  const q = r.q;
+  const letters = q.section === 'english' ? 'ABCDEF' : LETTERS;
+  const correctPos = q.order.indexOf(q.correctIndex);
+  return `<div class="card mistake" style="background:rgba(7,9,20,.4);">
+    <span class="badge ghost">№${r.i + 1} · ${esc(tagFor(q))}</span>
+    ${q.passage ? `<div class="dim" style="font-size:12.5px; margin-top:8px;">Текст: «${esc(q.passage.title)}»</div>` : ''}
+    <div class="mq">${esc(q.question)}</div>
+    <div class="ma">
+      <span style="color:#fda4af;">Твой ответ: <b>${r.a == null ? 'нет ответа' : letters[r.a] + ') ' + esc(q.options[q.order[r.a]])}</b></span>
+      <span style="color:#6ee7b7;">Правильно: <b>${letters[correctPos]}) ${esc(q.options[q.correctIndex])}</b></span>
+    </div>
+    ${q.explanation ? `<div class="mx">${esc(q.explanation)}</div>` : ''}
+    ${r.a != null ? `<button class="btn btn-ghost btn-ai btn-sm" data-ai="${r.i}">${ic('bot')}Объясни подробнее (ИИ)</button><div class="ai-answer"></div>` : ''}
+  </div>`;
+}
+$('result-screen').addEventListener('click', e => {
+  const b = e.target.closest('[data-ai]');
+  if (!b) return;
+  const i = +b.getAttribute('data-ai');
+  askAI(aiPayload(questions[i], answers[i]), b, b.nextElementSibling);
+});
+
+// ===== Запуск =====
+function boot() {
+  const params = new URLSearchParams(location.search);
+  const s = params.get('s');
+  const topics = (params.get('topic') || '').split('|').map(t => t.trim()).filter(Boolean);
+  if (s === 'full') renderIntro();
+  else if (s && S[s] && s !== 'full') {
+    if (!canStart(s)) { renderPicks(); show('selection-screen'); showPaywall(s); }
+    else startSection(s, topics.length ? topics : null);
+  } else { renderPicks(); show('selection-screen'); }
+}
+
+// Свежий тариф и история из базы — до старта, чтобы ограничения считались верно
+function refresh() {
+  if (!user || !user.familyCode) return Promise.resolve();
+  return Promise.race([
+    db.collection('families').doc(user.familyCode).get().then(doc => {
+      if (!doc.exists) return;
+      const d = doc.data();
+      plan = { plan: d.plan || null, planExpiresAt: d.planExpiresAt || null };
+      account = JB.normalize(Object.assign({}, user, d));
+    }),
+    new Promise(r => setTimeout(r, 2500))
+  ]).catch(err => console.error('Не удалось загрузить тариф:', err));
+}
+function init() { refresh().then(boot); }
+if (window.icon) init(); else document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>

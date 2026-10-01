@@ -1,171 +1,131 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход в кабинет - JOL-Bilim</title>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <script>
-        (function() {
-            try {
-                const userRaw = localStorage.getItem('jolBilimUser');
-                if (userRaw) {
-                    const user = JSON.parse(userRaw);
-                    if (user && user.name && user.grade && user.contact) {
-                        window.location.href = 'dashboard.html';
-                    }
-                }
-            } catch(e) {}
-        })();
-    </script>
-    <style>
-        :root{
-          --bg:#000000; --ink:#F3F1E9; --ink-soft:rgba(243,241,233,0.65);
-          --accent:#E3A83B; --line:rgba(255,255,255,0.12);
-        }
-        *{box-sizing:border-box;}
-        body{margin:0; background:#000; color:var(--ink); font-family:'Inter',sans-serif; 
-          min-height:100vh;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Вход — JOL-Bilim</title>
+  <meta name="theme-color" content="#070914">
+  <script>
+    (function () {
+      try {
+        const u = JSON.parse(localStorage.getItem('jolBilimUser') || 'null');
+        if (u && u.name && u.grade && u.contact) location.replace('dashboard.html');
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <style>
+    .auth { position: relative; z-index: 1; display: grid; grid-template-columns: 1.1fr 1fr; min-height: 100vh; }
+    .auth-visual { position: relative; padding: 40px 48px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; border-right: 1px solid var(--line); background: radial-gradient(80% 60% at 30% 40%, rgba(99,102,241,.22), transparent 70%); }
+    .auth-visual h2 { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 3.4vw, 46px); line-height: 1.1; letter-spacing: -.03em; margin: 0 0 16px; max-width: 14ch; }
+    .auth-visual p { color: var(--muted); max-width: 42ch; margin: 0; font-size: 15.5px; }
+    .float-stage { position: relative; height: 300px; margin: 30px 0; }
+    .fl { position: absolute; padding: 16px 18px; animation: floaty 7s ease-in-out infinite; }
+    .fl b { display: block; font-family: var(--display); font-size: 28px; line-height: 1.1; margin-top: 10px; }
+    .fl small { font-size: 12px; color: var(--muted); font-weight: 700; }
+    .fl.a { left: 0; top: 10px; width: 210px; }
+    .fl.b { left: 230px; top: 70px; width: 260px; animation-delay: -2.5s; }
+    .fl.c { left: 40px; top: 180px; width: 230px; animation-delay: -4.5s; }
+    @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    .auth-foot { display: flex; gap: 22px; color: var(--dim); font-size: 13px; font-weight: 600; flex-wrap: wrap; }
+    .auth-foot span { display: inline-flex; align-items: center; gap: 7px; }
+    .auth-foot svg { width: 16px; height: 16px; color: var(--green); }
 
-        .star{position:absolute; border-radius:50%; background:#fff; animation:twinkle ease-in-out infinite;}
-        @keyframes twinkle{0%,100%{opacity:0.15;}50%{opacity:0.8;}}
-
-        .liquid-glass{background: rgba(255,255,255,0.04); backdrop-filter: blur(10px); 
-          -webkit-backdrop-filter: blur(10px); border: 1px solid var(--line);}
-
-        .btn-white{width:100%; background:#fff; color:#000; border:none; border-radius:100px; 
-          padding:14px; font-size:14px; font-weight:600; cursor:pointer; margin-top:8px;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;}
-        .btn-white:hover{transform:translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.4);}
-        
-        .error-text{color:#E0755C; font-size:12px; display:none; margin-top:4px;}
-        .form-group.has-error .form-control{border-color:#E0755C !important;}
-        .form-group.has-error .error-text{display:block;}
-
-        @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
-
-        .page-bg-video {
-          display: none;
-        }
-
-        @media (max-width: 760px) {
-          .cabinet-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .video-col {
-            display: none !important;
-          }
-          .page-bg-video {
-            display: block !important;
-            position: fixed !important;
-            inset: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-            z-index: -1 !important;
-            opacity: 0.25 !important;
-          }
-          .form-col {
-            padding: 40px 24px !important;
-            min-height: 100vh !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
-            position: relative !important;
-            z-index: 2 !important;
-          }
-          .btn-white {
-            box-sizing: border-box !important;
-            width: 100% !important;
-          }
-        }
-    </style>
-    <script src="js/video-lazy.js" defer></script><script src="js/reveal.js" defer></script>
+    .auth-form-col { display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
+    .auth-card { width: 100%; max-width: 420px; padding: 34px 30px; }
+    .auth-card h1 { font-family: var(--display); font-weight: 700; font-size: 28px; letter-spacing: -.02em; margin: 18px 0 6px; }
+    .auth-card .lead { color: var(--muted); font-size: 14.5px; margin: 0 0 26px; }
+    #telegram-widget-wrapper { transition: opacity .2s ease; }
+    .tg-panel { display: none; margin-top: 14px; border: 1px solid var(--line-2); border-radius: 16px; padding: 16px; font-size: 13.5px; line-height: 1.55; color: var(--muted); background: rgba(7,9,20,.45); }
+    .tg-wait { display: flex; gap: 10px; color: var(--text); font-weight: 600; }
+    .tg-wait .dots-loader { color: #818cf8; flex-shrink: 0; margin-top: 2px; }
+    .tg-code { font-family: var(--mono); font-size: 22px; font-weight: 700; letter-spacing: .14em; }
+    .mobile-logo { display: none; }
+    @media (max-width: 900px) {
+      .auth { grid-template-columns: 1fr; }
+      .auth-visual { display: none; }
+      .auth-form-col { flex-direction: column; justify-content: flex-start; padding: 24px 16px 40px; }
+      .mobile-logo { display: flex; width: 100%; max-width: 420px; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+      .auth-card { padding: 26px 20px; }
+    }
+  </style>
+  <script src="js/ui.js" defer></script>
+  <script src="js/reveal.js" defer></script>
 </head>
 <body>
-<div id="stars" style="position:fixed; inset:0; z-index:0; pointer-events:none;"></div>
-<video autoplay muted loop playsinline preload="none" poster="videos/cabinet-bg-poster.webp" class="page-bg-video">
-  <source data-src="videos/cabinet-bg-small.mp4" type="video/mp4">
-</video>
+<div class="auth">
+  <aside class="auth-visual">
+    <a href="index.html" class="logo"><span class="logo-mark">J</span>JOL-Bilim<span class="logo-tag">ОРТ · AI</span></a>
+    <div>
+      <h2>Твой путь к <span class="grad-text">высокому баллу</span></h2>
+      <p data-rv>Задания по всем темам ОРТ, пробный экзамен и ИИ-репетитор, который объясняет каждую ошибку.</p>
+      <div class="float-stage" aria-hidden="true">
+        <div class="card fl a"><span class="icon-box pink"><i data-ic="cap"></i></span><b>196</b><small>прогноз балла ОРТ</small></div>
+        <div class="card fl b"><div class="row" style="gap:10px;"><span class="icon-box"><i data-ic="bot"></i></span><small style="color:#c7d2fe;">ИИ-репетитор</small></div><div style="font-size:13px; margin-top:10px; line-height:1.5;">Сравни квадраты: 50 &gt; 49, значит √50 больше 7 ✓</div></div>
+        <div class="card fl c"><span class="icon-box amber"><i data-ic="flame"></i></span><b>7 дней</b><small>серия без пропусков</small></div>
+      </div>
+    </div>
+    <div class="auth-foot"><span><i data-ic="checkCircle"></i>Бесплатный старт</span><span><i data-ic="checkCircle"></i>Без паролей</span><span><i data-ic="checkCircle"></i>Вход за 30 секунд</span></div>
+  </aside>
 
-<div class="cabinet-grid" style="display:grid; grid-template-columns:1.3fr 1fr; min-height:100vh; position:relative; z-index:2;">
-  
-  <!-- левая часть: крупный визуальный объект -->
-  <div class="video-col" style="display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; min-height:300px;">
-    <video autoplay muted loop playsinline preload="none" poster="videos/cabinet-bg-poster.webp" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
-      <source data-src="videos/cabinet-bg-small.mp4" type="video/mp4">
-    </video>
-    <div style="position:absolute; inset:0; background:linear-gradient(90deg, transparent 60%, #000000 100%); z-index:1;"></div>
-  </div>
-  <!-- правая часть: форма -->
-  <div class="form-col" style="display:flex; flex-direction:column; justify-content:center; padding:60px; position:relative;">
-    <a href="index.html" style="position:absolute; top:24px; left:24px; text-decoration:none; color:#fff; font-weight:600; font-size:15px; z-index:5;">JOL-<span style="color:var(--accent);">Bilim</span></a>
-    <div style="font-size:12px; color:var(--accent); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:20px;">[ вход в JOL-Bilim ]</div>
-    <h1 style="font-family:'Instrument Serif',serif; font-weight:400; font-size:42px; margin:0 0 8px;">JOL-Bilim</h1>
-    <p style="font-size:14px; color:var(--ink-soft); margin:0 0 32px;">твой путь к знаниям в сети ОРТ</p>
-    
-    <form id="auth-form" novalidate>
-        <div class="form-group" id="group-name" style="margin-bottom:20px;">
-            <label for="input-name" style="font-size:12px; color:var(--ink-soft); display:block; margin-bottom:6px;">Имя</label>
-            <input type="text" id="input-name" name="name" class="form-control" placeholder="Айбек" style="border:none; border-bottom:1px solid var(--line); background:transparent; padding:10px 0; color:#fff; width:100%; font-size:14px; font-family:'Inter',sans-serif;">
-            <div class="error-text">Пожалуйста, введите ваше имя</div>
+  <div class="auth-form-col">
+    <div class="mobile-logo"><a href="index.html" class="logo"><span class="logo-mark">J</span>JOL-Bilim</a><a href="index.html" class="icon-btn" aria-label="На главную"><i data-ic="x"></i></a></div>
+    <div class="card auth-card" data-rv>
+      <div class="eyebrow"><i data-ic="sparkles"></i>вход в JOL-Bilim</div>
+      <h1>Давай знакомиться</h1>
+      <p class="lead">Имя и класс — и входи через Telegram. Аккаунт создастся сам.</p>
+
+      <form id="auth-form" novalidate>
+        <div class="field form-group" id="group-name">
+          <label for="input-name">Как тебя зовут</label>
+          <input type="text" id="input-name" name="name" class="input form-control" placeholder="Айбек" autocomplete="given-name">
+          <div class="field-error error-text">Пожалуйста, введи своё имя</div>
         </div>
 
-        <div class="form-group" id="group-grade" style="margin-bottom:20px;">
-            <label for="select-grade" style="font-size:12px; color:var(--ink-soft); display:block; margin-bottom:6px;">Класс</label>
-            <select id="select-grade" name="grade" class="form-control" style="border:none; border-bottom:1px solid var(--line); background:transparent; padding:10px 0; color:#fff; width:100%; font-size:14px; font-family:'Inter',sans-serif; appearance:none; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23F3F1E9' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E&quot;); background-repeat:no-repeat; background-position:right 0 center; padding-right:24px;">
-                <option value="10 класс" style="background:#111; color:var(--ink);">10 класс</option>
-                <option value="11 класс" selected style="background:#111; color:var(--ink);">11 класс</option>
-            </select>
+        <div class="field form-group" id="group-grade">
+          <label for="select-grade">Класс</label>
+          <select id="select-grade" name="grade" class="input form-control">
+            <option value="10 класс">10 класс</option>
+            <option value="11 класс" selected>11 класс</option>
+          </select>
         </div>
 
-        <!-- Manual input group (shown only on GitHub Pages / when not on Vercel) -->
-        <div class="form-group" id="group-contact" style="margin-bottom:20px;">
-            <label for="input-contact" style="font-size:12px; color:var(--ink-soft); display:block; margin-bottom:6px;">Telegram или телефон</label>
-            <input type="text" id="input-contact" name="contact" class="form-control" placeholder="@username или +996 ..." style="border:none; border-bottom:1px solid var(--line); background:transparent; padding:10px 0; color:#fff; width:100%; font-size:14px; font-family:'Inter',sans-serif;">
-            <div class="error-text">Пожалуйста, укажите Telegram или телефон</div>
+        <!-- Ручной ввод (только вне Vercel, например на GitHub Pages) -->
+        <div class="field form-group" id="group-contact">
+          <label for="input-contact">Telegram или телефон</label>
+          <input type="text" id="input-contact" name="contact" class="input form-control" placeholder="@username или +996 ...">
+          <div class="field-error error-text">Пожалуйста, укажи Telegram или телефон</div>
         </div>
+        <button type="submit" id="btn-submit" class="btn btn-primary btn-lg btn-block" style="margin-top:6px;">Войти<i data-ic="arrow" class="btn-arrow"></i></button>
 
-        <!-- Original submit button (shown only on GitHub Pages / when not on Vercel) -->
-        <button type="submit" id="btn-submit" class="btn-white" style="margin-top:8px;">Войти →</button>
-
-        <!-- Telegram Auth container (shown only on Vercel) -->
-        <div id="telegram-auth-container" style="display:none; margin-top:20px;">
-            <div id="telegram-widget-wrapper" style="opacity: 0.5; pointer-events: none; transition: all 0.2s ease;">
-                <a id="btn-telegram" class="btn-white" href="https://t.me/jolbilim_bot" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; gap:10px; background:#2AABEE; color:#fff; text-decoration:none; box-sizing:border-box;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M21.94 4.3 18.7 19.6c-.24 1.08-.88 1.35-1.78.84l-4.93-3.63-2.38 2.29c-.26.26-.48.48-.99.48l.35-5.02 9.14-8.26c.4-.35-.09-.55-.61-.2L6.2 13.2 1.33 11.68c-1.06-.33-1.08-1.06.22-1.57L20.6 2.77c.88-.33 1.65.2 1.34 1.53z"/></svg>
-                    Войти через Telegram
-                </a>
+        <!-- Вход через Telegram (на Vercel) -->
+        <div id="telegram-auth-container" style="display:none; margin-top:6px;">
+          <div id="telegram-widget-wrapper" style="opacity:0.45; pointer-events:none;">
+            <a id="btn-telegram" class="btn btn-tg btn-lg btn-block" href="https://t.me/jolbilim_bot" target="_blank" rel="noopener">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M21.94 4.3 18.7 19.6c-.24 1.08-.88 1.35-1.78.84l-4.93-3.63-2.38 2.29c-.26.26-.48.48-.99.48l.35-5.02 9.14-8.26c.4-.35-.09-.55-.61-.2L6.2 13.2 1.33 11.68c-1.06-.33-1.08-1.06.22-1.57L20.6 2.77c.88-.33 1.65.2 1.34 1.53z"/></svg>
+              Войти через Telegram
+            </a>
+          </div>
+          <div id="telegram-hint" class="dim" style="font-size:12.5px; margin-top:10px; text-align:center;">Сначала введи имя. Откроется наш бот — нажми в нём «Start» и вернись сюда</div>
+          <div id="tg-panel" class="tg-panel">
+            <div class="tg-wait"><span class="dots-loader"><span></span><span></span><span></span></span><span>Ждём подтверждения. Нажми в боте <b>Start</b> и вернись на эту страницу.</span></div>
+            <div style="margin-top:12px;">Telegram не открылся? Найди в Telegram <b style="color:var(--text);">@jolbilim_bot</b> и отправь ему этот код:</div>
+            <div class="row" style="margin-top:8px;">
+              <span id="tg-code" class="tg-code grad-text"></span>
+              <button type="button" id="tg-copy" class="copy-btn">копировать</button>
             </div>
-            <div id="telegram-hint" style="font-size:12px; color:var(--ink-soft); margin-top:8px;">Сначала введи имя. Откроется наш бот — нажми в нём «Start» и вернись сюда</div>
-            <div id="tg-panel" style="display:none; margin-top:14px; border:1px solid var(--line); border-radius:14px; padding:14px 16px; font-size:13px; line-height:1.5; color:var(--ink-soft); background:rgba(255,255,255,0.03);">
-                <div style="color:var(--ink);">⏳ Ждём подтверждения. Нажми в боте <b>Start</b> и вернись на эту страницу.</div>
-                <div style="margin-top:12px;">Telegram не открылся? Найди в Telegram <b style="color:var(--ink);">@jolbilim_bot</b> и отправь ему этот код:</div>
-                <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
-                    <span id="tg-code" style="font-family:'IBM Plex Mono',monospace; font-size:22px; letter-spacing:0.12em; color:var(--accent);"></span>
-                    <button type="button" id="tg-copy" style="background:none; border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:4px 10px; font-size:11px; cursor:pointer;">копировать</button>
-                </div>
-                <button type="button" id="tg-check" style="margin-top:14px; width:100%; background:rgba(255,255,255,0.06); border:1px solid var(--line); color:var(--ink); border-radius:100px; padding:11px; font-size:13px; font-weight:500; cursor:pointer;">Я подтвердил в Telegram — проверить</button>
-            </div>
-            <div id="telegram-error" class="error-text" style="display:none; margin-top:8px;">Не удалось подтвердить через Telegram, попробуйте ещё раз</div>
+            <button type="button" id="tg-check" class="btn btn-ghost btn-block" style="margin-top:14px;">Я подтвердил в Telegram — проверить</button>
+          </div>
+          <div id="telegram-error" class="field-error error-text" style="display:none; margin-top:10px; text-align:center;">Не удалось подтвердить через Telegram, попробуйте ещё раз</div>
         </div>
-    </form>
+      </form>
+      <div class="dim" style="font-size:12.5px; text-align:center; margin-top:20px;">Ты родитель? <a href="parent.html" style="color:#a5b4fc; font-weight:700; text-decoration:none;">Кабинет родителя →</a></div>
+    </div>
   </div>
 </div>
-<script>
-const starsBox = document.getElementById('stars');
-for(let i=0;i<80;i++){
-  const s = document.createElement('div');
-  s.className='star';
-  const size = 1 + Math.random()*1.5;
-  s.style.width=size+'px'; s.style.height=size+'px';
-  s.style.left=Math.random()*100+'%';
-  s.style.top=Math.random()*100+'%';
-  s.style.animationDuration=(2+Math.random()*4)+'s';
-  s.style.animationDelay=(Math.random()*4)+'s';
-  starsBox.appendChild(s);
-}
-</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -197,7 +157,7 @@ for(let i=0;i<80;i++){
                 // Show manual form on GitHub Pages
                 telegramAuthContainer.style.display = 'none';
                 contactGroup.style.display = 'block';
-                document.getElementById('btn-submit').style.display = 'block';
+                document.getElementById('btn-submit').style.display = 'flex';
             }
             
             // Validate name and grade for button state
@@ -218,7 +178,7 @@ for(let i=0;i<80;i++){
                     telegramWidgetWrapper.style.opacity = '1';
                     telegramWidgetWrapper.style.pointerEvents = 'auto';
                 } else {
-                    telegramWidgetWrapper.style.opacity = '0.5';
+                    telegramWidgetWrapper.style.opacity = '0.45';
                     telegramWidgetWrapper.style.pointerEvents = 'none';
                 }
             }
@@ -502,18 +462,6 @@ for(let i=0;i<80;i++){
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAmru1-7SS3dwAMEborymtJJudtcflQYzU",
-  authDomain: "jol-bilim.firebaseapp.com",
-  projectId: "jol-bilim",
-  storageBucket: "jol-bilim.firebasestorage.app",
-  messagingSenderId: "1059233182996",
-  appId: "1:1059233182996:web:40ad78360b42dd49d37e01",
-  measurementId: "G-P7RR3W3ZF7"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-</script>
+<script src="js/fb.js"></script>
 </body>
 </html>

@@ -10,6 +10,7 @@
     const style = document.createElement('style');
     style.textContent = `
         .rv-word { display: inline-block; white-space: nowrap; }
+        .rv-unit { display: inline-block; }
         .rv-char {
             display: inline-block;
             opacity: 0;
@@ -31,20 +32,31 @@
         .rv-block.rv-in { opacity: 1; translate: 0 0; filter: none; }
         .rv-block.rv-hiding { transition-duration: .4s; transition-delay: 0ms; }
         /* у «стеклянных» карточек без размытия — на телефонах так плавнее */
-        .rv-block.liquid-glass, .rv-block .liquid-glass { filter: none; }
+        .rv-block.no-blur { filter: none; }
     `;
     document.head.appendChild(style);
 
     // Не трогаем меню, модальные окна и служебные элементы
-    const EXCLUDE = 'nav, #mobile-menu, #tariff-modal, #paywall, #open-in-browser, script, style';
+    const EXCLUDE = 'nav, .topnav, #mobile-menu, .modal, #tariff-modal, #paywall, [data-rv-skip], script, style';
 
     // Заголовки → буквы (сохраняем вложенные теги вроде <em> и <br>)
     function splitChars(el) {
         let i = 0;
+        const label = el.textContent.replace(/\s+/g, ' ').trim();
         const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
         const nodes = [];
         while (walker.nextNode()) nodes.push(walker.currentNode);
         nodes.forEach(node => {
+            // градиентный текст появляется целиком: если резать его на буквы, градиент ломается
+            const grad = node.parentElement && node.parentElement.closest('.grad-text');
+            if (grad && el.contains(grad)) {
+                if (!grad.classList.contains('rv-char')) {
+                    grad.classList.add('rv-char', 'rv-unit');
+                    grad.style.setProperty('--i', Math.min(i, 40));
+                    i += 6;
+                }
+                return;
+            }
             const text = node.textContent;
             if (!text.trim()) return;
             const frag = document.createDocumentFragment();
@@ -64,7 +76,7 @@
             });
             node.parentNode.replaceChild(frag, node);
         });
-        el.setAttribute('aria-label', el.textContent); // для экранных дикторов — целый текст
+        el.setAttribute('aria-label', label); // для экранных дикторов — целый текст
     }
 
     const headings = Array.from(document.querySelectorAll('h1, h2'))
@@ -72,12 +84,8 @@
     headings.forEach(splitChars);
 
     // Блоки, которые появляются целиком
-    const BLOCK_SELECTOR = [
-        '.eyebrow', '.search-bar', '.hint', '.hero .btn-glass',
-        '.feat', '.price-card', '.parents p', '.parents .btn-white', 'footer',
-        '.left-panel > div', '.right-panel-content > div', '.right-panel-content > div > *',
-        '.form-col > p', '.form-group', '#telegram-auth-container'
-    ].join(', ');
+    // помечаются в разметке: data-rv — сам элемент, data-rv-group — каждый ребёнок по очереди
+    const BLOCK_SELECTOR = '[data-rv], [data-rv-group] > *';
     const blocks = Array.from(document.querySelectorAll(BLOCK_SELECTOR))
         .filter(el => !el.closest(EXCLUDE))
         .filter((el, _, all) => !all.some(other => other !== el && other.contains(el))); // без вложенных двойных анимаций
@@ -86,6 +94,8 @@
     const groups = new Map();
     blocks.forEach(el => {
         el.classList.add('rv-block');
+        // у «стеклянных» карточек размытие во время анимации даёт мигание — убираем его
+        if (el.matches('.card, .no-blur') || el.querySelector('.card')) el.classList.add('no-blur');
         const list = groups.get(el.parentElement) || [];
         el.style.setProperty('--rv-delay', Math.min(list.length, 6) * 150 + 'ms');
         list.push(el);
