@@ -1,0 +1,12 @@
+node_modules/
+package-lock.json
+android/app/build/
+android/build/
+android/.gradle/
+android/capacitor-android/
+android/capacitor-cordova-android-plugins/
+videos/
+**/*.mp4
+**/*.mov
+**/*.webm
+**/*.apk

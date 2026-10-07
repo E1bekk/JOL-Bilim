@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
     }
 
     const b = req.body || {};
-    const question = clip(b.question, 1500).trim();
+    const question = clip(b.question, 4000).trim();
     const options = Array.isArray(b.options) ? b.options.slice(0, 6).map(o => clip(o, 300)) : [];
     const correct = clip(b.correct, 300).trim();
     const chosen = clip(b.chosen, 300).trim();

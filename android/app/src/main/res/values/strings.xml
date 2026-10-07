@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">JOL-Bilim</string>
+    <string name="title_activity_main">JOL-Bilim</string>
+    <string name="package_name">com.jolbilim.app</string>
+    <string name="custom_url_scheme">com.jolbilim.app</string>
+</resources>
