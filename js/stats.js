@@ -237,6 +237,7 @@
     });
     saveQueue(q);
     flushQueue();
+    document.dispatchEvent(new CustomEvent('jb:attempt', { detail: item })); // например, для напоминаний
     return item;
   }
 

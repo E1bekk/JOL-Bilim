@@ -20,6 +20,10 @@
       "backgroundColor": "#070914",
       "androidScaleType": "CENTER_CROP",
       "showSpinner": false
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_jb",
+      "iconColor": "#6366F1"
     }
   },
   "backgroundColor": "#070914"

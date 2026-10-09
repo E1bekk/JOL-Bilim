@@ -34,7 +34,8 @@
     /* превью кабинета */
     .preview-wrap { perspective: 1600px; margin: 70px auto 0; max-width: 1060px; }
     .preview { border-radius: 22px; padding: 10px; background: linear-gradient(180deg, rgba(129,140,248,.35), rgba(129,140,248,.05)); box-shadow: 0 60px 140px -50px rgba(99,102,241,.75); transform: rotateX(14deg) scale(.97); transform-origin: top center; transition: transform .9s var(--ease); }
-    .preview:hover, .preview.flat { transform: rotateX(0) scale(1); }
+    .preview.flat { transform: rotateX(0) scale(1); }
+    @media (hover: hover) and (pointer: fine) { .preview:hover { transform: rotateX(0) scale(1); } }
     .pv { border-radius: 14px; overflow: hidden; background: #0a0e20; border: 1px solid var(--line); display: grid; grid-template-columns: 190px 1fr; min-height: 380px; text-align: left; }
     .pv-side { border-right: 1px solid var(--line); padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; background: rgba(15,20,48,.6); }
     .pv-side .logo { font-size: 13px; padding: 0 6px 14px; } .pv-side .logo-mark { width: 26px; height: 26px; font-size: 11px; border-radius: 8px; }
@@ -137,7 +138,7 @@
     .foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 13.5px; color: var(--dim); }
     .foot-links { display: flex; gap: 20px; flex-wrap: wrap; }
     .foot-links a { color: var(--muted); text-decoration: none; font-weight: 600; }
-    .foot-links a:hover { color: #fff; }
+    @media (hover: hover) and (pointer: fine) { .foot-links a:hover { color: #fff; } }
 
     @media (max-width: 960px) {
       .bento { grid-template-columns: 1fr 1fr; }

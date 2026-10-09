@@ -202,6 +202,7 @@
 
         <div class="cols">
           <div>
+            <div id="remind-ask"></div>
             <div class="sec-title"><h2><i data-ic="alert" style="color:var(--amber)"></i>Над чем поработать</h2><span class="muted">по твоим ответам</span></div>
             <div class="stack" id="weak-list"></div>
 
@@ -319,6 +320,7 @@
             <div class="muted js-plan-desc" style="font-size:13px;"></div>
             <a href="index.html#pricing" class="btn btn-primary btn-sm js-plan-cta" style="margin-top:14px;">Улучшить тариф<i data-ic="arrow" class="btn-arrow"></i></a>
           </div>
+          <div id="remind-card"></div>
           <div class="card plan-card">
             <div class="card-title"><i data-ic="users"></i>Код для родителя</div>
             <div class="muted" style="font-size:13px;">Родитель вводит его на странице «Кабинет родителя» и видит твой прогресс.</div>
@@ -347,6 +349,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="js/fb.js"></script>
 <script src="js/stats.js"></script>
+<script src="js/reminders.js"></script>
 <script src="js/lessons.js"></script>
 <script>
 (function () {
@@ -567,10 +570,97 @@
     $('history-full').innerHTML = n.history.length ? n.history.map(histRow).join('') : '<div class="empty" style="border:none;">Тестов пока нет</div>';
   }
 
+  // Напоминания о занятиях (только в приложении) — список как будильники в «Часах»
+  let remNote = '';
+  function renderReminders() {
+    const R = window.JB_reminders, ask = $('remind-ask'), card = $('remind-card');
+    if (!R || !R.available) { ask.innerHTML = ''; card.innerHTML = ''; return; }
+    const s = R.settings(), inf = R.info();
+    const t = v => String(v).padStart(2, '0');
+    ask.innerHTML = (!s.asked && !s.alarms.length) ? `
+      <div class="card card-accent" style="display:flex; gap:14px; align-items:center; flex-wrap:wrap; padding:18px 20px; margin-top:22px;">
+        <span class="icon-box" style="background:rgba(255,255,255,.14); color:#fff; border-color:rgba(255,255,255,.22);">${ic('bell')}</span>
+        <div style="flex:1; min-width:180px;"><div style="font-weight:800;">Напоминать о занятиях?</div>
+          <div style="font-size:13px; color:#e0e3ff; opacity:.85;">Выбери время и дни — как будильник. Пришлём уведомление, чтобы не прерывать серию.</div></div>
+        <div class="row" style="gap:8px;"><button class="btn btn-white btn-sm" data-rem="add">Настроить</button>
+          <button class="btn btn-ghost btn-sm" data-rem="later" style="border-color:rgba(255,255,255,.3); color:#fff;">Не сейчас</button></div>
+      </div>` : '';
+
+    const next = inf.skippedToday && !inf.next ? 'Сегодня ты уже занимался — напоминаний не будет 👍'
+      : inf.next ? `Следующее: <b>${esc(inf.next.text)}</b>${inf.skippedToday ? ' · сегодня ты уже занимался 👍' : ''}`
+      : s.alarms.length ? 'Все напоминания выключены' : 'Добавь напоминание — выбери время и дни недели';
+    const rows = s.alarms.map(a => `
+      <div class="alarm-row ${a.on ? '' : 'off'}">
+        <button type="button" class="alarm-main" data-rem-edit="${esc(a.id)}" aria-label="Изменить напоминание ${t(a.hour)}:${t(a.minute)}">
+          <div class="alarm-time">${t(a.hour)}:${t(a.minute)}</div>
+          <div class="alarm-sub">${a.label ? esc(a.label) + ' · ' : ''}${esc(R.repeatText(a.days))}</div>
+        </button>
+        <label class="switch"><input type="checkbox" data-rem-toggle="${esc(a.id)}" ${a.on ? 'checked' : ''} aria-label="Напоминание ${t(a.hour)}:${t(a.minute)}"><span></span></label>
+      </div>`).join('');
+    const full = s.alarms.length >= R.max;
+    card.innerHTML = `
+      <div class="card plan-card">
+        <div class="rem-head">
+          <div class="card-title">${ic('bell')}Напоминания</div>
+          <button type="button" class="icon-btn rem-add" data-rem="add" ${full ? 'disabled title="Не больше ' + R.max + '"' : ''} aria-label="Добавить напоминание">${ic('plus')}</button>
+        </div>
+        <div class="rem-next">${ic('clock')}<span>${next}</span></div>
+        <div id="rem-warn"></div>
+        <div class="alarm-list">${rows}</div>
+        <label class="rem-opt">
+          <div><b>Умный режим</b><small>Не напоминать, если сегодня уже занимался</small></div>
+          <span class="switch"><input type="checkbox" data-rem="smart" ${s.smart ? 'checked' : ''}><span></span></span>
+        </label>
+        <div class="rem-actions">
+          ${s.alarms.length ? '' : `<button class="btn btn-primary btn-sm" data-rem="add">${ic('plus')}Добавить напоминание</button>`}
+          <button class="btn btn-ghost btn-sm" data-rem="test">Проверить уведомление</button>
+        </div>
+        <div class="rem-note">${esc(remNote)}</div>
+      </div>`;
+    // уведомления запрещены в настройках телефона — подсказываем
+    Promise.all([R.permission(), R.exactPermission()]).then(([p, ex]) => {
+      const w = $('rem-warn'); if (!w) return;
+      const any = s.alarms.some(a => a.on);
+      w.innerHTML = (p === 'denied' && any) ? `<div class="rem-warn">Уведомления для JOL-Bilim выключены, поэтому напоминания не придут.
+        Включи их: Настройки телефона → Приложения → JOL-Bilim → Уведомления.<br><button class="btn btn-ghost btn-sm" data-rem="perm">Разрешить</button></div>`
+        : (ex !== 'granted' && any) ? `<div class="rem-warn">Точное время выключено — Android может присылать напоминания с опозданием до часа.
+        Разреши «Будильники и напоминания», и они будут приходить минута в минуту.<br><button class="btn btn-ghost btn-sm" data-rem="exact">Включить точное время</button></div>`
+        : '';
+    });
+  }
+  let remTimer = 0; // ждём, пока доедет анимация переключателя
+  document.addEventListener('jb:reminders', () => { clearTimeout(remTimer); remTimer = setTimeout(renderReminders, 280); });
+  document.addEventListener('click', async e => {
+    const R = window.JB_reminders;
+    if (!R) return;
+    const edit = e.target.closest('[data-rem-edit]');
+    if (edit) return R.openEditor(edit.getAttribute('data-rem-edit'));
+    const b = e.target.closest('button[data-rem]');
+    if (!b) return;
+    const act = b.getAttribute('data-rem');
+    remNote = '';
+    if (act === 'add') R.openEditor(null);
+    else if (act === 'later') R.dismissAsk();
+    else if (act === 'perm') { await R.ensurePermission(); renderReminders(); }
+    else if (act === 'exact') { await R.requestExact(); renderReminders(); }
+    else if (act === 'test') {
+      const ok = await R.test();
+      remNote = ok ? 'Пробное уведомление придёт через 5 секунд' : '';
+      renderReminders();
+    }
+  });
+  document.addEventListener('change', e => {
+    const R = window.JB_reminders;
+    if (!R) return;
+    const tg = e.target.closest('[data-rem-toggle]');
+    if (tg) { tg.closest('.alarm-row').classList.toggle('off', !tg.checked); R.toggle(tg.getAttribute('data-rem-toggle'), tg.checked); }
+    else if (e.target.matches('[data-rem="smart"]')) R.setSmart(e.target.checked);
+  });
+
   function renderAll() {
     const n = JB.normalize(data);
     const sum = JB.summary(n);
-    renderHeader(); renderPlan(); renderHome(n, sum); renderTrain(n); renderExam(n); renderTheory(n); renderStats(n, sum);
+    renderHeader(); renderPlan(); renderHome(n, sum); renderTrain(n); renderExam(n); renderTheory(n); renderStats(n, sum); renderReminders();
   }
 
   // ----- переключение разделов по адресу #home, #train, #theory/percent ... -----
