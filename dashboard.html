@@ -593,7 +593,7 @@
   window.JB_onBack = function () {
     const view = (location.hash.replace('#', '') || 'home').split('/')[0];
     if (view !== 'home' && VIEWS.includes(view)) { location.replace('#home'); return true; }
-    if (window.JB_minimize) window.JB_minimize();
+    if (window.JB_backToExit) window.JB_backToExit(); // с «Главной» — выход только двойным нажатием
     return true;
   };
 

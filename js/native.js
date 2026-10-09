@@ -4,7 +4,8 @@
 //  1) сначала закрывает открытое окно (оплата, подтверждение, меню);
 //  2) потом спрашивает страницу, что делать (window.JB_onBack — например, выйти из теста);
 //  3) иначе возвращает на предыдущую страницу;
-//  4) на главном экране не закрывает приложение, а сворачивает его, как кнопка «Домой».
+//  4) на главном экране приложение не закрывается от одного нажатия: появляется подсказка
+//     «Нажми ещё раз, чтобы выйти», и только второе нажатие за 2 секунды сворачивает приложение.
 (function () {
   if (!window.JB_IS_APP) return;
   const App = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
@@ -13,6 +14,34 @@
   // Свернуть приложение (как «Домой»), не закрывая его
   window.JB_minimize = function () {
     if (typeof App.minimizeApp === 'function') App.minimizeApp();
+  };
+
+  // Двойное нажатие «Назад» для выхода с главного экрана
+  let exitArmedUntil = 0;
+  let toastEl = null;
+  function toast(text) {
+    if (!toastEl) {
+      toastEl = document.createElement('div');
+      toastEl.setAttribute('role', 'status');
+      toastEl.style.cssText = 'position:fixed;left:50%;bottom:calc(110px + var(--sab, 0px));transform:translateX(-50%) translateY(10px);z-index:200;' +
+        'padding:11px 18px;border-radius:14px;background:rgba(21,27,61,.96);border:1px solid rgba(148,163,255,.25);color:#eef0ff;' +
+        'font:600 14px Manrope,system-ui,sans-serif;box-shadow:0 14px 40px -12px rgba(0,0,0,.8);opacity:0;transition:opacity .2s,transform .2s;' +
+        'pointer-events:none;white-space:nowrap;max-width:calc(100% - 32px);';
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = text;
+    requestAnimationFrame(() => { toastEl.style.opacity = '1'; toastEl.style.transform = 'translateX(-50%) translateY(0)'; });
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(() => { toastEl.style.opacity = '0'; toastEl.style.transform = 'translateX(-50%) translateY(10px)'; }, 2000);
+  }
+  window.JB_backToExit = function () {
+    if (Date.now() < exitArmedUntil) {
+      exitArmedUntil = 0;
+      window.JB_minimize();
+    } else {
+      exitArmedUntil = Date.now() + 2000;
+      toast('Нажми «Назад» ещё раз, чтобы выйти');
+    }
   };
 
   // Окно подтверждения в стиле приложения: JB_confirm({ title, text, ok, cancel }) -> Promise<true|false>
@@ -64,7 +93,7 @@
     try {
       if (typeof window.JB_onBack === 'function' && await window.JB_onBack()) return;
       if (ev && ev.canGoBack) window.history.back();
-      else window.JB_minimize();
+      else window.JB_backToExit();
     } finally {
       busy = false;
     }
