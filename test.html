@@ -218,7 +218,7 @@
     <span class="icon-box" style="width:56px; height:56px; margin:0 auto 16px; border-radius:16px;"><i data-ic="lock"></i></span>
     <h3 id="paywall-title">Бесплатная попытка использована</h3>
     <p class="muted" id="paywall-text" style="font-size:14px; margin:0 0 22px;"></p>
-    <a href="index.html#buy-full" class="btn btn-primary btn-block" style="margin-bottom:10px;">Полный доступ — 990 сом/мес<i data-ic="arrow" class="btn-arrow"></i></a>
+    <a href="index.html#buy-full" class="btn btn-primary btn-block web-only" style="margin-bottom:10px;">Полный доступ — 990 сом/мес<i data-ic="arrow" class="btn-arrow"></i></a>
     <button type="button" class="btn btn-ghost btn-block" onclick="closePaywall()">Выбрать другой раздел</button>
   </div>
 </div>
@@ -365,8 +365,12 @@ function canStart(key) {
   return !JB.isSectionUsed(account.history, key);
 }
 function showPaywall(key) {
-  $('paywall-title').textContent = key === 'full' ? 'Пробный ОРТ уже пройден' : 'Бесплатная попытка использована';
-  $('paywall-text').textContent = key === 'full'
+  $('paywall-title').textContent = key === 'full' ? 'Пробный ОРТ уже пройден' : (window.JB_IS_APP ? 'Этот раздел уже пройден' : 'Бесплатная попытка использована');
+  $('paywall-text').textContent = window.JB_IS_APP
+    ? (key === 'full'
+      ? 'Бесплатно пробный ОРТ можно пройти один раз — ты его уже прошёл. Продолжай тренироваться по разделам и повторять теорию.'
+      : 'Тест по разделу «' + S[key].name + '» ты уже прошёл. Выбери другой раздел или повтори темы в «Теории».')
+    : key === 'full'
     ? 'Бесплатно пробный ОРТ можно пройти один раз. С «Полным доступом» — сколько угодно раз, плюс безлимит тестов по всем разделам.'
     : 'Бесплатный тест по разделу «' + S[key].name + '» уже пройден. С «Полным доступом» можно тренироваться без ограничений по всем разделам ОРТ.';
   $('paywall').classList.add('open');
@@ -473,8 +477,13 @@ function renderIntro() {
     $('intro-continue').onclick = () => resumeFull(saved);
     if ($('intro-restart')) $('intro-restart').onclick = () => { localStorage.removeItem(FULL_KEY); startFull(); };
   } else if (!canStart('full')) {
-    box.innerHTML = `<a href="index.html#buy-full" class="btn btn-white btn-lg">${ic('lock')}Открыть с «Полным доступом»</a>`;
-    $('intro-text').textContent = 'Бесплатная попытка пробного ОРТ уже использована. С «Полным доступом» его можно проходить сколько угодно раз.';
+    if (window.JB_IS_APP) {
+      box.innerHTML = `<a href="dashboard.html#train" class="btn btn-white btn-lg">${ic('target')}Тренироваться по разделам</a>`;
+      $('intro-text').textContent = 'Бесплатная попытка пробного ОРТ уже использована. Продолжай готовиться по разделам — прогноз балла обновляется после каждого теста.';
+    } else {
+      box.innerHTML = `<a href="index.html#buy-full" class="btn btn-white btn-lg">${ic('lock')}Открыть с «Полным доступом»</a>`;
+      $('intro-text').textContent = 'Бесплатная попытка пробного ОРТ уже использована. С «Полным доступом» его можно проходить сколько угодно раз.';
+    }
   } else {
     box.innerHTML = `<button class="btn btn-white btn-lg" id="intro-start">${ic('play')}Начать экзамен</button><span style="font-size:13px; font-weight:700; color:#e0e3ff;">${isPaid() ? 'Безлимит по тарифу' : 'Это твоя бесплатная попытка'}</span>`;
     $('intro-start').onclick = startFull;

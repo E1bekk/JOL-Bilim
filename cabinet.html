@@ -74,7 +74,7 @@
   </aside>
 
   <div class="auth-form-col">
-    <div class="mobile-logo"><a href="index.html" class="logo"><span class="logo-mark">J</span>JOL-Bilim</a><a href="index.html" class="icon-btn" aria-label="На главную"><i data-ic="x"></i></a></div>
+    <div class="mobile-logo"><a href="index.html" class="logo"><span class="logo-mark">J</span>JOL-Bilim</a><a href="index.html" class="icon-btn web-only" aria-label="На главную"><i data-ic="x"></i></a></div>
     <div class="card auth-card" data-rv>
       <div class="eyebrow"><i data-ic="sparkles"></i>вход в JOL-Bilim</div>
       <h1>Давай знакомиться</h1>
@@ -456,8 +456,9 @@
         });
     });
 
-    // Кнопка «Назад» в Android-приложении: со страницы входа — на главную
-    window.JB_onBack = function () { location.replace('index.html'); return true; };
+    // Кнопка «Назад» в Android-приложении: вход — первый экран, поэтому как на главной:
+    // двойное нажатие сворачивает приложение
+    window.JB_onBack = function () { if (window.JB_backToExit) window.JB_backToExit(); return true; };
 
     document.addEventListener('DOMContentLoaded', () => {
         prepareLink();

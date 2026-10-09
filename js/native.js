@@ -9,6 +9,29 @@
 (function () {
   if (!window.JB_IS_APP) return;
 
+  // ===== Стартовый экран приложения =====
+  // Вместо лендинга сайта — сразу кабинет (если уже вошёл) или экран входа.
+  // Ссылки на «главную» (index.html) внутри приложения ведут туда же.
+  window.JB_homeUrl = function () {
+    try {
+      const u = JSON.parse(localStorage.getItem('jolBilimUser') || 'null');
+      if (u && u.name && u.grade && u.contact) return 'dashboard.html';
+    } catch (e) {}
+    return 'cabinet.html';
+  };
+  if (/(^|\/)(index\.html)?$/.test(location.pathname)) {
+    document.documentElement.style.visibility = 'hidden'; // не мигаем лендингом
+    location.replace(window.JB_homeUrl());
+    return;
+  }
+  document.addEventListener('click', function (e) {
+    const a = e.target.closest && e.target.closest('a[href]');
+    if (!a || !/^index\.html(#.*)?$/.test(a.getAttribute('href'))) return;
+    e.preventDefault();
+    const home = window.JB_homeUrl();
+    if (location.pathname.indexOf(home) === -1) location.href = home;
+  }, true);
+
   // ===== Есть ли интернет =====
   // Внутри приложения WebView сам не знает, пропал ли интернет, поэтому спрашиваем Android
   // через плагин @capacitor/network и передаём ответ страницам как обычные события online/offline.
