@@ -29,6 +29,12 @@
   --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
   --ease: cubic-bezier(.2, .7, .2, 1);
   color-scheme: dark;
+  /* отступы под статус-бар и жестовую панель телефона (в приложении Capacitor и на iPhone с вырезом) */
+}
+/* Capacitor может задать --safe-area-inset-* и на html, и на body — считаем на обоих */
+:root, body {
+  --sat: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --sab: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -157,7 +163,7 @@ button { font-family: inherit; }
 .icon-box.pink { background: rgba(244,114,182,.12); color: var(--pink); border-color: rgba(244,114,182,.22); }
 .icon-box.red { background: rgba(251,113,133,.12); color: var(--red); border-color: rgba(251,113,133,.22); }
 
-.badge { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px; border-radius: 7px; font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; background: rgba(99,102,241,.16); color: #c7d2fe; }
+.badge { display: inline-flex; align-items: center; gap: 5px; min-height: 22px; max-width: 100%; padding: 0 9px; border-radius: 7px; font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; background: rgba(99,102,241,.16); color: #c7d2fe; }
 .badge.green { background: rgba(52,211,153,.14); color: #6ee7b7; }
 .badge.amber { background: rgba(251,191,36,.14); color: #fcd34d; }
 .badge.red { background: rgba(251,113,133,.15); color: #fda4af; }
@@ -211,7 +217,7 @@ select.input option { background: #0f1430; color: var(--text); }
 .copy-btn:hover { background: rgba(255,255,255,.1); }
 
 /* ---------- верхняя навигация (лендинг) ---------- */
-.topnav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; transition: background .3s ease, border-color .3s ease, backdrop-filter .3s; border-bottom: 1px solid transparent; }
+.topnav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding-top: var(--sat); transition: background .3s ease, border-color .3s ease, backdrop-filter .3s; border-bottom: 1px solid transparent; }
 .topnav.scrolled { background: rgba(7,9,20,.72); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-bottom-color: var(--line); }
 .topnav-in { max-width: 1180px; margin: 0 auto; height: 72px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .topnav-links { display: flex; align-items: center; gap: 6px; }
@@ -231,7 +237,7 @@ select.input option { background: #0f1430; color: var(--text); }
   .topnav-in { height: 64px; padding: 0 16px; }
   .mobile-menu {
     display: flex; flex-direction: column; position: fixed; inset: 0; z-index: 45;
-    padding: 88px 20px max(24px, env(safe-area-inset-bottom));
+    padding: calc(88px + var(--sat)) 20px max(24px, var(--sab));
     background: radial-gradient(90% 50% at 100% 0%, rgba(139,92,246,.22), transparent 60%), radial-gradient(70% 40% at 0% 100%, rgba(34,211,238,.10), transparent 60%), rgba(7,9,20,.96);
     -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
     opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s; overflow-y: auto;
@@ -303,12 +309,12 @@ select.input option { background: #0f1430; color: var(--text); }
 @media (max-width: 960px) {
   .app { grid-template-columns: 1fr; }
   .sidebar { display: none; }
-  .main { padding: 18px 16px calc(96px + env(safe-area-inset-bottom)); }
-  .app-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 30; padding: 12px 16px; background: rgba(7,9,20,.78); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line); }
+  .main { padding: 18px 16px calc(96px + var(--sab)); }
+  .app-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 30; padding: calc(12px + var(--sat)) 16px 12px; background: rgba(7,9,20,.78); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line); }
   .app-top .logo { font-size: 16px; }
   .app-top .logo-mark { width: 30px; height: 30px; font-size: 13px; border-radius: 9px; }
   .tabbar {
-    display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; z-index: 40; left: 10px; right: 10px; bottom: max(10px, env(safe-area-inset-bottom));
+    display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; z-index: 40; left: 10px; right: 10px; bottom: max(10px, var(--sab));
     padding: 6px; border-radius: 20px; background: rgba(15,20,48,.88); border: 1px solid var(--line-2);
     -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 20px 50px -20px rgba(0,0,0,.8);
   }

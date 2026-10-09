@@ -6,6 +6,7 @@
   <title>Кабинет — JOL-Bilim</title>
   <meta name="theme-color" content="#070914">
   <script src="js/config.js"></script>
+  <script src="js/native.js"></script>
   <script>
     (function () {
       try {
@@ -587,6 +588,14 @@
     window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', route);
+
+  // Кнопка «Назад» в Android-приложении (см. js/native.js)
+  window.JB_onBack = function () {
+    const view = (location.hash.replace('#', '') || 'home').split('/')[0];
+    if (view !== 'home' && VIEWS.includes(view)) { location.replace('#home'); return true; }
+    if (window.JB_minimize) window.JB_minimize();
+    return true;
+  };
 
   document.addEventListener('click', e => {
     const f = e.target.closest('[data-filter]');

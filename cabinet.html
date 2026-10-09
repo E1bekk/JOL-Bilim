@@ -6,6 +6,7 @@
   <title>Вход — JOL-Bilim</title>
   <meta name="theme-color" content="#070914">
   <script src="js/config.js"></script>
+  <script src="js/native.js"></script>
   <script>
     (function () {
       try {
@@ -48,7 +49,7 @@
     @media (max-width: 900px) {
       .auth { grid-template-columns: 1fr; }
       .auth-visual { display: none; }
-      .auth-form-col { flex-direction: column; justify-content: flex-start; padding: 24px 16px 40px; }
+      .auth-form-col { flex-direction: column; justify-content: flex-start; padding: calc(24px + var(--sat)) 16px 40px; }
       .mobile-logo { display: flex; width: 100%; max-width: 420px; justify-content: space-between; align-items: center; margin-bottom: 28px; }
       .auth-card { padding: 26px 20px; }
     }
@@ -112,7 +113,7 @@
           </div>
           <div id="telegram-hint" class="dim" style="font-size:12.5px; margin-top:10px; text-align:center;">Сначала введи имя. Откроется наш бот — нажми в нём «Start» и вернись сюда</div>
           <div id="tg-panel" class="tg-panel">
-            <div class="tg-wait"><span class="dots-loader"><span></span><span></span><span></span></span><span>Ждём подтверждения. Нажми в боте <b>Start</b> и вернись на эту страницу.</span></div>
+            <div class="tg-wait"><span class="dots-loader"><span></span><span></span><span></span></span><span id="tg-wait-text">Ждём подтверждения. Нажми в боте <b>Start</b> и вернись на эту страницу.</span></div>
             <div style="margin-top:12px;">Telegram не открылся? Найди в Telegram <b style="color:var(--text);">@jolbilim_bot</b> и отправь ему этот код:</div>
             <div class="row" style="margin-top:8px;">
               <span id="tg-code" class="tg-code grad-text"></span>
@@ -402,7 +403,8 @@
 
     function prepareLink() {
         const btn = document.getElementById('btn-telegram');
-        if (btn) btn.href = `https://t.me/${BOT_USERNAME}?start=login_${currentCode}`;
+        // из приложения добавляем _app — тогда бот не предложит перейти на сайт
+        if (btn) btn.href = `https://t.me/${BOT_USERNAME}?start=login_${currentCode}${window.JB_IS_APP ? '_app' : ''}`;
     }
 
     // Нажали «Войти через Telegram»: ссылка откроет бота сама, а мы начинаем ждать подтверждения
@@ -428,11 +430,18 @@
         }
     }
 
+    // Кнопка «Назад» в Android-приложении: со страницы входа — на главную
+    window.JB_onBack = function () { location.replace('index.html'); return true; };
+
     document.addEventListener('DOMContentLoaded', () => {
         prepareLink();
         const btn = document.getElementById('btn-telegram');
         // В приложении ссылка открывается в Telegram, а приложение остаётся на этой странице и ждёт подтверждения
         if (btn && window.JB_IS_APP) btn.removeAttribute('target');
+        if (window.JB_IS_APP) {
+            const w = document.getElementById('tg-wait-text');
+            if (w) w.innerHTML = 'Ждём подтверждения. Нажми в боте <b>Start</b> и вернись в приложение — вход произойдёт сам.';
+        }
         if (btn) btn.addEventListener('click', startTelegramLogin);
         document.getElementById('tg-check').addEventListener('click', () => checkLoginNow(true));
         document.getElementById('tg-copy').addEventListener('click', (e) => {

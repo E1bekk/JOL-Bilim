@@ -6,6 +6,7 @@
   <title>Тесты в формате ОРТ — JOL-Bilim</title>
   <meta name="theme-color" content="#070914">
   <script src="js/config.js"></script>
+  <script src="js/native.js"></script>
   <script>
     (function () {
       try {
@@ -19,7 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/app.css">
   <style>
-    .test-top { position: sticky; top: 0; z-index: 30; background: rgba(7,9,20,.78); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line); }
+    .test-top { position: sticky; top: 0; z-index: 30; padding-top: var(--sat); background: rgba(7,9,20,.78); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line); }
     .test-top-in { max-width: 860px; margin: 0 auto; height: 64px; padding: 0 20px; display: flex; align-items: center; gap: 14px; }
     .test-top .logo { font-size: 16px; } .test-top .logo-mark { width: 30px; height: 30px; font-size: 13px; border-radius: 9px; }
     .top-spacer { display: none; }
@@ -57,7 +58,7 @@
     .sec-pills .chip { padding: 8px 12px; font-size: 12.5px; }
     .sec-pills .chip small { font-weight: 800; opacity: .75; }
     .q-card { padding: 28px; }
-    .q-tag { display: inline-flex; margin-bottom: 16px; }
+    .q-tag { display: inline-flex; margin-bottom: 16px; white-space: normal; line-height: 1.45; padding: 4px 10px; }
     .passage { max-height: 42vh; overflow-y: auto; margin-bottom: 20px; padding: 18px; border-radius: 14px; background: rgba(7,9,20,.5); border: 1px solid var(--line); }
     .passage-title { font-weight: 800; margin-bottom: 8px; }
     .passage-text { font-size: 14.5px; line-height: 1.7; white-space: pre-line; color: #dfe3ff; }
@@ -83,7 +84,7 @@
     .ai-answer { display: none; margin-top: 10px; padding: 16px 18px; border-radius: 14px; background: linear-gradient(180deg, rgba(34,211,238,.08), rgba(99,102,241,.06)); border: 1px solid rgba(34,211,238,.25); font-size: 14.5px; line-height: 1.65; white-space: pre-line; }
     .ai-answer .ai-label { display: flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; color: #67e8f9; margin-bottom: 8px; }
     .ai-answer .ai-label svg { width: 15px; height: 15px; }
-    .btn-ai { border-color: rgba(34,211,238,.35); background: rgba(34,211,238,.06); color: #cffafe; }
+    .btn-ai { height: auto; min-height: var(--h); padding-top: 11px; padding-bottom: 11px; white-space: normal; text-align: center; line-height: 1.35; border-color: rgba(34,211,238,.35); background: rgba(34,211,238,.06); color: #cffafe; }
     .btn-ai:not(:disabled):hover { background: rgba(34,211,238,.12); border-color: rgba(34,211,238,.55); transform: translateY(-1px); }
     .q-actions { display: flex; gap: 10px; }
     .q-actions .btn { flex: 1; }
@@ -586,7 +587,9 @@ function aiPayload(q, chosenPos) {
     explanation: q.explanation || ''
   };
 }
+const OFFLINE_TEXT = 'Нет подключения к интернету. Подключись к сети и нажми ещё раз';
 async function askAI(payload, btn, out) {
+  if (navigator.onLine === false) { btn.innerHTML = ic('alert') + OFFLINE_TEXT; return; }
   btn.disabled = true;
   btn.innerHTML = 'ИИ разбирает твою ошибку <span class="dots-loader"><span></span><span></span><span></span></span>';
   try {
@@ -600,7 +603,10 @@ async function askAI(payload, btn, out) {
   } catch (err) {
     console.error('AI explain failed:', err);
     btn.disabled = false;
-    btn.innerHTML = ic('refresh') + 'ИИ сейчас перегружен — попробовать ещё раз';
+    // TypeError — запрос вообще не ушёл: нет интернета или сервер недоступен
+    btn.innerHTML = (navigator.onLine === false || err instanceof TypeError)
+      ? ic('alert') + OFFLINE_TEXT
+      : ic('refresh') + 'ИИ сейчас перегружен — попробовать ещё раз';
   }
 }
 $('ai-btn').addEventListener('click', () => { if (current) askAI(current, $('ai-btn'), $('ai-answer')); });
@@ -736,6 +742,21 @@ $('result-screen').addEventListener('click', e => {
   const i = +b.getAttribute('data-ai');
   askAI(aiPayload(questions[i], answers[i]), b, b.nextElementSibling);
 });
+
+// ===== Кнопка «Назад» в Android-приложении (см. js/native.js) =====
+window.JB_onBack = async function () {
+  const inQuiz = $('quiz-screen').classList.contains('active');
+  if (inQuiz && mode === 'full') {
+    saveFull();
+    const ok = await JB_confirm({ title: 'Выйти из пробного ОРТ?', text: 'Прогресс сохранён — потом продолжишь с этого же вопроса.', ok: 'Выйти', cancel: 'Продолжить экзамен' });
+    if (!ok) return true;
+  } else if (inQuiz && answers.some(a => a != null)) {
+    const ok = await JB_confirm({ title: 'Выйти из теста?', text: 'Ответы этого теста не сохранятся.', ok: 'Выйти', cancel: 'Остаться' });
+    if (!ok) return true;
+  }
+  location.replace('dashboard.html');
+  return true;
+};
 
 // ===== Запуск =====
 function boot() {

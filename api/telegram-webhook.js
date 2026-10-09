@@ -40,7 +40,9 @@ function welcomeText() {
     ].join('\n');
 }
 
-async function confirmLogin(botToken, msg, code) {
+// fromApp = true, если вход начат в Android-приложении (ссылка login_<код>_app).
+// Тогда кнопку на сайт не показываем: приложение само увидит подтверждение и войдёт.
+async function confirmLogin(botToken, msg, code, fromApp) {
     const id = String(msg.from.id);
     const username = msg.from.username || '';
     const firstName = msg.from.first_name || '';
@@ -49,10 +51,17 @@ async function confirmLogin(botToken, msg, code) {
 
     await fsPatch(`telegramLogins/${code}`, { id, username, first_name: firstName, ts, sig });
 
+    if (fromApp) {
+        await tg(botToken, 'sendMessage', {
+            chat_id: msg.chat.id,
+            text: '✅ Вход подтверждён!\n\n📱 Вернись в приложение JOL-Bilim — вход произойдёт автоматически, ничего нажимать не нужно.'
+        });
+        return;
+    }
     await tg(botToken, 'sendMessage', {
         chat_id: msg.chat.id,
-        text: '✅ Вход подтверждён!\nВернись на сайт JOL-Bilim — вход произойдёт автоматически.\nЕсли страница закрылась, нажми кнопку ниже.',
-        reply_markup: { inline_keyboard: [[{ text: 'Войти в JOL-Bilim', url: `${SITE_URL}/cabinet.html?tgcode=${code}` }]] }
+        text: '✅ Вход подтверждён!\nВернись на сайт или в приложение JOL-Bilim — вход произойдёт автоматически.\nЕсли страница сайта закрылась, нажми кнопку ниже.',
+        reply_markup: { inline_keyboard: [[{ text: 'Открыть сайт JOL-Bilim', url: `${SITE_URL}/cabinet.html?tgcode=${code}` }]] }
     });
 }
 
@@ -125,9 +134,9 @@ async function handleMessage(botToken, msg) {
     const chatId = msg.chat.id;
     const text = (msg.text || msg.caption || '').trim();
 
-    // 1) пришли по ссылке с сайта: /start login_<код>
-    const deepLink = text.match(/^\/start\s+login_([A-Za-z0-9]{8,64})$/);
-    if (deepLink) return confirmLogin(botToken, msg, deepLink[1]);
+    // 1) пришли по ссылке с сайта (/start login_<код>) или из приложения (/start login_<код>_app)
+    const deepLink = text.match(/^\/start\s+login_([A-Za-z0-9]{8,64})(_app)?$/);
+    if (deepLink) return confirmLogin(botToken, msg, deepLink[1], !!deepLink[2]);
 
     // 2) код вручную (если Telegram не открылся по кнопке): 8 символов, обязательно с цифрой, напр. K7M2Q9XP
     const manual = text.toUpperCase().replace(/[\s-]/g, '');
