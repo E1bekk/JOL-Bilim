@@ -1,11 +1,13 @@
 // Проверка входа через бота @jolbilim_bot.
 // Сайт присылает сюда данные из Firestore (telegramLogins/<code>), а мы проверяем подпись,
 // которую поставил вебхук бота. Без токена бота такую подпись подделать нельзя.
+const cors = require('./_cors');
 const { signLogin, safeEqual } = require('./_telegram');
 
 const MAX_AGE_SECONDS = 15 * 60; // подтверждение действует 15 минут
 
 module.exports = (req, res) => {
+    if (cors(req, res)) return; // запросы из Android-приложения
     if (req.method !== 'POST') {
         res.setHeader('Allow', ['POST']);
         return res.status(405).json({ ok: false, error: 'Method Not Allowed' });

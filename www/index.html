@@ -1,1 +1,636 @@
-<html><body>placeholder</body></html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>JOL-Bilim — подготовка к ОРТ с ИИ</title>
+  <meta name="description" content="Подготовка к ОРТ: 1100+ заданий по темам ОРТ, пробный экзамен на 150 вопросов, ИИ-разбор каждой ошибки и кабинет для родителей.">
+  <meta name="theme-color" content="#070914">
+  <script src="js/config.js"></script>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/app.css">
+  <style>
+    section { position: relative; }
+    .sec { padding: 110px 0 0; }
+    .sec-head { text-align: center; max-width: 720px; margin: 0 auto 44px; }
+    .sec-head h2 { font-family: var(--display); font-weight: 700; font-size: clamp(28px, 4.2vw, 44px); line-height: 1.12; letter-spacing: -.02em; margin: 18px 0 14px; }
+    .sec-head p { color: var(--muted); font-size: 16.5px; margin: 0; }
+
+    /* hero */
+    .hero { padding: 150px 0 0; text-align: center; }
+    .hero h1 { font-family: var(--display); font-weight: 700; font-size: clamp(36px, 6.4vw, 76px); line-height: 1.04; letter-spacing: -.035em; margin: 26px auto 22px; max-width: 980px; }
+    .hero-sub { font-size: clamp(16px, 1.6vw, 19px); color: var(--muted); max-width: 640px; margin: 0 auto 34px; }
+    .hero-sub b { color: var(--text); font-weight: 700; }
+    .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .hero-note { margin-top: 18px; font-size: 13px; color: var(--dim); display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .hero-note svg { width: 15px; height: 15px; color: var(--green); }
+    .hero-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; max-width: 960px; margin: 64px auto 0; }
+    .hero-stats .card { padding: 20px 18px; text-align: left; }
+    .stat-num { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 3vw, 34px); line-height: 1; letter-spacing: -.02em; }
+    .stat-num.c1 { color: #fff; } .stat-num.c2 { color: #a5b4fc; } .stat-num.c3 { color: var(--green); } .stat-num.c4 { color: var(--amber); }
+    .stat-label { margin-top: 8px; font-size: 13px; color: var(--muted); line-height: 1.35; }
+
+    /* превью кабинета */
+    .preview-wrap { perspective: 1600px; margin: 70px auto 0; max-width: 1060px; }
+    .preview { border-radius: 22px; padding: 10px; background: linear-gradient(180deg, rgba(129,140,248,.35), rgba(129,140,248,.05)); box-shadow: 0 60px 140px -50px rgba(99,102,241,.75); transform: rotateX(14deg) scale(.97); transform-origin: top center; transition: transform .9s var(--ease); }
+    .preview:hover, .preview.flat { transform: rotateX(0) scale(1); }
+    .pv { border-radius: 14px; overflow: hidden; background: #0a0e20; border: 1px solid var(--line); display: grid; grid-template-columns: 190px 1fr; min-height: 380px; text-align: left; }
+    .pv-side { border-right: 1px solid var(--line); padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; background: rgba(15,20,48,.6); }
+    .pv-side .logo { font-size: 13px; padding: 0 6px 14px; } .pv-side .logo-mark { width: 26px; height: 26px; font-size: 11px; border-radius: 8px; }
+    .pv-link { display: flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 700; color: var(--dim); padding: 8px 9px; border-radius: 9px; }
+    .pv-link svg { width: 15px; height: 15px; }
+    .pv-link.on { color: #fff; background: rgba(99,102,241,.25); }
+    .pv-main { padding: 18px; display: grid; gap: 12px; align-content: start; }
+    .pv-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .pv-tile { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: rgba(21,27,61,.6); }
+    .pv-tile b { display: block; font-family: var(--display); font-size: 20px; margin-top: 8px; }
+    .pv-tile small { font-size: 10.5px; color: var(--dim); font-weight: 700; }
+    .pv-tile .ib { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; }
+    .pv-tile .ib svg { width: 14px; height: 14px; }
+    .pv-row { display: grid; grid-template-columns: 1.6fr 1fr; gap: 12px; }
+    .pv-card { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: rgba(21,27,61,.5); }
+    .pv-card h4 { margin: 0 0 10px; font-size: 12px; display: flex; align-items: center; gap: 7px; }
+    .pv-card h4 svg { width: 14px; height: 14px; color: var(--amber); }
+    .pv-weak { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; background: rgba(255,255,255,.02); border: 1px solid var(--line); font-size: 11.5px; font-weight: 700; margin-bottom: 7px; }
+    .pv-weak .badge { height: 18px; font-size: 9px; }
+    .pv-weak .pv-btn { margin-left: auto; font-size: 10px; padding: 5px 9px; border-radius: 7px; background: var(--grad); color: #fff; }
+    .pv-chart { display: flex; align-items: flex-end; gap: 6px; height: 110px; padding-top: 6px; }
+    .pv-chart i { flex: 1; border-radius: 5px 5px 2px 2px; background: linear-gradient(180deg, #8b5cf6, rgba(99,102,241,.35)); transform-origin: bottom; animation: grow 1.4s var(--ease) both; }
+    @keyframes grow { from { transform: scaleY(0); } }
+
+    /* возможности */
+    .bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .feature { padding: 26px; display: flex; flex-direction: column; gap: 14px; }
+    .feature h3 { margin: 4px 0 0; font-size: 19px; font-weight: 800; letter-spacing: -.01em; }
+    .feature p { margin: 0; color: var(--muted); font-size: 14.5px; }
+    .feature.wide { grid-column: span 2; }
+    .feature.full { grid-column: 1 / -1; }
+    .ai-demo { margin-top: auto; display: grid; gap: 10px; }
+    .bubble { max-width: 92%; padding: 12px 14px; border-radius: 14px; font-size: 13.5px; line-height: 1.5; }
+    .bubble.me { justify-self: end; background: rgba(251,113,133,.12); border: 1px solid rgba(251,113,133,.25); color: #fecdd3; border-bottom-right-radius: 4px; }
+    .bubble.ai { background: rgba(99,102,241,.14); border: 1px solid rgba(129,140,248,.25); border-bottom-left-radius: 4px; }
+    .bubble.ai b { color: #c7d2fe; }
+    .mini-bars { display: grid; gap: 10px; margin-top: auto; }
+    .mini-bars div { display: grid; grid-template-columns: 110px 1fr 38px; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+    .mini-bars span:last-child { text-align: right; color: var(--text); }
+    .exam-parts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: auto; }
+    .exam-parts div { padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.03); border: 1px solid var(--line); font-size: 12.5px; font-weight: 700; }
+    .exam-parts div b { display: block; font-family: var(--display); font-size: 17px; color: #a5b4fc; }
+    .streak-row { display: flex; align-items: flex-end; gap: 6px; height: 70px; margin-top: auto; }
+    .streak-row i { flex: 1; border-radius: 6px; background: rgba(99,102,241,.18); }
+    .streak-row i.on { background: linear-gradient(180deg, #a78bfa, #6366f1); box-shadow: 0 6px 20px -8px rgba(139,92,246,.8); }
+
+    /* как работает */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; position: relative; }
+    .step { padding: 28px 24px; }
+    .step-num { font-family: var(--display); font-size: 13px; font-weight: 700; color: #a5b4fc; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 12px; background: rgba(99,102,241,.15); border: 1px solid rgba(129,140,248,.3); margin-bottom: 18px; }
+    .step h3 { margin: 0 0 8px; font-size: 18px; font-weight: 800; }
+    .step p { margin: 0; color: var(--muted); font-size: 14.5px; }
+
+    .subjects { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 900px; margin: 0 auto; }
+    .subjects .chip { cursor: default; padding: 11px 16px; font-size: 13.5px; color: var(--text); }
+    .subjects .chip svg { width: 16px; height: 16px; color: #a5b4fc; }
+    .subjects .chip.main { border-color: rgba(129,140,248,.35); background: rgba(99,102,241,.12); }
+
+    /* тарифы */
+    .prices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
+    .price { padding: 28px; display: flex; flex-direction: column; }
+    .price.featured { border-color: rgba(167,139,250,.55); background: linear-gradient(180deg, rgba(99,102,241,.22), rgba(15,20,48,.85) 60%); box-shadow: 0 30px 80px -40px rgba(139,92,246,.8); }
+    .price .badge { position: absolute; top: 20px; right: 20px; }
+    .price-name { font-size: 14px; font-weight: 800; color: var(--muted); }
+    .price-amount { font-family: var(--display); font-weight: 700; font-size: 34px; letter-spacing: -.02em; margin: 10px 0 2px; }
+    .price-amount small { font-family: var(--font); font-size: 14px; color: var(--muted); font-weight: 600; letter-spacing: 0; }
+    .price-desc { font-size: 13.5px; color: var(--dim); margin-bottom: 20px; }
+    .price ul { list-style: none; padding: 0; margin: 0 0 26px; display: grid; gap: 11px; font-size: 14px; }
+    .price li { display: flex; gap: 10px; align-items: flex-start; }
+    .price li svg { width: 18px; height: 18px; color: var(--green); flex-shrink: 0; margin-top: 1px; }
+    .price .btn { margin-top: auto; }
+
+    /* родителям */
+    .parents { display: grid; grid-template-columns: 1.1fr 1fr; gap: 30px; align-items: center; padding: 44px; overflow: hidden; }
+    .parents h2 { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 3.4vw, 38px); line-height: 1.12; letter-spacing: -.02em; margin: 16px 0 14px; }
+    .parents p { color: #dfe3ff; opacity: .85; margin: 0 0 26px; font-size: 15.5px; max-width: 46ch; }
+    .parent-mock { background: rgba(7,9,20,.55); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 20px; }
+    .parent-mock .row { justify-content: space-between; }
+    .pm-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+    .pm-tiles div { border-radius: 12px; padding: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--line); }
+    .pm-tiles b { display: block; font-family: var(--display); font-size: 26px; }
+    .pm-tiles small { font-size: 11px; color: var(--muted); font-weight: 700; }
+    .pm-line { display: flex; justify-content: space-between; font-size: 13px; padding: 9px 0; border-top: 1px solid var(--line); }
+    .pm-line span:last-child { font-weight: 800; color: var(--green); }
+
+    /* FAQ */
+    .faq { max-width: 780px; margin: 0 auto; display: grid; gap: 10px; }
+    .faq details { padding: 0; }
+    .faq summary { list-style: none; cursor: pointer; padding: 20px 22px; font-weight: 800; font-size: 15.5px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after { content: '+'; font-size: 22px; font-weight: 500; color: #a5b4fc; transition: transform .25s var(--ease); }
+    .faq details[open] summary::after { transform: rotate(45deg); }
+    .faq details p { margin: 0; padding: 0 22px 20px; color: var(--muted); font-size: 14.5px; }
+
+    .final { text-align: center; padding: 64px 28px; overflow: hidden; }
+    .final h2 { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 42px); line-height: 1.12; letter-spacing: -.02em; margin: 0 0 14px; }
+    .final p { color: var(--muted); margin: 0 auto 28px; max-width: 48ch; }
+
+    footer { margin-top: 110px; border-top: 1px solid var(--line); padding: 32px 0 40px; }
+    .foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 13.5px; color: var(--dim); }
+    .foot-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .foot-links a { color: var(--muted); text-decoration: none; font-weight: 600; }
+    .foot-links a:hover { color: #fff; }
+
+    @media (max-width: 960px) {
+      .bento { grid-template-columns: 1fr 1fr; }
+      .feature.wide { grid-column: 1 / -1; }
+      .prices, .steps { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; }
+      .parents { grid-template-columns: 1fr; padding: 30px; }
+      .pv { grid-template-columns: 1fr; }
+      .pv-side { display: none; }
+    }
+    @media (max-width: 640px) {
+      .container { padding: 0 16px; }
+      .hero { padding-top: 112px; }
+      .hero-cta .btn { width: 100%; }
+      .hero-stats { grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 44px; }
+      .sec { padding-top: 84px; }
+      .sec-head p { font-size: 15px; }
+      .bento { grid-template-columns: 1fr; }
+      .feature { padding: 22px; }
+      .pv-stats { grid-template-columns: 1fr 1fr; }
+      .pv-row { grid-template-columns: 1fr; }
+      .pv-chart { height: 70px; }
+      .preview { transform: none; padding: 6px; }
+      .mini-bars div { grid-template-columns: 90px 1fr 34px; }
+      .parents { padding: 24px; }
+      .final { padding: 44px 20px; }
+      .foot { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+  <script src="js/ui.js" defer></script>
+  <script src="js/reveal.js" defer></script>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-in">
+    <a href="index.html" class="logo"><span class="logo-mark">J</span>JOL-Bilim<span class="logo-tag">ОРТ · AI</span></a>
+    <div class="topnav-links">
+      <a class="nl" href="#features">Возможности</a>
+      <a class="nl" href="#how">Как это работает</a>
+      <a class="nl" href="#pricing">Тарифы</a>
+      <a class="nl" href="#parents">Родителям</a>
+      <a href="cabinet.html" class="btn btn-primary btn-sm js-cabinet-link" style="margin-left:10px;"><span class="js-cabinet-text">Войти</span><i data-ic="arrow" class="btn-arrow"></i></a>
+    </div>
+    <button class="nav-toggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <a href="#features" class="mm-link"><span class="icon-box"><i data-ic="sparkles"></i></span>Возможности<span class="mm-arrow">→</span></a>
+  <a href="#how" class="mm-link"><span class="icon-box cyan"><i data-ic="zap"></i></span>Как это работает<span class="mm-arrow">→</span></a>
+  <a href="#pricing" class="mm-link"><span class="icon-box amber"><i data-ic="gem"></i></span>Тарифы<span class="mm-arrow">→</span></a>
+  <a href="#parents" class="mm-link"><span class="icon-box green"><i data-ic="users"></i></span>Родителям<span class="mm-arrow">→</span></a>
+  <div class="mm-actions">
+    <a href="cabinet.html" class="btn btn-primary btn-lg btn-block js-cabinet-link"><span class="js-cabinet-text">Начать бесплатно</span><i data-ic="arrow"></i></a>
+    <a href="parent.html" class="btn btn-ghost btn-lg btn-block">Кабинет родителя</a>
+  </div>
+  <div class="mm-foot">подготовка к ОРТ · Кыргызстан</div>
+</div>
+
+<main class="page">
+
+  <!-- ===== ГЛАВНЫЙ ЭКРАН ===== -->
+  <section class="hero">
+    <div class="container">
+      <div class="eyebrow" data-rv><i data-ic="sparkles"></i>ИИ-платформа подготовки к ОРТ</div>
+      <h1>Готовься к ОРТ умнее, <span class="grad-text">а не дольше</span></h1>
+      <p class="hero-sub" data-rv>Задания по всем темам ОРТ, пробный экзамен на 150 вопросов и <b>ИИ-репетитор, который разбирает именно твои ошибки</b> — по шагам и простыми словами.</p>
+      <div class="hero-cta" data-rv>
+        <a href="cabinet.html" class="btn btn-primary btn-lg js-cabinet-link"><i data-ic="zap"></i><span class="js-start-text">Начать бесплатно</span><i data-ic="arrow" class="btn-arrow"></i></a>
+        <a href="#how" class="btn btn-ghost btn-lg">Как это работает</a>
+      </div>
+      <div class="hero-note" data-rv><i data-ic="checkCircle"></i>Бесплатно · вход через Telegram за 30 секунд</div>
+
+      <div class="hero-stats" data-rv-group>
+        <div class="card spot"><div class="stat-num c1">1100+</div><div class="stat-label">заданий по темам ОРТ</div></div>
+        <div class="card spot"><div class="stat-num c2">11</div><div class="stat-label">разделов и предметов</div></div>
+        <div class="card spot"><div class="stat-num c3">150</div><div class="stat-label">вопросов в пробном ОРТ</div></div>
+        <div class="card spot"><div class="stat-num c4">ИИ 24/7</div><div class="stat-label">разбор ошибок и бот-репетитор</div></div>
+      </div>
+
+      <div class="preview-wrap" data-rv>
+        <div class="preview" id="preview">
+          <div class="pv">
+            <div class="pv-side">
+              <div class="logo"><span class="logo-mark">J</span>JOL-Bilim</div>
+              <div class="pv-link on"><i data-ic="grid"></i>Главная</div>
+              <div class="pv-link"><i data-ic="target"></i>Тренировка</div>
+              <div class="pv-link"><i data-ic="cap"></i>Пробный ОРТ</div>
+              <div class="pv-link"><i data-ic="book"></i>Теория</div>
+              <div class="pv-link"><i data-ic="trend"></i>Статистика</div>
+              <div class="pv-link"><i data-ic="user"></i>Профиль</div>
+            </div>
+            <div class="pv-main">
+              <div class="pv-stats">
+                <div class="pv-tile"><span class="ib icon-box"><i data-ic="target"></i></span><b>214</b><small>Решено заданий</small></div>
+                <div class="pv-tile"><span class="ib icon-box green"><i data-ic="trend"></i></span><b>78%</b><small>Точность</small></div>
+                <div class="pv-tile"><span class="ib icon-box amber"><i data-ic="flame"></i></span><b>6 дн.</b><small>Серия</small></div>
+                <div class="pv-tile"><span class="ib icon-box pink"><i data-ic="cap"></i></span><b>196</b><small>Прогноз ОРТ</small></div>
+              </div>
+              <div class="pv-row">
+                <div class="pv-card">
+                  <h4><i data-ic="alert"></i>Над чем поработать</h4>
+                  <div class="pv-weak">Проценты и пропорции <span class="badge red">42%</span><span class="pv-btn">Тренировать</span></div>
+                  <div class="pv-weak">Пунктуация <span class="badge amber">55%</span><span class="pv-btn">Тренировать</span></div>
+                  <div class="pv-weak">Аналогии: род и вид <span class="badge amber">60%</span><span class="pv-btn">Тренировать</span></div>
+                </div>
+                <div class="pv-card">
+                  <h4><i data-ic="bars"></i>Активность</h4>
+                  <div class="pv-chart">
+                    <i style="height:35%;animation-delay:.05s"></i><i style="height:60%;animation-delay:.1s"></i><i style="height:45%;animation-delay:.15s"></i><i style="height:80%;animation-delay:.2s"></i><i style="height:55%;animation-delay:.25s"></i><i style="height:95%;animation-delay:.3s"></i><i style="height:70%;animation-delay:.35s"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ВОЗМОЖНОСТИ ===== -->
+  <section class="sec" id="features">
+    <div class="container">
+      <div class="sec-head">
+        <div class="eyebrow" data-rv>Возможности</div>
+        <h2>Всё для ОРТ — <span class="grad-text">в одном месте</span></h2>
+        <p data-rv>Тренируйся, смотри, где теряешь баллы, и закрывай пробелы — в любое время и с телефона.</p>
+      </div>
+      <div class="bento" data-rv-group>
+        <div class="card spot feature wide">
+          <span class="icon-box"><i data-ic="bot"></i></span>
+          <h3>ИИ разбирает каждую ошибку</h3>
+          <p>Не общий урок для всех, а разбор именно твоего ответа: где ошибся в рассуждении и как прийти к правильному.</p>
+          <div class="ai-demo">
+            <div class="bubble me">Я выбрал «Б»: √50 меньше 7</div>
+            <div class="bubble ai"><b>ИИ-репетитор:</b> Сравни квадраты: (√50)² = 50, а 7² = 49. 50 &gt; 49, значит √50 больше 7. Совет: корень с числом всегда сравнивай через квадраты.</div>
+          </div>
+        </div>
+        <div class="card spot feature">
+          <span class="icon-box pink"><i data-ic="cap"></i></span>
+          <h3>Пробный ОРТ на 150 вопросов</h3>
+          <p>Как на настоящем экзамене: четыре раздела, таймер и итоговый балл по шкале ОРТ.</p>
+          <div class="exam-parts"><div><b>60</b>Математика</div><div><b>30</b>Аналогии</div><div><b>30</b>Чтение</div><div><b>30</b>Грамматика</div></div>
+        </div>
+        <div class="card spot feature">
+          <span class="icon-box amber"><i data-ic="alert"></i></span>
+          <h3>Слабые темы — сразу видно</h3>
+          <p>Сайт считает точность по каждой теме и показывает, где ты теряешь больше всего баллов.</p>
+          <div class="mini-bars">
+            <div><span>Проценты</span><span class="bar red"><i style="width:42%"></i></span><span>42%</span></div>
+            <div><span>Аналогии</span><span class="bar amber"><i style="width:63%"></i></span><span>63%</span></div>
+            <div><span>Чтение</span><span class="bar green"><i style="width:88%"></i></span><span>88%</span></div>
+          </div>
+        </div>
+        <div class="card spot feature">
+          <span class="icon-box cyan"><i data-ic="book"></i></span>
+          <h3>Теория за 5 минут</h3>
+          <p>Короткие уроки по темам ОРТ: правило, разобранный пример и ловушка, на которой ошибаются чаще всего.</p>
+        </div>
+        <div class="card spot feature">
+          <span class="icon-box"><i data-ic="send"></i></span>
+          <h3>Репетитор в Telegram</h3>
+          <p>Задай вопрос или пришли фото задачи боту @jolbilim_bot — объяснит решение по шагам в любое время.</p>
+        </div>
+        <div class="card spot feature full">
+          <div class="row" style="align-items:flex-start; gap:18px; flex-wrap:wrap;">
+            <span class="icon-box green"><i data-ic="flame"></i></span>
+            <div style="flex:1; min-width:220px;">
+              <h3 style="margin-top:0;">Прогресс, который мотивирует</h3>
+              <p>Серия дней без пропусков, график активности и прогноз балла ОРТ, который растёт вместе с тобой.</p>
+            </div>
+          </div>
+          <div class="streak-row" aria-hidden="true">
+            <i class="on" style="height:40%"></i><i class="on" style="height:55%"></i><i style="height:20%"></i><i class="on" style="height:65%"></i><i class="on" style="height:50%"></i><i class="on" style="height:80%"></i><i class="on" style="height:70%"></i><i class="on" style="height:90%"></i><i style="height:25%"></i><i class="on" style="height:60%"></i><i class="on" style="height:75%"></i><i class="on" style="height:85%"></i><i class="on" style="height:95%"></i><i class="on" style="height:100%"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== КАК ЭТО РАБОТАЕТ ===== -->
+  <section class="sec" id="how">
+    <div class="container">
+      <div class="sec-head">
+        <div class="eyebrow" data-rv>Как это работает</div>
+        <h2>Три шага до <span class="grad-text">высокого балла</span></h2>
+        <p data-rv>Сначала бесплатная диагностика. Платишь, только когда сам увидел результат.</p>
+      </div>
+      <div class="steps" data-rv-group>
+        <div class="card spot step"><div class="step-num">01</div><h3>Войди через Telegram</h3><p>Без паролей и почты: имя, класс и одна кнопка. Занимает полминуты.</p></div>
+        <div class="card spot step"><div class="step-num">02</div><h3>Пройди диагностику</h3><p>По 10 заданий в каждом разделе ОРТ — бесплатно. Сразу увидишь прогноз балла и слабые темы.</p></div>
+        <div class="card spot step"><div class="step-num">03</div><h3>Закрывай пробелы</h3><p>Теория по теме, тренировка именно слабых мест и ИИ-разбор каждой ошибки. Балл растёт — это видно в статистике.</p></div>
+      </div>
+
+      <div class="subjects" data-rv-group style="margin-top:44px;">
+        <span class="chip main"><i data-ic="calc"></i>Математика</span>
+        <span class="chip main"><i data-ic="link"></i>Аналогии и дополнение предложений</span>
+        <span class="chip main"><i data-ic="file"></i>Чтение и понимание</span>
+        <span class="chip main"><i data-ic="pen"></i>Практическая грамматика</span>
+        <span class="chip"><i data-ic="atom"></i>Физика</span>
+        <span class="chip"><i data-ic="flask"></i>Химия</span>
+        <span class="chip"><i data-ic="leaf"></i>Биология</span>
+        <span class="chip"><i data-ic="landmark"></i>История</span>
+        <span class="chip"><i data-ic="globe"></i>Английский язык</span>
+        <span class="chip"><i data-ic="chat"></i>Кыргыз тили</span>
+        <span class="chip"><i data-ic="bookmark"></i>Русский язык</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ТАРИФЫ ===== -->
+  <section class="sec" id="pricing">
+    <div class="container">
+      <div class="sec-head">
+        <div class="eyebrow" data-rv>Тарифы</div>
+        <h2>Начни бесплатно, <span class="grad-text">расти без лимитов</span></h2>
+        <p data-rv>Занимайся каждый день — сколько нужно и когда удобно.</p>
+      </div>
+      <div class="prices" data-rv-group>
+        <div class="card spot price">
+          <div class="price-name">Старт</div>
+          <div class="price-amount">0 <small>сом</small></div>
+          <div class="price-desc">Чтобы попробовать и узнать свой уровень</div>
+          <ul>
+            <li><i data-ic="check"></i>По одному тесту в каждом разделе ОРТ</li>
+            <li><i data-ic="check"></i>Пробный ОРТ — один раз</li>
+            <li><i data-ic="check"></i>ИИ-разбор ошибок и прогноз балла</li>
+            <li><i data-ic="check"></i>Теория и кабинет родителя</li>
+          </ul>
+          <a href="cabinet.html" class="btn btn-ghost btn-block js-cabinet-link">Начать бесплатно</a>
+        </div>
+        <div class="card spot price featured">
+          <span class="badge">выбирают чаще</span>
+          <div class="price-name" style="color:#c7d2fe;">Полный доступ</div>
+          <div class="price-amount">990 <small>сом / мес</small></div>
+          <div class="price-desc">Для регулярной подготовки</div>
+          <ul>
+            <li><i data-ic="check"></i>Безлимит тестов по всем разделам ОРТ</li>
+            <li><i data-ic="check"></i>Пробный ОРТ — сколько угодно раз</li>
+            <li><i data-ic="check"></i>Тренировка слабых тем без ограничений</li>
+            <li><i data-ic="check"></i>ИИ-разбор каждой ошибки</li>
+          </ul>
+          <button class="btn btn-primary btn-block" onclick="openTariffModal('full')">Выбрать<i data-ic="arrow" class="btn-arrow"></i></button>
+        </div>
+        <div class="card spot price">
+          <div class="price-name">Максимум</div>
+          <div class="price-amount">1990 <small>сом / мес</small></div>
+          <div class="price-desc">Когда нужен результат к экзамену</div>
+          <ul>
+            <li><i data-ic="check"></i>Всё из «Полного доступа»</li>
+            <li><i data-ic="check"></i>Персональный план подготовки по слабым темам</li>
+            <li><i data-ic="check"></i>Приоритетная поддержка в Telegram</li>
+          </ul>
+          <button class="btn btn-ghost btn-block" onclick="openTariffModal('max')">Выбрать<i data-ic="arrow" class="btn-arrow"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== РОДИТЕЛЯМ ===== -->
+  <section class="sec" id="parents">
+    <div class="container">
+      <div class="card card-accent parents" data-rv>
+        <div>
+          <div class="eyebrow" style="background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.2); color:#fff;">Родителям</div>
+          <h2>Прогресс ребёнка — без звонков и вопросов</h2>
+          <p>Ребёнок пришлёт вам код из своего кабинета. Введите его — и увидите баллы, пройденные тесты и историю подготовки в реальном времени.</p>
+          <a href="parent.html" class="btn btn-white btn-lg">Кабинет родителя<i data-ic="arrow" class="btn-arrow"></i></a>
+        </div>
+        <div class="parent-mock" aria-hidden="true">
+          <div class="row"><div class="row" style="gap:10px;"><span class="avatar">А</span><div><b style="font-size:14px;">Айбек</b><div class="dim" style="font-size:12px;">11 класс</div></div></div><span class="badge green">в сети</span></div>
+          <div class="pm-tiles"><div><small>Прогноз ОРТ</small><b>196</b></div><div><small>Пройдено тестов</small><b>23</b></div></div>
+          <div class="pm-line"><span>Пробный ОРТ</span><span>121 / 150</span></div>
+          <div class="pm-line"><span>Математика</span><span>9 / 10</span></div>
+          <div class="pm-line"><span>Чтение и понимание</span><span>8 / 10</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ВОПРОСЫ ===== -->
+  <section class="sec" id="faq">
+    <div class="container">
+      <div class="sec-head">
+        <div class="eyebrow" data-rv>Вопросы</div>
+        <h2>Частые <span class="grad-text">вопросы</span></h2>
+      </div>
+      <div class="faq" data-rv-group>
+        <details class="card"><summary>Задания такие же, как на ОРТ?</summary><p>Задания составлены командой JOL-Bilim по структуре и темам ОРТ: те же разделы, те же типы заданий и уровень сложности. Это тренировка формата, а не копии экзаменационных вариантов.</p></details>
+        <details class="card"><summary>Как работает ИИ-разбор?</summary><p>Ошибся — нажми «Объясни подробнее». ИИ-репетитор увидит вопрос, твой ответ и правильный, объяснит, где ошибка в рассуждении, и даст совет, как не ошибаться на экзамене.</p></details>
+        <details class="card"><summary>Что можно бесплатно?</summary><p>Диагностику по каждому разделу ОРТ, один пробный экзамен на 150 вопросов, ИИ-разбор ошибок, всю теорию и кабинет родителя. Безлимит — в тарифе «Полный доступ».</p></details>
+        <details class="card"><summary>Как оплатить тариф?</summary><p>Переводом через MBank по реквизитам на сайте, с вашим кодом в комментарии. После проверки тариф включится, а бот @jolbilim_bot напишет об этом в Telegram.</p></details>
+        <details class="card"><summary>Можно заниматься с телефона?</summary><p>Да. Сайт сделан в первую очередь для телефона: тесты, теория, статистика и бот-репетитор в Telegram.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="container">
+      <div class="card card-accent final" data-rv>
+        <h2>Первый тест — бесплатно</h2>
+        <p>10 заданий, честный результат и разбор ошибок от ИИ. Узнай свой уровень сегодня.</p>
+        <a href="cabinet.html" class="btn btn-white btn-lg js-cabinet-link"><span class="js-start-text">Начать бесплатно</span><i data-ic="arrow" class="btn-arrow"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container foot">
+      <a href="index.html" class="logo"><span class="logo-mark">J</span>JOL-Bilim</a>
+      <div class="foot-links">
+        <a href="https://t.me/jolbilim_bot" target="_blank" rel="noopener">Бот в Telegram</a>
+        <a href="parent.html">Кабинет родителя</a>
+        <a href="#pricing">Тарифы</a>
+      </div>
+      <div>© 2026 JOL-Bilim · подготовка к ОРТ с ИИ</div>
+    </div>
+  </footer>
+</main>
+
+<!-- ===== ОПЛАТА ТАРИФА ===== -->
+<div class="modal" id="tariff-modal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeTariffModal()" aria-label="Закрыть">×</button>
+    <div class="eyebrow" id="tariff-modal-label" style="margin-bottom:16px;"></div>
+
+    <!-- 1. Не вошёл в кабинет -->
+    <div id="tariff-login-view" style="display:none;">
+      <h3>Сначала войди в кабинет</h3>
+      <p class="muted" style="font-size:14px; margin:0 0 22px;">Тариф привязывается к твоему аккаунту. Вход — через Telegram, это займёт полминуты.</p>
+      <a href="cabinet.html" class="btn btn-tg btn-block"><i data-ic="send"></i>Войти через Telegram</a>
+    </div>
+
+    <!-- 2. Реквизиты и оплата -->
+    <div id="tariff-pay-view" style="display:none;">
+      <h3><span id="tariff-price"></span> сом / месяц</h3>
+      <p class="muted" style="font-size:14px; margin:0 0 18px;">Переведи сумму по реквизитам ниже, потом нажми «Я оплатил».</p>
+      <div class="kv" style="margin-bottom:14px;">
+        <div><span>Способ</span><b id="pay-method"></b></div>
+        <div><span>Номер</span><span class="row" style="gap:8px;"><b id="pay-number" class="mono"></b><button type="button" class="copy-btn" onclick="copyPayValue('pay-number', this)">копировать</button></span></div>
+        <div><span>Получатель</span><b id="pay-receiver"></b></div>
+      </div>
+      <div style="border:1px solid rgba(167,139,250,.45); background:rgba(99,102,241,.1); border-radius:14px; padding:14px 16px; margin-bottom:18px; font-size:13.5px; line-height:1.5;">
+        В <b>комментарии к переводу</b> обязательно укажи свой код:
+        <div class="row" style="margin-top:8px;">
+          <span id="pay-code" class="mono grad-text" style="font-size:22px; font-weight:700; letter-spacing:.1em;"></span>
+          <button type="button" class="copy-btn" onclick="copyPayValue('pay-code', this)">копировать</button>
+        </div>
+        <div class="muted" style="margin-top:6px;">По нему мы найдём твой перевод.</div>
+      </div>
+      <div id="tariff-error" style="color:var(--red); font-size:13px; font-weight:600; margin-bottom:12px; display:none;"></div>
+      <button id="btn-paid" class="btn btn-primary btn-block" onclick="submitPayment()">Я оплатил</button>
+    </div>
+
+    <!-- 3. Заявка отправлена / уже на проверке -->
+    <div id="tariff-success-view" style="display:none; text-align:center;">
+      <span class="icon-box green" style="width:56px; height:56px; margin:0 auto 16px; border-radius:16px;"><i data-ic="check"></i></span>
+      <h3 id="tariff-success-title">Заявка отправлена</h3>
+      <p class="muted" style="font-size:14px; margin:0 0 20px;">Как только проверим перевод, тариф включится, а бот @jolbilim_bot напишет тебе в Telegram. Обычно это занимает до нескольких часов.</p>
+      <a href="dashboard.html" class="btn btn-ghost btn-block">В кабинет<i data-ic="arrow" class="btn-arrow"></i></a>
+    </div>
+  </div>
+</div>
+
+<script src="js/vendor/firebase-app-compat.js"></script>
+<script src="js/vendor/firebase-firestore-compat.js"></script>
+<script src="js/fb.js"></script>
+<script>
+// Вошёл в кабинет? Тогда кнопки ведут сразу в кабинет
+(function () {
+  let u = null;
+  try { u = JSON.parse(localStorage.getItem('jolBilimUser') || 'null'); } catch (e) {}
+  if (!u || !u.name) return;
+  document.querySelectorAll('.js-cabinet-link').forEach(a => a.href = 'dashboard.html');
+  document.querySelectorAll('.js-cabinet-text').forEach(s => s.textContent = u.name.split(' ')[0]);
+  document.querySelectorAll('.js-start-text').forEach(s => s.textContent = 'Продолжить подготовку');
+})();
+
+// Превью кабинета «выпрямляется», когда доезжает до центра экрана
+(function () {
+  const pv = document.getElementById('preview');
+  if (!pv || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(es => es.forEach(e => pv.classList.toggle('flat', e.isIntersecting)), { rootMargin: '-35% 0px -35% 0px' }).observe(pv);
+})();
+
+// ===== Реквизиты для оплаты — поменяй здесь, если они изменятся =====
+const PAYMENT_INFO = {
+  method: 'MBank',
+  number: '+996 220 557 145',
+  receiver: 'Элбек'
+};
+const TARIFFS = {
+  full: { title: 'Полный доступ', price: 990 },
+  max:  { title: 'Максимум', price: 1990 }
+};
+
+let selectedTariff = null;
+let tariffUser = null;
+
+function showTariffView(id) {
+  ['tariff-login-view', 'tariff-pay-view', 'tariff-success-view'].forEach(v => {
+    document.getElementById(v).style.display = (v === id) ? 'block' : 'none';
+  });
+}
+
+function copyPayValue(elId, btn) {
+  const text = document.getElementById(elId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const old = btn.textContent; btn.textContent = 'скопировано ✓';
+    setTimeout(() => { btn.textContent = old; }, 1200);
+  }).catch(() => {});
+}
+
+async function openTariffModal(planKey) {
+  selectedTariff = planKey;
+  const plan = TARIFFS[planKey];
+  document.getElementById('tariff-modal-label').textContent = plan.title;
+  document.getElementById('tariff-error').style.display = 'none';
+  document.getElementById('tariff-modal').classList.add('open');
+
+  try { tariffUser = JSON.parse(localStorage.getItem('jolBilimUser') || 'null'); } catch (e) { tariffUser = null; }
+  if (!tariffUser || !tariffUser.familyCode) { showTariffView('tariff-login-view'); return; }
+
+  // Уже есть заявка на проверке?
+  try {
+    const doc = await db.collection('families').doc(tariffUser.familyCode).get();
+    const d = doc.exists ? doc.data() : {};
+    if (d.planPending) {
+      document.getElementById('tariff-success-title').textContent = 'Заявка уже на проверке';
+      showTariffView('tariff-success-view');
+      return;
+    }
+  } catch (e) { console.error(e); }
+
+  document.getElementById('tariff-price').textContent = plan.price;
+  document.getElementById('pay-method').textContent = PAYMENT_INFO.method;
+  document.getElementById('pay-number').textContent = PAYMENT_INFO.number;
+  document.getElementById('pay-receiver').textContent = PAYMENT_INFO.receiver;
+  document.getElementById('pay-code').textContent = tariffUser.familyCode;
+  showTariffView('tariff-pay-view');
+}
+
+function closeTariffModal() {
+  document.getElementById('tariff-modal').classList.remove('open');
+}
+document.getElementById('tariff-modal').addEventListener('click', e => { if (e.target.id === 'tariff-modal') closeTariffModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTariffModal(); });
+
+async function submitPayment() {
+  const btn = document.getElementById('btn-paid');
+  const errorEl = document.getElementById('tariff-error');
+  errorEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Отправляем...';
+
+  try {
+    const u = tariffUser;
+    const ref = await db.collection('paymentRequests').add({
+      familyCode: u.familyCode,
+      name: u.name || '',
+      grade: u.grade || '',
+      telegramId: u.telegramId ? String(u.telegramId) : '',
+      telegramUsername: u.telegramUsername || '',
+      plan: selectedTariff,
+      amount: TARIFFS[selectedTariff].price,
+      status: 'pending',
+      notified: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('families').doc(u.familyCode).update({ planPending: selectedTariff });
+
+    const resp = await fetch(JB_API('/api/payment-request'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requestId: ref.id })
+    });
+    const data = await resp.json().catch(() => ({ ok: false }));
+    if (!data.ok) throw new Error(data.error || ('HTTP ' + resp.status));
+
+    document.getElementById('tariff-success-title').textContent = 'Заявка отправлена';
+    showTariffView('tariff-success-view');
+  } catch (error) {
+    console.error('Ошибка отправки заявки:', error);
+    errorEl.textContent = 'Не получилось отправить заявку, попробуй ещё раз';
+    errorEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Я оплатил';
+  }
+}
+
+// Ссылка вида index.html#buy-full сразу открывает оплату нужного тарифа
+window.addEventListener('load', () => {
+  const m = location.hash.match(/^#buy-(full|max)$/);
+  if (m) { document.getElementById('pricing').scrollIntoView(); openTariffModal(m[1]); }
+});
+</script>
+</body>
+</html>

@@ -6,6 +6,7 @@
   <title>JOL-Bilim — подготовка к ОРТ с ИИ</title>
   <meta name="description" content="Подготовка к ОРТ: 1100+ заданий по темам ОРТ, пробный экзамен на 150 вопросов, ИИ-разбор каждой ошибки и кабинет для родителей.">
   <meta name="theme-color" content="#070914">
+  <script src="js/config.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -608,7 +609,7 @@ async function submitPayment() {
     });
     await db.collection('families').doc(u.familyCode).update({ planPending: selectedTariff });
 
-    const resp = await fetch('/api/payment-request', {
+    const resp = await fetch(JB_API('/api/payment-request'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ requestId: ref.id })

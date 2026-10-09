@@ -2,6 +2,7 @@
 // Сайт присылает вопрос, варианты, правильный ответ и ответ ученика.
 // Готовые объяснения кэшируются в Firestore (aiExplanations/<hash>): следующий ученик
 // с той же ошибкой получает ответ мгновенно и без расхода бесплатного лимита ИИ.
+const cors = require('./_cors');
 const crypto = require('crypto');
 const { askAI, plainText } = require('./_ai');
 const { fsGet, fsPatch } = require('./_telegram');
@@ -21,6 +22,7 @@ const SYSTEM = [
 const clip = (v, n) => String(v == null ? '' : v).slice(0, n);
 
 module.exports = async (req, res) => {
+    if (cors(req, res)) return; // запросы из Android-приложения
     if (req.method !== 'POST') {
         res.setHeader('Allow', ['POST']);
         return res.status(405).json({ ok: false, error: 'Method Not Allowed' });

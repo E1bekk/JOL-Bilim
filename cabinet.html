@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Вход — JOL-Bilim</title>
   <meta name="theme-color" content="#070914">
+  <script src="js/config.js"></script>
   <script>
     (function () {
       try {
@@ -145,7 +146,8 @@
         // Initialize hostname-based display and validation
         function initTelegramIntegration() {
             // Check if we're on Vercel or GitHub Pages
-            const isVercel = window.location.hostname.endsWith('.vercel.app');
+            // Вход через Telegram — на сайте (Vercel) и в Android-приложении; ручная форма — только для локальной проверки
+            const isVercel = window.location.hostname.endsWith('.vercel.app') || window.JB_IS_APP;
             
             if (isVercel) {
                 // Show Telegram widget on Vercel
@@ -315,7 +317,7 @@
         if (loginWatcher) { loginWatcher(); loginWatcher = null; }
         showTelegramStatus('Проверяем...', 'var(--accent)');
         try {
-            const resp = await fetch('/api/verify-telegram', {
+            const resp = await fetch(JB_API('/api/verify-telegram'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code: code, id: login.id, username: login.username || '', first_name: login.first_name || '', ts: login.ts, sig: login.sig })
@@ -429,6 +431,8 @@
     document.addEventListener('DOMContentLoaded', () => {
         prepareLink();
         const btn = document.getElementById('btn-telegram');
+        // В приложении ссылка открывается в Telegram, а приложение остаётся на этой странице и ждёт подтверждения
+        if (btn && window.JB_IS_APP) btn.removeAttribute('target');
         if (btn) btn.addEventListener('click', startTelegramLogin);
         document.getElementById('tg-check').addEventListener('click', () => checkLoginNow(true));
         document.getElementById('tg-copy').addEventListener('click', (e) => {

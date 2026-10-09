@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Тесты в формате ОРТ — JOL-Bilim</title>
   <meta name="theme-color" content="#070914">
+  <script src="js/config.js"></script>
   <script>
     (function () {
       try {
@@ -589,7 +590,7 @@ async function askAI(payload, btn, out) {
   btn.disabled = true;
   btn.innerHTML = 'ИИ разбирает твою ошибку <span class="dots-loader"><span></span><span></span><span></span></span>';
   try {
-    const r = await fetch('/api/ai-explain', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const r = await fetch(JB_API('/api/ai-explain'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const d = await r.json().catch(() => ({ ok: false }));
     if (!d.ok) throw new Error(d.error || 'AI error');
     out.innerHTML = '<span class="ai-label">' + ic('bot') + 'Разбор от ИИ-репетитора</span>';

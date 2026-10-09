@@ -1,9 +1,11 @@
 // Ученик нажал «Я оплатил» -> сайт создал документ paymentRequests/<id> и вызвал этот эндпоинт.
 // Мы берём данные заявки из базы и присылаем администратору в Telegram
 // с кнопками «Подтвердить» / «Отклонить».
+const cors = require('./_cors');
 const { ADMIN_CHAT_ID, PLANS, tg, fsGet, fsPatch } = require('./_telegram');
 
 module.exports = async (req, res) => {
+    if (cors(req, res)) return; // запросы из Android-приложения
     if (req.method !== 'POST') {
         res.setHeader('Allow', ['POST']);
         return res.status(405).json({ ok: false, error: 'Method Not Allowed' });

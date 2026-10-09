@@ -3,11 +3,9 @@
   "appName": "JOL-Bilim",
   "webDir": "www",
   "server": {
-    "url": "https://jol-bilim.vercel.app/",
-    "cleartext": false,
-    "allowNavigation": [
-      "oauth.telegram.org",
-      "telegram.org"
-    ]
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
   }
 }
