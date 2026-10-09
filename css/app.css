@@ -294,7 +294,7 @@ select.input option { background: #0f1430; color: var(--text); }
 .icon-btn:hover { color: #fff; background: rgba(255,255,255,.06); border-color: var(--line); }
 .icon-btn svg { width: 18px; height: 18px; }
 
-.main { min-width: 0; padding: 32px clamp(18px, 3.2vw, 44px) 60px; }
+.main { min-width: 0; overflow-x: clip; padding: 32px clamp(18px, 3.2vw, 44px) 60px; }
 .main-in { max-width: 1160px; margin: 0 auto; }
 .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 26px; }
 .page-head h1 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 3vw, 32px); letter-spacing: -.02em; line-height: 1.15; margin: 0; }
@@ -322,6 +322,18 @@ select.input option { background: #0f1430; color: var(--text); }
   .tab svg { width: 21px; height: 21px; }
   .tab.active { color: #fff; background: rgba(99,102,241,.22); }
 }
+
+/* ---------- плашка «Нет интернета» ---------- */
+.net-banner {
+  position: fixed; left: 50%; top: calc(var(--sat) + 70px); z-index: 150; width: max-content; max-width: calc(100% - 24px);
+  transform: translate(-50%, -12px); opacity: 0; visibility: hidden; pointer-events: none;
+  padding: 10px 16px; border-radius: 14px; font-size: 13px; font-weight: 700; line-height: 1.35; text-align: center;
+  box-shadow: 0 14px 40px -12px rgba(0,0,0,.8); transition: transform .35s var(--ease), opacity .35s ease, visibility .35s;
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.net-banner.show { transform: translate(-50%, 0); opacity: 1; visibility: visible; pointer-events: auto; cursor: pointer; }
+.net-banner.off { background: rgba(120, 72, 6, .92); border: 1px solid rgba(251,191,36,.5); color: #fff7e0; }
+.net-banner.on { background: rgba(6, 95, 70, .92); border: 1px solid rgba(52,211,153,.5); color: #ecfdf5; }
 
 /* ---------- утилиты ---------- */
 .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }

@@ -222,6 +222,17 @@
 </div>
 
 <!-- Подтверждение завершения пробного ОРТ -->
+<!-- Незаконченный тест: продолжить или начать заново -->
+<div class="modal" id="resume-modal" role="dialog" aria-modal="true">
+  <div class="modal-card" style="text-align:center;">
+    <span class="icon-box cyan" style="width:56px; height:56px; margin:0 auto 16px; border-radius:16px;"><i data-ic="refresh"></i></span>
+    <h3>Продолжить тест?</h3>
+    <p class="muted" id="resume-text" style="font-size:14px; margin:0 0 22px;"></p>
+    <button type="button" class="btn btn-primary btn-block" id="resume-yes" style="margin-bottom:10px;">Продолжить</button>
+    <button type="button" class="btn btn-ghost btn-block" id="resume-no">Начать заново</button>
+  </div>
+</div>
+
 <div class="modal" id="finish-modal" role="dialog" aria-modal="true">
   <div class="modal-card" style="text-align:center;">
     <span class="icon-box amber" style="width:56px; height:56px; margin:0 auto 16px; border-radius:16px;"><i data-ic="alert"></i></span>
@@ -359,6 +370,51 @@ function showPaywall(key) {
 }
 function closePaywall() { $('paywall').classList.remove('open'); }
 
+// ===== Сохранение обычного теста (10 заданий) в телефоне =====
+// Если приложение закрылось или пропал интернет — тест можно продолжить с того же места.
+const SECTION_SAVE_KEY = 'jolBilimSectionTest';
+function saveSection() {
+  if (mode !== 'section' && mode !== 'topic') return;
+  try {
+    localStorage.setItem(SECTION_SAVE_KEY, JSON.stringify({
+      familyCode: user && user.familyCode, key: sectionKey, mode, topicList, questions, answers, index, savedAt: Date.now()
+    }));
+  } catch (e) { console.error('Не удалось сохранить тест', e); }
+}
+function clearSection() { try { localStorage.removeItem(SECTION_SAVE_KEY); } catch (e) {} }
+function loadSection() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SECTION_SAVE_KEY) || 'null');
+    if (!s || !s.questions || s.familyCode !== (user && user.familyCode)) return null;
+    if (Date.now() - s.savedAt > 3 * 24 * 3600 * 1000 || !s.answers.some(a => a != null)) { clearSection(); return null; }
+    return s;
+  } catch (e) { return null; }
+}
+function resumeSection(s) {
+  mode = s.mode; sectionKey = s.key; topicList = s.topicList; questions = s.questions; answers = s.answers;
+  const firstEmpty = answers.findIndex(a => a == null);
+  index = firstEmpty === -1 ? answers.length - 1 : firstEmpty;
+  $('top-title').textContent = S[sectionKey].name;
+  $('sec-pills').classList.add('hide');
+  $('prev-btn').classList.add('hide');
+  show('quiz-screen');
+  renderQuestion();
+  if (firstEmpty === -1) finishSection(); // все ответы уже были — сразу итоги
+}
+function askResume(s) {
+  return new Promise(resolve => {
+    const done = answers => s.answers.filter(a => a != null).length;
+    $('resume-text').textContent = `Незаконченный тест «${S[s.key].name}»: отвечено ${done()} из ${s.questions.length}.`;
+    $('resume-modal').classList.add('open');
+    let answered = false;
+    const finish = v => { if (answered) return; answered = true; clearInterval(watch); $('resume-modal').classList.remove('open'); resolve(v); };
+    $('resume-yes').onclick = () => finish(true);
+    $('resume-no').onclick = () => finish(false);
+    // окно закрыли кнопкой «Назад» — просто продолжаем тест
+    const watch = setInterval(() => { if (!$('resume-modal').classList.contains('open')) finish(true); }, 300);
+  });
+}
+
 // ===== Экран выбора =====
 function renderPicks() {
   const card = key => {
@@ -393,6 +449,7 @@ async function startSection(key, topics, cardEl) {
   sectionKey = key; topicList = topics;
   answers = questions.map(() => null);
   index = 0;
+  clearSection();
   $('top-title').textContent = S[key].name;
   $('sec-pills').classList.add('hide');
   $('prev-btn').classList.add('hide');
@@ -570,6 +627,7 @@ function choose(i) {
   });
   $('explain-text').textContent = q.explanation || '';
   if (q.explanation) $('explain').classList.add('show');
+  saveSection();
   if (i !== correctPos) {
     current = aiPayload(q, i);
     $('ai-box').classList.add('show');
@@ -648,6 +706,7 @@ function groupBy(list, fn) { const m = new Map(); list.forEach(x => { const k = 
 const pctColor = p => p >= 70 ? 'green' : p >= 50 ? 'amber' : 'red';
 
 function finishSection() {
+  clearSection();
   const res = questions.map((q, i) => ({ q, a: answers[i], ok: isRight(q, answers[i]) }));
   const correct = res.filter(r => r.ok).length, total = res.length;
   const pct = Math.round(correct / total * 100);
@@ -751,7 +810,8 @@ window.JB_onBack = async function () {
     const ok = await JB_confirm({ title: 'Выйти из пробного ОРТ?', text: 'Прогресс сохранён — потом продолжишь с этого же вопроса.', ok: 'Выйти', cancel: 'Продолжить экзамен' });
     if (!ok) return true;
   } else if (inQuiz && answers.some(a => a != null)) {
-    const ok = await JB_confirm({ title: 'Выйти из теста?', text: 'Ответы этого теста не сохранятся.', ok: 'Выйти', cancel: 'Остаться' });
+    saveSection();
+    const ok = await JB_confirm({ title: 'Выйти из теста?', text: 'Ответы сохранены — в следующий раз сможешь продолжить с этого места.', ok: 'Выйти', cancel: 'Остаться' });
     if (!ok) return true;
   }
   location.replace('dashboard.html');
@@ -759,10 +819,16 @@ window.JB_onBack = async function () {
 };
 
 // ===== Запуск =====
-function boot() {
+async function boot() {
   const params = new URLSearchParams(location.search);
   const s = params.get('s');
   const topics = (params.get('topic') || '').split('|').map(t => t.trim()).filter(Boolean);
+  // незаконченный обычный тест — предлагаем продолжить
+  const saved = s !== 'full' ? loadSection() : null;
+  if (saved && (!s || s === saved.key)) {
+    if (await askResume(saved)) { resumeSection(saved); return; }
+    clearSection();
+  }
   if (s === 'full') renderIntro();
   else if (s && S[s] && s !== 'full') {
     if (!canStart(s)) { renderPicks(); show('selection-screen'); showPaywall(s); }
@@ -778,7 +844,7 @@ function refresh() {
       if (!doc.exists) return;
       const d = doc.data();
       plan = { plan: d.plan || null, planExpiresAt: d.planExpiresAt || null };
-      account = JB.normalize(Object.assign({}, user, d));
+      account = JB.normalize(JB.withPending(Object.assign({}, user, d), user.familyCode));
     }),
     new Promise(r => setTimeout(r, 2500))
   ]).catch(err => console.error('Не удалось загрузить тариф:', err));

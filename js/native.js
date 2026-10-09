@@ -8,6 +8,23 @@
 //     «Нажми ещё раз, чтобы выйти», и только второе нажатие за 2 секунды сворачивает приложение.
 (function () {
   if (!window.JB_IS_APP) return;
+
+  // ===== Есть ли интернет =====
+  // Внутри приложения WebView сам не знает, пропал ли интернет, поэтому спрашиваем Android
+  // через плагин @capacitor/network и передаём ответ страницам как обычные события online/offline.
+  const Net = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Network;
+  if (Net) {
+    let online = null;
+    try { Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => online !== false }); } catch (e) {}
+    const apply = connected => {
+      const was = online;
+      online = !!connected;
+      if (was !== online && !(was === null && online)) window.dispatchEvent(new Event(online ? 'online' : 'offline'));
+    };
+    Net.getStatus().then(st => apply(st.connected)).catch(() => {});
+    Net.addListener('networkStatusChange', st => apply(st.connected));
+  }
+
   const App = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
   if (!App) { console.warn('Плагин @capacitor/app не установлен — кнопка «Назад» работает по умолчанию'); return; }
 

@@ -115,8 +115,29 @@
   };
   window.escapeHtml = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+  // Плашка «Нет интернета»: показываем, пока нет сети; при возвращении — «Снова онлайн»
+  function netBanner() {
+    const el = document.createElement('div');
+    el.className = 'net-banner';
+    el.setAttribute('role', 'status');
+    document.body.appendChild(el);
+    el.addEventListener('click', () => el.classList.remove('show')); // нажатием плашку можно убрать
+    let hideT = null;
+    const set = (text, kind, ms) => {
+      clearTimeout(hideT);
+      el.textContent = text;
+      el.className = 'net-banner show ' + kind;
+      if (ms) hideT = setTimeout(() => { el.className = 'net-banner ' + kind; }, ms);
+    };
+    const offline = () => set('Нет интернета. Тесты и теория работают, результаты отправятся позже', 'off');
+    window.addEventListener('offline', offline);
+    window.addEventListener('online', () => set('Снова онлайн ✓', 'on', 2500));
+    if (navigator.onLine === false) offline();
+  }
+
   function init() {
     hydrateIcons();
+    netBanner();
     addBackground();
     spotlight();
     mobileMenu();

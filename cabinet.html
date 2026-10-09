@@ -80,6 +80,15 @@
       <h1>Давай знакомиться</h1>
       <p class="lead">Имя и класс — и входи через Telegram. Аккаунт создастся сам.</p>
 
+      <!-- Нет интернета: войти нельзя, показываем понятный экран с кнопкой «Повторить» -->
+      <div id="offline-card" style="display:none; text-align:center; padding:8px 0 4px;">
+        <span class="icon-box amber" style="width:56px; height:56px; margin:0 auto 14px; border-radius:16px;"><i data-ic="alert"></i></span>
+        <div style="font-weight:800; font-size:17px; margin-bottom:6px;">Нет подключения к интернету</div>
+        <p class="muted" style="font-size:14px; margin:0 0 18px;">Для входа нужен интернет. Подключись к Wi-Fi или мобильной сети и нажми «Повторить».</p>
+        <button type="button" class="btn btn-primary btn-block" id="offline-retry"><i data-ic="refresh"></i>Повторить</button>
+        <div id="offline-still" class="dim" style="font-size:12.5px; margin-top:10px; display:none;">Сеть пока не появилась</div>
+      </div>
+
       <form id="auth-form" novalidate>
         <div class="field form-group" id="group-name">
           <label for="input-name">Как тебя зовут</label>
@@ -429,6 +438,23 @@
             if (showMiss) showTelegramStatus('Ошибка подключения. Проверь интернет и попробуй снова.', '#E0755C');
         }
     }
+
+    // Нет интернета — вместо формы входа показываем экран «Нет подключения»
+    function updateNetState() {
+        const off = navigator.onLine === false;
+        document.getElementById('offline-card').style.display = off ? 'block' : 'none';
+        document.getElementById('auth-form').style.display = off ? 'none' : '';
+    }
+    window.addEventListener('online', updateNetState);
+    window.addEventListener('offline', updateNetState);
+    document.addEventListener('DOMContentLoaded', () => {
+        updateNetState();
+        document.getElementById('offline-retry').addEventListener('click', () => {
+            updateNetState();
+            const still = document.getElementById('offline-still');
+            still.style.display = navigator.onLine === false ? 'block' : 'none';
+        });
+    });
 
     // Кнопка «Назад» в Android-приложении: со страницы входа — на главную
     window.JB_onBack = function () { location.replace('index.html'); return true; };

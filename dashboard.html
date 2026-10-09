@@ -132,7 +132,7 @@
     .link-row > svg:last-child { margin-left: auto; width: 18px; height: 18px; color: var(--dim); }
 
     @media (max-width: 1100px) {
-      .cols { grid-template-columns: 1fr; }
+      .cols { grid-template-columns: minmax(0, 1fr); } /* колонка не растягивается шире экрана из-за длинных названий тем */
       .exam-parts { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 760px) {
@@ -142,7 +142,8 @@
       .tile-num { font-size: 24px; }
       .actions-2, .tips, .lesson-grid { grid-template-columns: 1fr; }
       .weak { flex-wrap: wrap; }
-      .weak-actions { width: 100%; }
+      .weak-actions { width: 100%; min-width: 0; }
+      .weak-actions .btn { min-width: 0; padding: 0 12px; }
       .weak-actions .btn { flex: 1; }
       .exam-hero, .lesson-head { padding: 22px; }
       .topic-row { grid-template-columns: minmax(0, 1fr) 80px 40px; gap: 10px; }
@@ -614,12 +615,13 @@
     if (lo) { e.preventDefault(); localStorage.removeItem('jolBilimUser'); location.href = 'cabinet.html'; }
   });
 
-  function start() {
-    renderAll(); route();
-    // свежие данные из базы: тариф (его включает бот), статистика с других устройств
-    db.collection('families').doc(user.familyCode).get().then(doc => {
+  // Свежие данные из базы: тариф (его включает бот), статистика с других устройств.
+  // Сначала отправляем результаты, пройденные без интернета, потом читаем базу.
+  function loadFromServer() {
+    if (navigator.onLine === false) return;
+    JB.flushQueue().finally(() => db.collection('families').doc(user.familyCode).get().then(doc => {
       if (!doc.exists) return;
-      const d = doc.data();
+      const d = JB.withPending(doc.data(), user.familyCode);
       const active = JB.hasPaidPlan(d);
       data = Object.assign({}, user, d, { familyCode: user.familyCode });
       user.plan = active ? d.plan : null;
@@ -627,7 +629,12 @@
       ['history', 'stats', 'topicStats', 'days', 'testsCompleted', 'score', 'fullTrialUsed', 'name', 'grade'].forEach(k => { if (d[k] !== undefined) user[k] = d[k]; });
       localStorage.setItem('jolBilimUser', JSON.stringify(user));
       renderAll();
-    }).catch(e => console.error('Не удалось загрузить данные из базы:', e));
+    }).catch(e => console.error('Не удалось загрузить данные из базы:', e)));
+  }
+  function start() {
+    renderAll(); route();
+    loadFromServer();
+    window.addEventListener('online', loadFromServer);
   }
   if (window.icon) start(); else document.addEventListener('DOMContentLoaded', start);
 })();

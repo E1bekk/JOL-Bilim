@@ -143,7 +143,69 @@
     };
   }
 
-  // Сохраняем результат теста: в браузер сразу, в базу — в фоне
+  // ===== Очередь отправки результатов =====
+  // Результат теста сразу сохраняется в телефоне и попадает в очередь.
+  // Очередь отправляется в базу, когда есть интернет; если связи нет — при следующем запуске
+  // или когда интернет появится. Так результат не теряется, даже если тест пройден без сети.
+  const QUEUE_KEY = 'jolBilimSyncQueue';
+  function loadQueue() { try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch (e) { return []; } }
+  function saveQueue(q) { try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); } catch (e) {} }
+  const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+
+  // Данные из базы + ещё не отправленные результаты (чтобы кабинет показывал всё сразу)
+  function withPending(d, familyCode) {
+    let out = d || {};
+    const done = Array.isArray(out.syncedIds) ? out.syncedIds : [];
+    loadQueue().forEach(job => {
+      if (job.familyCode === familyCode && !done.includes(job.id)) out = Object.assign({}, out, applyAttempt(out, job.att, job.item));
+    });
+    return out;
+  }
+  function pendingCount() { return loadQueue().length; }
+
+  let flushing = null;
+  // Одна отправка за раз; повторный вызов во время отправки ждёт её окончания
+  function flushQueue() {
+    if (flushing) return flushing;
+    flushing = doFlush().finally(() => { flushing = null; });
+    return flushing;
+  }
+  async function doFlush() {
+      let sent = 0, lastPatch = null, lastCode = null;
+      try {
+        if (typeof db === 'undefined' || navigator.onLine === false) return 0;
+        let q = loadQueue();
+        while (q.length) {
+          const job = q[0];
+          if (job.familyCode) {
+            const ref = db.collection('families').doc(job.familyCode);
+            const snap = await withTimeout(ref.get({ source: 'server' }), 12000);
+            const data = snap.exists ? snap.data() : {};
+            const synced = Array.isArray(data.syncedIds) ? data.syncedIds : [];
+            if (!synced.includes(job.id)) { // защита от двойной отправки
+              const patch = applyAttempt(data, job.att, job.item);
+              patch.syncedIds = synced.concat(job.id).slice(-50);
+              await withTimeout(ref.set(patch, { merge: true }), 12000);
+              lastPatch = patch; lastCode = job.familyCode;
+            }
+          }
+          q = loadQueue().filter(j => j.id !== job.id);
+          saveQueue(q);
+          sent++;
+        }
+        // всё отправлено — обновляем данные в телефоне тем, что теперь в базе
+        if (lastPatch) {
+          const user = JSON.parse(localStorage.getItem('jolBilimUser') || 'null');
+          if (user && user.familyCode === lastCode) localStorage.setItem('jolBilimUser', JSON.stringify(Object.assign(user, lastPatch)));
+        }
+      } catch (e) {
+        console.warn('Отправка результатов отложена до появления интернета:', e && e.message);
+      }
+      if (sent) document.dispatchEvent(new CustomEvent('jb:synced', { detail: { sent } }));
+      return sent;
+  }
+
+  // Сохраняем результат теста: в телефон сразу, в базу — через очередь
   // att = { key, mode: 'section'|'topic'|'full', topicLabel, answers: [{ section, topic, correct }], extra }
   async function recordAttempt(att) {
     let user = null;
@@ -166,18 +228,21 @@
     Object.assign(user, localPatch);
     localStorage.setItem('jolBilimUser', JSON.stringify(user));
 
-    if (user.familyCode && typeof db !== 'undefined') {
-      try {
-        const ref = db.collection('families').doc(user.familyCode);
-        const snap = await ref.get();
-        const patch = applyAttempt(snap.exists ? snap.data() : {}, att, item);
-        await ref.set(patch, { merge: true });
-        Object.assign(user, patch);
-        localStorage.setItem('jolBilimUser', JSON.stringify(user));
-      } catch (e) { console.error('Не удалось сохранить результат в базу:', e); }
-    }
+    const q = loadQueue();
+    q.push({
+      id: item.ts.toString(36) + Math.random().toString(36).slice(2, 7),
+      familyCode: user.familyCode || null,
+      att: { key: att.key, mode: att.mode, answers: att.answers },
+      item
+    });
+    saveQueue(q);
+    flushQueue();
     return item;
   }
 
-  window.JB = { SECTIONS, MAIN, SUBJECTS, keyFromName, dayKey, normalize, predict, summary, weakTopics, activity, hasPaidPlan, isSectionUsed, recordAttempt, scaled };
+  // Пробуем отправить очередь при запуске и как только появится интернет
+  window.addEventListener('online', () => flushQueue());
+  setTimeout(() => flushQueue(), 1500);
+
+  window.JB = { SECTIONS, MAIN, SUBJECTS, keyFromName, dayKey, normalize, predict, summary, weakTopics, activity, hasPaidPlan, isSectionUsed, recordAttempt, scaled, flushQueue, withPending, pendingCount };
 })();
