@@ -3,15 +3,18 @@
   "private": true,
   "scripts": {
     "build:app": "node scripts/build-www.js",
-    "sync": "node scripts/build-www.js && npx cap sync android"
+    "sync": "node scripts/build-www.js && npx cap sync android",
+    "icons": "npx capacitor-assets generate --android"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
     "@capacitor/app": "^8.1.2",
     "@capacitor/cli": "^8.5.2",
-    "@capacitor/core": "^8.5.2"
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/splash-screen": "^8.0.2"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@fontsource/jetbrains-mono": "^5.3.0",
     "@fontsource/manrope": "^5.3.0",
     "@fontsource/unbounded": "^5.3.0",

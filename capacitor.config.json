@@ -12,6 +12,15 @@
     "SystemBars": {
       "insetsHandling": "css",
       "style": "DARK"
+    },
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "launchFadeOutDuration": 300,
+      "backgroundColor": "#070914",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false
     }
-  }
+  },
+  "backgroundColor": "#070914"
 }
